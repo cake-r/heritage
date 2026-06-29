@@ -1,0 +1,16 @@
+version: '3.8'
+
+# 云端生产环境配置覆盖
+# 用法: docker compose -f docker-compose.yml -f docker-compose.cloud.yml up -d --build
+
+services:
+  backend:
+    environment:
+      - DEPLOY_ENV=cloud
+      - MOCK_MODE=false
+    restart: always
+
+  frontend:
+    ports:
+      - "80:80"
+    restart: always

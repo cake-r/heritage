@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>非遗图片筛选替换</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:#1a1a2e;color:#eee}
+.top{background:#16213e;padding:12px 20px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.5)}
+.top h1{color:#c9a96e;font-size:22px}
+.top .hint{color:#888;font-size:13px;margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:12px}
+.card{background:#16213e;border-radius:10px;overflow:hidden;cursor:pointer;transition:all .2s;border:3px solid transparent;position:relative}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.card.bad{border-color:#c41e3a}
+.card.replaced{border-color:#2d6a4f}
+.card .img-wrap{height:180px;background:#0f0f23;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card .img-wrap img{width:100%;height:100%;object-fit:cover}
+.card .img-wrap .err{color:#666;font-size:12px;padding:10px}
+.card .info{padding:10px 12px}
+.card .info .n{font-size:15px;font-weight:bold}
+.card .info .c{font-size:11px;color:#c9a96e;margin-top:2px}
+.card .badge{position:absolute;top:6px;right:6px;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:bold}
+.card .badge.bad-badge{background:#c41e3a;color:#fff}
+.card .badge.ok-badge{background:#2d6a4f;color:#fff}
+
+/* Modal */
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,.85)}
+.modal.open{display:flex;flex-direction:column}
+.modal .mhead{background:#16213e;padding:16px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.modal .mhead h2{color:#c9a96e;font-size:20px}
+.modal .mhead .search-box{display:flex;gap:8px;flex:1;max-width:500px}
+.modal .mhead input{padding:8px 14px;border-radius:8px;border:1px solid #444;background:#0f0f23;color:#fff;font-size:15px;flex:1}
+.modal .mhead button{padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;white-space:nowrap}
+.btn-search{background:#c9a96e;color:#1a1a2e}
+.btn-close{background:#333;color:#fff}
+.modal .mbody{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.candidate{background:#16213e;border-radius:10px;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:.2s}
+.candidate:hover{border-color:#c9a96e;transform:translateY(-2px)}
+.candidate.picked{border-color:#2d6a4f;box-shadow:0 0 20px rgba(45,106,79,.4)}
+.candidate .cimg-wrap{height:170px;background:#0f0f23;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.candidate .cimg-wrap img{width:100%;height:100%;object-fit:cover}
+.candidate .cinfo{padding:8px 10px;font-size:12px;color:#aaa;text-align:center}
+.candidate .cinfo a{color:#5dade2}
+.spin{text-align:center;padding:40px;color:#888;font-size:16px}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#2d6a4f;color:#fff;
+  padding:12px 30px;border-radius:30px;font-size:16px;font-weight:bold;z-index:300;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>非遗图片筛选替换</h1>
+  <span class="hint">点击图片 → 弹窗搜候选图 → 点击替换</span>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="modal" id="modal">
+  <div class="mhead">
+    <h2 id="modalTitle">替换图片</h2>
+    <div class="search-box">
+      <input id="searchInput" placeholder="搜索关键词..." onkeydown="if(event.key==='Enter')doSearch()">
+      <button class="btn-search" onclick="doSearch()">搜索</button>
+    </div>
+    <button class="btn-close" onclick="closeModal()">关闭</button>
+  </div>
+  <div class="mbody" id="mbody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// State
+let items = [];
+let currentItem = null;
+let currentResults = [];
+let replaced = {}; // name -> new url
+
+async function load() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '<div class="spin">加载中...</div>';
+  try {
+    const resp = await fetch('/api/exhibition/items?page_size=50');
+    const data = await resp.json();
+    items = data.items;
+    grid.innerHTML = '';
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.onclick = () => openModal(item);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'img-wrap';
+      if (item.images && item.images[0]) {
+        const img = document.createElement('img');
+        img.src = item.images[0] + '?t=' + Date.now();
+        img.alt = item.name;
+        img.loading = 'lazy';
+        img.onerror = () => {
+          img.style.display = 'none';
+          wrap.innerHTML = '<div class="err">加载失败</div>';
+        };
+        wrap.appendChild(img);
+      } else {
+        wrap.innerHTML = '<div class="err">无图片</div>';
+      }
+
+      const info = document.createElement('div');
+      info.className = 'info';
+      info.innerHTML = `<div class="n">${item.name}</div><div class="c">${item.category}</div>`;
+
+      card.appendChild(wrap);
+      card.appendChild(info);
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    grid.innerHTML = `<div class="spin">加载失败: ${e.message}<br>确认后端已启动</div>`;
+  }
+}
+
+function openModal(item) {
+  currentItem = item;
+  currentResults = [];
+  document.getElementById('modalTitle').textContent = `替换: ${item.name}`;
+  document.getElementById('searchInput').value = item.name;
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('mbody').innerHTML = '<div class="spin">正在搜索候选图片...</div>';
+  doSearch();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  currentItem = null;
+}
+
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const mbody = document.getElementById('mbody');
+  mbody.innerHTML = '<div class="spin">搜索中...</div>';
+  try {
+    const resp = await fetch('/api/tools/search-images?q=' + encodeURIComponent(q));
+    const data = await resp.json();
+    currentResults = data.results || [];
+    if (currentResults.length === 0) {
+      mbody.innerHTML = '<div class="spin">没有搜索结果，试试其他关键词</div>';
+      return;
+    }
+    mbody.innerHTML = '';
+    currentResults.forEach((r, i) => {
+      const c = document.createElement('div');
+      c.className = 'candidate';
+      c.onclick = () => pickImage(r);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'cimg-wrap';
+      const img = document.createElement('img');
+      img.src = r.url;
+      img.loading = 'lazy';
+      img.onerror = () => {
+        img.style.display = 'none';
+        wrap.innerHTML = '<div class="err">无法加载</div>';
+      };
+      wrap.appendChild(img);
+
+      const cinfo = document.createElement('div');
+      cinfo.className = 'cinfo';
+      cinfo.textContent = `候选 #${i+1}`;
+
+      c.appendChild(wrap);
+      c.appendChild(cinfo);
+      mbody.appendChild(c);
+    });
+  } catch(e) {
+    mbody.innerHTML = `<div class="spin">搜索失败: ${e.message}</div>`;
+  }
+}
+
+async function pickImage(result) {
+  if (!currentItem) return;
+  const mbody = document.getElementById('mbody');
+  mbody.innerHTML = '<div class="spin">正在下载替换...</div>';
+
+  try {
+    const resp = await fetch('/api/tools/replace-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        heritage_name: currentItem.name,
+        image_url: result.url
+      })
+    });
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.detail || '替换失败');
+    }
+    const data = await resp.json();
+    replaced[currentItem.name] = data.path;
+    showToast(`已替换: ${currentItem.name} (${data.size_kb}KB)`);
+
+    // Refresh thumbnails in grid
+    currentItem.images = [data.path];
+    refreshCard(currentItem.name, data.path);
+
+    // Keep searching, show results again
+    currentResults = currentResults.filter(r => r.url !== result.url);
+    mbody.innerHTML = '';
+    if (currentResults.length > 0) {
+      currentResults.forEach((r, i) => {
+        const c = document.createElement('div');
+        c.className = 'candidate';
+        c.onclick = () => pickImage(r);
+        const wrap = document.createElement('div');
+        wrap.className = 'cimg-wrap';
+        const img = document.createElement('img');
+        img.src = r.url;
+        img.loading = 'lazy';
+        img.onerror = () => { img.style.display = 'none'; wrap.innerHTML = '<div class="err">无法加载</div>'; };
+        wrap.appendChild(img);
+        const cinfo = document.createElement('div');
+        cinfo.className = 'cinfo';
+        cinfo.textContent = `候选 #${i+1}`;
+        c.appendChild(wrap);
+        c.appendChild(cinfo);
+        mbody.appendChild(c);
+      });
+    } else {
+      mbody.innerHTML = '<div class="spin">所有候选已尝试。关闭窗口或搜索其他关键词。</div>';
+    }
+  } catch(e) {
+    mbody.innerHTML = `<div class="spin">替换失败: ${e.message}<br><button class="btn-search" onclick="doSearch()" style="margin-top:12px">重新搜索</button></div>`;
+  }
+}
+
+function refreshCard(name, newPath) {
+  const cards = document.querySelectorAll('.card');
+  for (const card of cards) {
+    if (card.querySelector('.n').textContent === name) {
+      card.classList.add('replaced');
+      const img = card.querySelector('img');
+      if (img) img.src = newPath + '?t=' + Date.now();
+      // add badge
+      const old = card.querySelector('.badge');
+      if (old) old.remove();
+      const badge = document.createElement('div');
+      badge.className = 'badge ok-badge';
+      badge.textContent = '已替换';
+      card.appendChild(badge);
+      break;
+    }
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+
+// ESC to close
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+load();
+</script>
+</body>
+</html>

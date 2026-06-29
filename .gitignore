@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+*.so
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+backend/.env
+frontend/.env
+
+# Database
+*.sqlite
+*.sqlite3
+
+# Uploads
+backend/data/uploads/images/*
+backend/data/uploads/voices/*
+backend/data/uploads/exports/*
+backend/data/uploads/heatmaps/*
+backend/data/uploads/generated/*
+!backend/data/uploads/**/.gitkeep
+
+# Docker
+docker-compose.override.yml
+frontend/nginx.conf
+
+# Logs
+*.log
+
+# Claude
+.claude/

@@ -1,0 +1,156 @@
+/* ============================================================
+   tokens.css — 东方新古典 · 数字文博风 Design Tokens
+   所有 Design Token 集中在此文件，全局可用。
+   禁止在组件中硬编码 hex 色值，一律引用 var(--xxx)。
+   ============================================================ */
+
+:root {
+  /* ===== 核心品牌四色 ===== */
+  --color-vermilion:       #B8463A;   /* 朱砂红 — 主强调：按钮、选中态、关键CTA */
+  --color-vermilion-hover: #9A2F25;   /* 朱砂红 hover 加深 */
+  --color-gold:            #C4A265;   /* 鎏金 — 辅助强调：标签、装饰线、二级按钮 */
+  --color-gold-light:      #E8D5B0;   /* 鎏金浅 — 卡片边框、分割线 */
+  --color-ink:             #2C241A;   /* 墨色 — 正文文字 */
+  --color-ink-secondary:   #6B5F52;   /* 淡墨 — 辅助文字、placeholder */
+
+  /* ===== 底色系统 ===== */
+  --color-paper:           #F7F4ED;   /* 宣纸米白 — 页面背景（替代旧 #F5F0E8）*/
+  --color-paper-white:     #FFFDF9;   /* 纯白偏暖 — 卡片/面板背景 */
+  --color-deep:            #1E1B18;   /* 深褐黑 — 侧边栏/页脚/暗底（替代旧 #1A1A2E）*/
+  --color-deep-light:      #2A2520;   /* 深褐浅 — hover 态在深色底上 */
+
+  /* ===== 语义色 ===== */
+  --color-success:         #4A8C5C;   /* 墨绿 — 成功状态 */
+  --color-error:           #C5533B;   /* 暗红 — 错误/危险 */
+  --color-info:            #5B7FA0;   /* 青蓝 — 信息/链接 */
+  --color-warning:         #C49A3C;   /* 暗金 — 警告/提示 */
+
+  /* ===== 交互态背景 ===== */
+  --color-bg-active:       #FFF3E0;   /* 暖橙 — 选中态/激活背景 */
+  --color-bg-hover:        #F5F5F0;   /* 暖灰 — hover 态背景 */
+  --color-border-light:    #E8E4D8;   /* 暖灰边框 — 卡片/面板分割线 */
+  --color-border-medium:   #D5CFC0;   /* 中灰边框 — 强调分割 */
+
+  /* ===== 三级文字色 ===== */
+  --color-ink-tertiary:    #5A4F42;   /* 暖褐 — 描述正文/长文本 */
+
+  /* ===== 中性色阶 ===== */
+  --gray-900: #1E1B18;
+  --gray-700: #4A4540;
+  --gray-500: #8A8378;
+  --gray-300: #C4BEB4;
+  --gray-200: #DED9D0;
+  --gray-100: #EDE9E0;
+  --gray-50:  #F7F4ED;
+
+  /* ===== 字体 ===== */
+  --font-display:  'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+  --font-body:     'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:     'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+
+  /* ===== 字体大小模量级 ===== */
+  --text-xs:    0.6875rem;  /* 11px */
+  --text-sm:    0.8125rem;  /* 13px */
+  --text-base:  1rem;       /* 16px — 基准（从旧14px提升）*/
+  --text-md:    1.25rem;    /* 20px */
+  --text-lg:    1.5rem;     /* 24px */
+  --text-xl:    2rem;       /* 32px */
+  --text-2xl:   2.5rem;     /* 40px */
+  --text-3xl:   3rem;       /* 48px */
+
+  /* ===== 字重 ===== */
+  --font-normal:   400;
+  --font-medium:   500;
+  --font-semibold: 600;
+  --font-bold:     700;
+
+  /* ===== 行高 ===== */
+  --leading-tight:   1.25;
+  --leading-normal:  1.6;
+  --leading-relaxed: 1.75;
+
+  /* ===== 间距（4px 基线） ===== */
+  --space-0:  0;
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ===== 容器宽度 ===== */
+  --container-max:   1320px;
+  --container-narrow: 720px;
+  --container-wide:  1520px;
+
+  /* ===== 圆角 ===== */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* ===== 阴影（暖色调） ===== */
+  --shadow-sm:        0 1px 3px  rgba(30, 27, 24, 0.06);
+  --shadow-md:        0 4px 12px rgba(30, 27, 24, 0.08);
+  --shadow-lg:        0 8px 24px rgba(30, 27, 24, 0.10);
+  --shadow-xl:        0 16px 48px rgba(30, 27, 24, 0.12);
+  --shadow-card-hover: 0 6px 20px rgba(30, 27, 24, 0.12);
+
+  /* ===== 动效 ===== */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --duration-fast:   150ms;
+  --duration-normal: 250ms;
+  --duration-slow:   400ms;
+  --duration-page:   300ms;
+}
+
+/* ===== 暗色模式 ===== */
+[data-theme="dark"] {
+  --color-paper:           #161310;
+  --color-paper-white:     #201C18;
+  --color-deep:            #0F0D0B;
+  --color-deep-light:      #2A2520;
+  --color-ink:             #E8E2D8;
+  --color-ink-secondary:   #A09888;
+  --color-gold-light:      #3D3528;
+  --color-vermilion:       #C96B5F;
+  --color-vermilion-hover: #D4847A;
+
+  --gray-50:  #161310;
+  --gray-100: #201C18;
+  --gray-200: #3A3530;
+  --gray-300: #5A5248;
+  --gray-500: #8A8278;
+  --gray-700: #B8B0A0;
+  --gray-900: #E8E2D8;
+
+  --color-bg-active:       #3A2A1A;   /* 暗暖橙 — 选中态 */
+  --color-bg-hover:        #2A2520;   /* 暗暖灰 — hover 态 */
+  --color-border-light:    #332E25;   /* 暗边框 */
+  --color-border-medium:   #4A453A;   /* 中暗边框 */
+  --color-ink-tertiary:    #A09888;   /* 淡褐 — 描述文字 */
+
+  --shadow-sm:        0 1px 3px  rgba(0, 0, 0, 0.3);
+  --shadow-md:        0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg:        0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl:        0 16px 48px rgba(0, 0, 0, 0.6);
+  --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== 减少动效 ===== */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast:   0ms;
+    --duration-normal: 0ms;
+    --duration-slow:   0ms;
+    --duration-page:   0ms;
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "samples": [
+    {
+      "keywords": ["taoci", "ceramic", "bowl", "vase", "porcelain", "celadon", "青瓷", "china", "plate", "cup"],
+      "category": "陶瓷",
+      "damage_types": ["釉面剥落", "表面裂纹", "色彩氧化"],
+      "severity": "中度",
+      "description": "该陶瓷器物表面釉层存在3处明显剥落区域，最大面积约2cm²。底部可见一条贯穿性裂纹，长度约5cm。釉下青花纹饰因年代久远出现氧化发黄现象，以器物口沿处最为明显。整体器型保存完整，底部圈足完好无损。"
+    },
+    {
+      "keywords": ["embroidery", "cixiu", "silk", "绣", "brocade", "fabric", "textile"],
+      "category": "刺绣",
+      "damage_types": ["丝线褪色", "局部破损", "污渍"],
+      "severity": "轻度",
+      "description": "该刺绣作品整体保存较好，但局部丝线因光照出现褪色，尤其是红色和蓝色区域。左下角有一处约1cm的破损，绣面有少量黄色污渍。绣面主体纹样清晰可辨，针法结构完整。"
+    },
+    {
+      "keywords": ["jianzhi", "papercut", "paper", "cutting", "剪纸", "剪"],
+      "category": "剪纸",
+      "damage_types": ["纸张泛黄", "边缘破损", "折叠痕迹"],
+      "severity": "中度",
+      "description": "该剪纸作品纸张整体泛黄，边缘有多处撕裂，最严重的一处缺失约1.5cm²。中间有明显的十字折叠痕迹，折痕处纸张变薄。红色颜料在折痕附近出现轻微脱落。主体图案仍可辨识。"
+    },
+    {
+      "keywords": ["piying", "shadow", "leather", "皮影", "puppet", "hide"],
+      "category": "皮影",
+      "damage_types": ["皮革龟裂", "颜料脱落", "连接处松动"],
+      "severity": "重度",
+      "description": "该皮影人偶多处皮革出现龟裂，面部颜料脱落严重，右侧手臂连接处铆钉松动导致关节无法正常活动。整体色彩暗淡，原本鲜艳的红绿色现已褪为暗褐。需要紧急修复处理。"
+    },
+    {
+      "keywords": ["zishahu", "teapot", "zisha", "紫砂", "clay", "pot"],
+      "category": "紫砂壶",
+      "damage_types": ["表面磨损", "壶盖缺口", "包浆氧化"],
+      "severity": "轻度",
+      "description": "该紫砂壶表面因长期使用出现均匀磨损，壶盖边缘有一处约0.5cm的微小缺口。壶身包浆因氧化出现不均匀色斑，底部款识略有磨损但仍可辨认。整体器型完好，壶嘴壶把均无损伤。"
+    },
+    {
+      "keywords": ["wood", "carving", "木雕", "woodcarving", "statue", "buddha"],
+      "category": "木雕",
+      "damage_types": ["木质干裂", "漆面剥落", "虫蛀痕迹"],
+      "severity": "中度",
+      "description": "该木雕作品表面有多处干裂纹理，底座漆面约30%已剥落，露出底层木质。右侧边缘可见虫蛀小孔3-4处，孔径约1-2mm。雕刻主体纹饰基本完整，但细节处因磨损略显模糊。"
+    }
+  ],
+  "default": {
+    "category": "非遗工艺品",
+    "damage_types": ["画面模糊", "细节丢失", "对比度不足"],
+    "severity": "轻度",
+    "description": "该图片整体存在轻微模糊和对比度不足的问题。部分细节区域因拍摄条件限制出现噪点和纹理丢失，但主体结构完整，可通过AI修复恢复大部分细节。"
+  }
+}

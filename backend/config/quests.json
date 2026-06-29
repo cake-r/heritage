@@ -1,0 +1,37 @@
+[
+  {"id":"q_recognition_01","module":"recognition","skill_tree":"鉴宝","title":"今日识别一件{category}","description_template":"使用智能识别功能，上传一件{category}的图片进行识别","xp_reward":20,"condition_type":"recognition_count","condition_threshold":1,"tags":["陶瓷","刺绣","剪纸","金属","织锦","漆器"]},
+  {"id":"q_recognition_02","module":"recognition","skill_tree":"鉴宝","title":"连续识别3件不同品类","description_template":"识别3件不同品类的非遗作品，解锁品类探索者之路","xp_reward":45,"condition_type":"distinct_categories","condition_threshold":3,"tags":[]},
+  {"id":"q_recognition_03","module":"recognition","skill_tree":"鉴宝","title":"获得一次高置信度识别","description_template":"上传一张清晰的非遗作品图片，获得95%以上的识别置信度","xp_reward":30,"condition_type":"high_confidence","condition_threshold":0.95,"tags":[]},
+  {"id":"q_recognition_04","module":"recognition","skill_tree":"鉴宝","title":"听一段完整语音讲解","description_template":"在识别结果中播放完整的AI语音讲解，了解非遗故事","xp_reward":15,"condition_type":"voice_playback","condition_threshold":1,"tags":[]},
+  {"id":"q_recognition_05","module":"recognition","skill_tree":"鉴宝","title":"查看识别热力图","description_template":"在识别结果页查看AI生成的文化特征热力图","xp_reward":15,"condition_type":"heatmap_view","condition_threshold":1,"tags":[]},
+
+  {"id":"q_generation_01","module":"generation","skill_tree":"创作","title":"创作一件{category}风文创","description_template":"使用文创生成功能，以{category}为基础风格创作一件作品","xp_reward":25,"condition_type":"generation_count","condition_threshold":1,"tags":["苏绣","陶瓷","剪纸","皮影","唐三彩","青花瓷","紫砂陶","景泰蓝"]},
+  {"id":"q_generation_02","module":"generation","skill_tree":"创作","title":"尝试图生图模式","description_template":"上传一张参考图，使用图生图功能进行风格化创作","xp_reward":30,"condition_type":"img2img_count","condition_threshold":1,"tags":[]},
+  {"id":"q_generation_03","module":"generation","skill_tree":"创作","title":"发布一件作品到画廊","description_template":"将你满意的AI文创作品发布到公开画廊与大家分享","xp_reward":35,"condition_type":"publish_work","condition_threshold":1,"tags":[]},
+  {"id":"q_generation_04","module":"generation","skill_tree":"创作","title":"批量创作4件作品","description_template":"一次性生成4件不同风格或元素的文创作品","xp_reward":40,"condition_type":"batch_generation","condition_threshold":4,"tags":[]},
+  {"id":"q_generation_05","module":"generation","skill_tree":"创作","title":"使用自定义负向提示词","description_template":"在创作时添加自定义负向提示词，精确控制生成效果","xp_reward":20,"condition_type":"negative_prompt","condition_threshold":1,"tags":[]},
+
+  {"id":"q_chat_01","module":"chat","skill_tree":"问道","title":"与{character}对谈10轮","description_template":"与{character}进行10轮以上深度对话交流","xp_reward":30,"condition_type":"chat_rounds","condition_threshold":10,"tags":["苏绣娘","青瓷大师","剪纸匠人","皮影艺人","文化向导"]},
+  {"id":"q_chat_02","module":"chat","skill_tree":"问道","title":"使用【识物·品鉴】工具","description_template":"在工坊聊天中使用 /inspect 工具，上传图片让传承人品鉴","xp_reward":25,"condition_type":"tool_inspect","condition_threshold":1,"tags":[]},
+  {"id":"q_chat_03","module":"chat","skill_tree":"问道","title":"使用【博学·关联】工具","description_template":"在工坊聊天中使用 /connect 工具，探索非遗项目之间的关联","xp_reward":25,"condition_type":"tool_connect","condition_threshold":1,"tags":[]},
+  {"id":"q_chat_04","module":"chat","skill_tree":"问道","title":"创建一个新对话会话","description_template":"与一位新的传承人角色开启对话","xp_reward":15,"condition_type":"new_session","condition_threshold":1,"tags":[]},
+  {"id":"q_chat_05","module":"chat","skill_tree":"问道","title":"使用【创作·生成】工具","description_template":"在工坊聊天中使用 /create 工具，让传承人帮你创作文创作品","xp_reward":25,"condition_type":"tool_create","condition_threshold":1,"tags":[]},
+
+  {"id":"q_restoration_01","module":"restoration","skill_tree":"修复","title":"修复一件文物","description_template":"上传一件需要修复的非遗文物图片，完成AI修复全流程","xp_reward":40,"condition_type":"restoration_count","condition_threshold":1,"tags":[]},
+  {"id":"q_restoration_02","module":"restoration","skill_tree":"修复","title":"查看修复验证报告","description_template":"在修复完成后仔细查看AI生成的三维质量验证报告","xp_reward":20,"condition_type":"verification_view","condition_threshold":1,"tags":[]},
+  {"id":"q_restoration_03","module":"restoration","skill_tree":"修复","title":"完成3次文物修复","description_template":"累计完成3件文物的AI数字修复","xp_reward":50,"condition_type":"restoration_count","condition_threshold":3,"tags":[]},
+
+  {"id":"q_knowledge_01","module":"knowledge_graph","skill_tree":"博学","title":"探索知识图谱","description_template":"浏览文化知识图谱，查看非遗项目之间的技法与地域关联","xp_reward":20,"condition_type":"graph_explore","condition_threshold":1,"tags":[]},
+  {"id":"q_knowledge_02","module":"knowledge_graph","skill_tree":"博学","title":"查看技法详情","description_template":"在知识图谱中点击查看一种技法的详细介绍和关联项目","xp_reward":15,"condition_type":"technique_view","condition_threshold":1,"tags":[]},
+  {"id":"q_knowledge_03","module":"knowledge_graph","skill_tree":"博学","title":"钻取旭日图三层","description_template":"在旭日图中完成品类→项目→技法的三层钻取探索","xp_reward":25,"condition_type":"sunburst_drill","condition_threshold":3,"tags":[]},
+  {"id":"q_knowledge_04","module":"knowledge_graph","skill_tree":"博学","title":"查看时间轴演变","description_template":"观看知识图谱时间轴散点图的完整自动播放","xp_reward":20,"condition_type":"timeline_view","condition_threshold":1,"tags":[]},
+
+  {"id":"q_collection_01","module":"exhibition","skill_tree":"博学","title":"收藏5件非遗藏品","description_template":"在数字展厅中浏览并收藏5件感兴趣的非遗藏品","xp_reward":25,"condition_type":"favorite_count","condition_threshold":5,"tags":[]},
+  {"id":"q_collection_02","module":"exhibition","skill_tree":"博学","title":"浏览3个不同品类","description_template":"在数字展厅中浏览至少3个不同品类的非遗藏品","xp_reward":20,"condition_type":"distinct_categories","condition_threshold":3,"tags":[]},
+
+  {"id":"q_region_01","module":"exhibition","skill_tree":"行旅","title":"探索{region}非遗","description_template":"浏览{region}地区的非遗藏品，了解当地文化特色","xp_reward":25,"condition_type":"region_explore","condition_threshold":1,"tags":["江苏","浙江","江西","河南","湖南","四川","北京","福建","广东","陕西"]},
+  {"id":"q_region_02","module":"exhibition","skill_tree":"行旅","title":"跨地域对比","description_template":"浏览来自3个不同省份的非遗藏品","xp_reward":30,"condition_type":"distinct_regions","condition_threshold":3,"tags":[]},
+  {"id":"q_region_03","module":"knowledge_graph","skill_tree":"行旅","title":"查看省份分布图","description_template":"在知识图谱中查看中国非遗省份分布地图","xp_reward":20,"condition_type":"choropleth_view","condition_threshold":1,"tags":[]},
+
+  {"id":"q_custom_01","module":"workshop","skill_tree":"创作","title":"创建自定义传承人","description_template":"使用传承人创建向导，设计一位专属的非遗AI传承人","xp_reward":50,"condition_type":"create_inheritor","condition_threshold":1,"tags":[]}
+]

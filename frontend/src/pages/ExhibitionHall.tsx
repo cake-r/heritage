@@ -1,0 +1,942 @@
+import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import {
+  Layout, Menu, Card, Typography, Input, Select, Button, Badge,
+  Row, Col, Drawer, Image, Tag, Pagination, Modal, Upload,
+  Form, Spin, Empty, Space, message, Segmented, Collapse, AutoComplete,
+} from 'antd'
+import {
+  SearchOutlined, UploadOutlined, HeartOutlined,
+  HeartFilled, AppstoreOutlined, UnorderedListOutlined,
+  PictureOutlined, EnvironmentOutlined, FieldTimeOutlined,
+  MessageOutlined, ExpandOutlined, CheckOutlined, CloseOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons'
+import {
+  getItems, getCategories, getRegions, getEras, uploadWork,
+  startExpansion, getTaskStatus, getExpansionQueue,
+  approveExpansionItem, rejectExpansionItem, uploadQueueImages,
+  type HeritageItem, type ExpansionQueueItem,
+} from '../services/exhibition'
+import { addFavorite, deleteFavorite, listFavorites } from '../services/user'
+import { useAuth } from '../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
+import { normalizeImageUrl } from '../utils/imageUrl'
+
+const { Sider, Content } = Layout
+const { Text, Paragraph } = Typography
+
+export default function ExhibitionHall() {
+  const [searchParams] = useSearchParams()
+  const initialId = searchParams.get('id')
+  const { isAuthenticated } = useAuth()
+
+  // state
+  const [categories, setCategories] = useState<string[]>([])
+  const [category, setCategory] = useState('')
+  const [search, setSearch] = useState('')
+  const [region, setRegion] = useState('')
+  const [era, setEra] = useState('')
+  const [sortMode, setSortMode] = useState<'default' | 'recommended'>('default')
+  const [viewMode, setViewMode] = useState<'grid' | 'waterfall'>('grid')
+  const [recommendedItems, setRecommendedItems] = useState<HeritageItem[]>([])
+  const [items, setItems] = useState<HeritageItem[]>([])
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [selectedItem, setSelectedItem] = useState<HeritageItem | null>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
+  // upload modal
+  const [uploadOpen, setUploadOpen] = useState(false)
+  const [uploadFiles, setUploadFiles] = useState<File[]>([])
+  const [uploadTitle, setUploadTitle] = useState('')
+  const [uploadDesc, setUploadDesc] = useState('')
+  const [uploadCategory, setUploadCategory] = useState('')
+  const [uploadRegion, setUploadRegion] = useState('')
+  const [uploadEra, setUploadEra] = useState('')
+  const [uploadTechniques, setUploadTechniques] = useState('')
+  const [uploadInheritors, setUploadInheritors] = useState('')
+  const [uploadCulturalMeaning, setUploadCulturalMeaning] = useState('')
+  const [uploading, setUploading] = useState(false)
+
+  // dynamic filter options
+  const [regions, setRegions] = useState<string[]>([])
+  const [eras, setEras] = useState<string[]>([])
+
+  // favorites set (compound key: "type:id")
+  const [favIds, setFavIds] = useState<Set<string>>(new Set())
+
+  // 知识库扩充
+  const [expandOpen, setExpandOpen] = useState(false)
+  const [expandCount, setExpandCount] = useState(5)
+  const [taskId, setTaskId] = useState<string | null>(null)
+  const [taskRunning, setTaskRunning] = useState(false)
+  const [taskProgress, setTaskProgress] = useState({ completed: 0, total: 0, items_found: 0 })
+  const [reviewOpen, setReviewOpen] = useState(false)
+  const [reviewItems, setReviewItems] = useState<ExpansionQueueItem[]>([])
+  const [reviewLoading, setReviewLoading] = useState(false)
+  const [reviewPage, setReviewPage] = useState(1)
+  const [reviewTotal, setReviewTotal] = useState(0)
+  const [approving, setApproving] = useState<number | null>(null)
+
+  // load categories / regions / eras + pending review count
+  useEffect(() => {
+    getCategories().then(setCategories).catch(() => {})
+    getRegions().then(setRegions).catch(() => {})
+    getEras().then(setEras).catch(() => {})
+    // 检查待审核数量
+    if (isAuthenticated) {
+      getExpansionQueue({ status: 'pending', page_size: 1 }).then(res => {
+        setReviewTotal(res.total)
+      }).catch(() => {})
+    }
+  }, [isAuthenticated])
+
+  // load favorites
+  useEffect(() => {
+    if (isAuthenticated) {
+      listFavorites()
+        .then(favs => setFavIds(new Set(favs.map(f => `${f.item_type}:${f.item_id}`))))
+        .catch(() => {})
+    }
+  }, [isAuthenticated])
+
+  // load items
+  const loadItems = useCallback(async (p: number) => {
+    setLoading(true)
+    try {
+      const data = await getItems({ category, region, era, search, page: p, page_size: 12 })
+      setItems(data.items)
+      setTotal(data.total)
+      if (initialId && p === 1) {
+        const target = data.items.find(it => it.id === Number(initialId))
+        if (target) { setSelectedItem(target); setDrawerOpen(true) }
+      }
+    } catch {
+      message.error('加载藏品失败')
+    } finally {
+      setLoading(false)
+    }
+  }, [category, region, era, search, initialId])
+
+  useEffect(() => { loadItems(page) }, [loadItems, page])
+
+  const handleSearch = () => { setPage(1); loadItems(1) }
+
+  const handleItemClick = (item: HeritageItem) => {
+    setSelectedItem(item)
+    setDrawerOpen(true)
+  }
+
+  const handleToggleFavorite = async (item: HeritageItem) => {
+    if (!isAuthenticated) { message.warning('请先登录'); return }
+    const itemType = item.item_type || 'heritage'
+    const favKey = `${itemType}:${item.id}`
+    try {
+      if (favIds.has(favKey)) {
+        const favs = await listFavorites()
+        const target = favs.find(f => f.item_type === itemType && f.item_id === item.id)
+        if (target) await deleteFavorite(target.id)
+        setFavIds(prev => { const n = new Set(prev); n.delete(favKey); return n })
+        message.success('已取消收藏')
+      } else {
+        await addFavorite(itemType, item.id)
+        setFavIds(prev => new Set(prev).add(favKey))
+        message.success('已收藏')
+      }
+    } catch (err: any) {
+      message.error(err.message || '操作失败')
+    }
+  }
+
+  const handleUpload = async () => {
+    if (!uploadTitle.trim()) { message.warning('请输入作品标题'); return }
+    if (uploadFiles.length === 0) { message.warning('请上传至少一张图片'); return }
+    setUploading(true)
+    try {
+      // 解析工艺技法: 每行 "技法名：描述" 或 "技法名:描述" 或仅 "技法名"
+      const techniques = uploadTechniques.trim()
+        ? uploadTechniques.split('\n').filter(Boolean).map(line => {
+            const idx = line.indexOf('：') >= 0 ? line.indexOf('：') : line.indexOf(':')
+            if (idx >= 0) return { name: line.slice(0, idx).trim(), desc: line.slice(idx + 1).trim() }
+            return { name: line.trim(), desc: '' }
+          })
+        : []
+      // 解析传承人: 每行 "姓名：称号" 或 "姓名:称号" 或仅 "姓名"
+      const inheritors = uploadInheritors.trim()
+        ? uploadInheritors.split('\n').filter(Boolean).map(line => {
+            const idx = line.indexOf('：') >= 0 ? line.indexOf('：') : line.indexOf(':')
+            if (idx >= 0) return { name: line.slice(0, idx).trim(), title: line.slice(idx + 1).trim() }
+            return { name: line.trim(), title: '' }
+          })
+        : []
+      await uploadWork(
+        uploadFiles, uploadTitle, uploadDesc, uploadCategory,
+        uploadRegion, uploadEra, techniques, inheritors, uploadCulturalMeaning,
+      )
+      message.success('上传成功！')
+      setUploadOpen(false)
+      setUploadFiles([])
+      setUploadTitle('')
+      setUploadDesc('')
+      setUploadCategory('')
+      setUploadRegion('')
+      setUploadEra('')
+      setUploadTechniques('')
+      setUploadInheritors('')
+      setUploadCulturalMeaning('')
+      // 重新加载筛选选项（可能有新地区/年代）
+      getRegions().then(setRegions).catch(() => {})
+      getEras().then(setEras).catch(() => {})
+      getCategories().then(setCategories).catch(() => {})
+      loadItems(page)
+    } catch (err: any) {
+      message.error(err.message || '上传失败')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  // === 知识库扩充 ===
+
+  const handleStartExpansion = async () => {
+    setExpandOpen(false)
+    setTaskRunning(true)
+    setTaskProgress({ completed: 0, total: expandCount, items_found: 0 })
+    try {
+      const { task_id, message: msg } = await startExpansion(expandCount)
+      message.success(msg)
+      setTaskId(task_id)
+      // 每 3 秒轮询进度
+      const poll = setInterval(async () => {
+        try {
+          const status = await getTaskStatus(task_id)
+          setTaskProgress({ completed: status.completed, total: status.total, items_found: status.items_found })
+          if (status.status === 'completed' || status.status === 'failed') {
+            clearInterval(poll)
+            setTaskRunning(false)
+            if (status.status === 'completed') {
+              setReviewTotal(status.items_found)
+              message.success(`扩充完成！找到 ${status.items_found} 个非遗项目，请审核`)
+            } else {
+              message.warning(`扩充异常结束: ${status.error || '未知错误'}`)
+            }
+          }
+        } catch {
+          // 轮询失败静默处理
+        }
+      }, 3000)
+    } catch (err: any) {
+      message.error(err.response?.data?.detail || '扩充启动失败')
+      setTaskRunning(false)
+    }
+  }
+
+  const handleLoadReviewQueue = async (pageNum = 1) => {
+    setReviewLoading(true)
+    try {
+      const res = await getExpansionQueue({ status: 'pending', page: pageNum, page_size: 20 })
+      setReviewItems(res.items)
+      setReviewTotal(res.total)
+      setReviewPage(pageNum)
+    } catch {
+      message.error('加载审核队列失败')
+    } finally {
+      setReviewLoading(false)
+    }
+  }
+
+  const handleApproveItem = async (id: number, name: string) => {
+    setApproving(id)
+    try {
+      await approveExpansionItem(id)
+      message.success(`已上架: ${name}`)
+      // 从列表移除
+      setReviewItems(prev => prev.filter(i => i.id !== id))
+      // 刷新展览列表和筛选选项
+      getRegions().then(setRegions).catch(() => {})
+      getEras().then(setEras).catch(() => {})
+      getCategories().then(setCategories).catch(() => {})
+      loadItems(page)
+    } catch (err: any) {
+      message.error(err.response?.data?.detail || '审批失败')
+    } finally {
+      setApproving(null)
+    }
+  }
+
+  const handleRejectItem = async (id: number, name: string) => {
+    try {
+      await rejectExpansionItem(id)
+      message.info(`已拒绝: ${name}`)
+      setReviewItems(prev => prev.filter(i => i.id !== id))
+    } catch (err: any) {
+      message.error(err.response?.data?.detail || '操作失败')
+    }
+  }
+
+  const handleOpenReview = () => {
+    setReviewOpen(true)
+    handleLoadReviewQueue(1)
+  }
+
+  return (
+    <Layout style={{ background: 'transparent' }}>
+      {/* 左侧分类导航 */}
+      <Sider width={160} style={{ background: '#fff', borderRadius: 12, marginRight: 24, padding: '16px 0' }}>
+        <div style={{ padding: '0 16px', marginBottom: 8 }}>
+          <Text strong>非遗品类</Text>
+        </div>
+        <Menu
+          mode="inline"
+          selectedKeys={[category]}
+          style={{ border: 'none' }}
+          items={[
+            { key: '', label: `全部 (${total})` },
+            ...categories.map(c => ({ key: c, label: c })),
+          ]}
+          onClick={({ key }) => { setCategory(key); setPage(1); loadItems(1) }}
+        />
+      </Sider>
+
+      <Content>
+        {/* 顶部操作栏 */}
+        <Card style={{ borderRadius: 12, marginBottom: 16 }}>
+          <Row gutter={[12, 12]} align="middle">
+            <Col xs={24} sm={6}>
+              <Input
+                placeholder="搜索藏品名称或描述..."
+                prefix={<SearchOutlined />}
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                onPressEnter={handleSearch}
+                allowClear
+              />
+            </Col>
+            <Col xs={12} sm={3}>
+              <Select
+                placeholder="地区"
+                value={region || undefined}
+                onChange={v => { setRegion(v || ''); setPage(1); }}
+                allowClear
+                style={{ width: '100%' }}
+                options={regions.map(r => ({ value: r, label: r }))}
+              />
+            </Col>
+            <Col xs={12} sm={3}>
+              <Select
+                placeholder="年代"
+                value={era || undefined}
+                onChange={v => { setEra(v || ''); setPage(1); }}
+                allowClear
+                style={{ width: '100%' }}
+                options={eras.map(e => ({ value: e, label: e }))}
+              />
+            </Col>
+            <Col xs={12} sm={3}>
+              <Segmented
+                options={[
+                  { value: 'grid', icon: <AppstoreOutlined /> },
+                  { value: 'waterfall', icon: <UnorderedListOutlined /> },
+                ]}
+                value={viewMode}
+                onChange={v => setViewMode(v as 'grid' | 'waterfall')}
+              />
+            </Col>
+            {isAuthenticated && (
+              <Col xs={12} sm={3}>
+                <Segmented
+                  options={[
+                    { value: 'default', label: '默认排序' },
+                    { value: 'recommended', label: '为你推荐' },
+                  ]}
+                  value={sortMode}
+                  onChange={v => {
+                    setSortMode(v as 'default' | 'recommended')
+                    setPage(1)
+                    if (v === 'recommended') {
+                      import('../services/recommendation').then(({ getModuleRecommendations }) => {
+                        getModuleRecommendations('exhibition').then(data => {
+                          // 将推荐项映射到 HeritageItem 格式
+                          const mapped = data.items.map(r => ({
+                            id: r.id,
+                            name: r.title,
+                            title: r.title,
+                            category: r.category,
+                            region: r.region || '',
+                            era: '',
+                            description: '',
+                            images: r.image_url ? [r.image_url] : [],
+                            item_type: r.item_type,
+                            reason: r.reason,
+                            score: r.score,
+                          } as any))
+                          setRecommendedItems(mapped)
+                        }).catch(() => {})
+                      })
+                    }
+                  }}
+                />
+              </Col>
+            )}
+            <Col xs={12} sm={9} style={{ textAlign: 'right' }}>
+              <Space wrap>
+                <Button
+                  icon={<ExpandOutlined />}
+                  onClick={() => setExpandOpen(true)}
+                  disabled={!isAuthenticated || taskRunning}
+                  title="AI 扩充知识库"
+                >
+                  扩充
+                </Button>
+                {reviewTotal > 0 && (
+                  <Badge count={reviewTotal} size="small" offset={[-4, 4]}>
+                    <Button
+                      icon={<CheckOutlined />}
+                      onClick={handleOpenReview}
+                      type="default"
+                    >
+                      审核
+                    </Button>
+                  </Badge>
+                )}
+                <Button icon={<UploadOutlined />} onClick={() => setUploadOpen(true)} disabled={!isAuthenticated}>
+                  {isAuthenticated ? '上传作品' : '登录后上传'}
+                </Button>
+              </Space>
+            </Col>
+          </Row>
+        </Card>
+
+        {/* 藏品网格 */}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>
+        ) : (sortMode === 'recommended' ? recommendedItems : items).length === 0 ? (
+          <Empty description={sortMode === 'recommended' ? '暂无个性化推荐，完成更多互动后解锁' : '暂无藏品'} style={{ padding: 60 }} />
+        ) : (
+          <>
+            <Row gutter={[16, 16]}>
+              {(sortMode === 'recommended' ? recommendedItems : items).map((item: any) => (
+                <Col
+                  key={`${item.item_type || 'heritage'}-${item.id}`}
+                  xs={viewMode === 'waterfall' ? 24 : 12}
+                  sm={viewMode === 'waterfall' ? 12 : 8}
+                  md={viewMode === 'waterfall' ? 8 : 6}
+                  lg={viewMode === 'waterfall' ? 6 : 6}
+                >
+                  <Card
+                    hoverable
+                    onClick={() => handleItemClick(item)}
+                    style={{ borderRadius: 12 }}
+                    cover={
+                      item.images.length > 0 ? (
+                        <div style={{ position: 'relative' }}>
+                          <img
+                            src={normalizeImageUrl(item.images[0])}
+                            alt={item.name}
+                            style={{
+                              width: '100%',
+                              height: viewMode === 'waterfall' ? 280 : 200,
+                              objectFit: 'cover',
+                              borderTopLeftRadius: 12,
+                              borderTopRightRadius: 12,
+                            }}
+                          />
+                          <Button
+                            type="text"
+                            icon={favIds.has(`${item.item_type || 'heritage'}:${item.id}`) ? <HeartFilled style={{ color: '#C41E3A' }} /> : <HeartOutlined />}
+                            onClick={e => { e.stopPropagation(); handleToggleFavorite(item) }}
+                            style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.8)' }}
+                          />
+                        </div>
+                      ) : (
+                        <div style={{
+                          height: viewMode === 'waterfall' ? 280 : 200,
+                          background: '#f5f5f5',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          borderTopLeftRadius: 12, borderTopRightRadius: 12,
+                        }}>
+                          <PictureOutlined style={{ fontSize: 48, color: '#ccc' }} />
+                        </div>
+                      )
+                    }
+                    bodyStyle={{ padding: '12px 16px' }}
+                  >
+                    <Text strong style={{ fontSize: 14 }}>{item.name}</Text>
+                    <div style={{ marginTop: 4 }}>
+                      <Space size={4} wrap>
+                        <Tag color="gold">{item.category}</Tag>
+                        {item.region && <Tag icon={<EnvironmentOutlined />} color="blue">{item.region}</Tag>}
+                        {item.era && <Tag icon={<FieldTimeOutlined />}>{item.era}</Tag>}
+                      </Space>
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+            {total > 12 && (
+              <div style={{ textAlign: 'center', marginTop: 24 }}>
+                <Pagination current={page} total={total} pageSize={12} onChange={setPage} />
+              </div>
+            )}
+          </>
+        )}
+
+        {/* 藏品详情 Drawer */}
+        <Drawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          width={640}
+          title={selectedItem?.name}
+          extra={
+            selectedItem && (
+              <Button
+                type={favIds.has(`${selectedItem.item_type || 'heritage'}:${selectedItem.id}`) ? 'primary' : 'default'}
+                icon={favIds.has(`${selectedItem.item_type || 'heritage'}:${selectedItem.id}`) ? <HeartFilled /> : <HeartOutlined />}
+                onClick={() => handleToggleFavorite(selectedItem)}
+                danger={favIds.has(`${selectedItem.item_type || 'heritage'}:${selectedItem.id}`)}
+              >
+                {favIds.has(`${selectedItem.item_type || 'heritage'}:${selectedItem.id}`) ? '取消收藏' : '收藏'}
+              </Button>
+            )
+          }
+        >
+          {selectedItem && <ItemDetail item={selectedItem} />}
+        </Drawer>
+
+        {/* 上传作品 Modal */}
+        <Modal
+          title="上传非遗作品"
+          open={uploadOpen}
+          onCancel={() => setUploadOpen(false)}
+          onOk={handleUpload}
+          confirmLoading={uploading}
+          okText="上传"
+          width={600}
+          style={{ top: 20 }}
+        >
+          <Form layout="vertical" style={{ maxHeight: '65vh', overflowY: 'auto', paddingRight: 8 }}>
+            <Form.Item label="作品标题" required>
+              <Input value={uploadTitle} onChange={e => setUploadTitle(e.target.value)} placeholder="给你的作品起个名字" />
+            </Form.Item>
+            <Form.Item label="作品图片">
+              <Upload
+                accept="image/*"
+                multiple
+                maxCount={5}
+                listType="picture-card"
+                beforeUpload={(file) => {
+                  const isImage = file.type.startsWith('image/')
+                  if (!isImage) { message.error('只能上传图片文件'); return false }
+                  const isLt10M = (file as any).size / 1024 / 1024 < 10
+                  if (!isLt10M) { message.error('图片大小不能超过 10MB'); return false }
+                  setUploadFiles(prev => [...prev, file]); return false
+                }}
+                onRemove={(file) => { setUploadFiles(prev => prev.filter(f => f.name !== file.name)) }}
+              >
+                <div><UploadOutlined /><div style={{ marginTop: 8 }}>上传</div></div>
+              </Upload>
+            </Form.Item>
+            <Form.Item label="分类">
+              <Select value={uploadCategory || undefined} onChange={setUploadCategory} placeholder="选择分类" allowClear>
+                {categories.map(c => <Select.Option key={c} value={c}>{c}</Select.Option>)}
+              </Select>
+            </Form.Item>
+            <Form.Item label="地区">
+              <AutoComplete
+                value={uploadRegion || undefined}
+                onChange={setUploadRegion}
+                placeholder="如：江苏（可自定义输入）"
+                options={regions.map(r => ({ value: r }))}
+                allowClear
+              />
+            </Form.Item>
+            <Form.Item label="年代">
+              <AutoComplete
+                value={uploadEra || undefined}
+                onChange={setUploadEra}
+                placeholder="如：清代（可自定义输入）"
+                options={eras.map(e => ({ value: e }))}
+                allowClear
+              />
+            </Form.Item>
+            <Form.Item label="描述">
+              <Input.TextArea value={uploadDesc} onChange={e => setUploadDesc(e.target.value)} placeholder="介绍一下你的作品..." rows={3} />
+            </Form.Item>
+            <Form.Item label="工艺技法" extra="每行一个，格式：技法名：描述（如 掐丝：用细铜丝掐出花纹...）">
+              <Input.TextArea value={uploadTechniques} onChange={e => setUploadTechniques(e.target.value)} placeholder="技法名：描述&#10;技法名：描述" rows={3} />
+            </Form.Item>
+            <Form.Item label="传承人" extra="每行一个，格式：姓名：称号（如 张大师：国家级非遗传承人）">
+              <Input.TextArea value={uploadInheritors} onChange={e => setUploadInheritors(e.target.value)} placeholder="姓名：称号&#10;姓名：称号" rows={3} />
+            </Form.Item>
+            <Form.Item label="文化寓意">
+              <Input.TextArea value={uploadCulturalMeaning} onChange={e => setUploadCulturalMeaning(e.target.value)} placeholder="这件作品有什么文化寓意..." rows={3} />
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        {/* 扩充知识库 Modal */}
+        <Modal
+          title="AI 扩充知识库"
+          open={expandOpen}
+          onCancel={() => setExpandOpen(false)}
+          onOk={handleStartExpansion}
+          okText="开始扩充"
+          cancelText="取消"
+          width={420}
+        >
+          <div style={{ padding: '8px 0' }}>
+            <Form.Item label="扩充数量" extra="AI 将从互联网搜索并结构化非遗信息">
+              <Input
+                type="number"
+                min={1}
+                max={30}
+                value={expandCount}
+                onChange={e => setExpandCount(Math.min(30, Math.max(1, parseInt(e.target.value) || 1)))}
+                style={{ width: '100%' }}
+              />
+              <div style={{ marginTop: 8, color: 'var(--color-ink-secondary)' }}>
+                <small>建议每次 3-5 个，便于逐一审核。搜索关键词：「品类 + 非物质文化遗产 + 中国传统技艺」</small>
+              </div>
+            </Form.Item>
+            {taskRunning && (
+              <div style={{
+                background: 'var(--color-bg-hover, #F5F5F0)',
+                borderRadius: 8,
+                padding: 12,
+                marginTop: 8,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Spin size="small" />
+                  <Text>正在搜索中...</Text>
+                </div>
+                <div style={{ marginTop: 4 }}>
+                  <Text type="secondary">已找到 {taskProgress.items_found} 个项目</Text>
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+
+        {/* 审核 Drawer */}
+        <Drawer
+          title={
+            <Space>
+              <span>知识库扩充审核</span>
+              <Tag color="orange">{reviewTotal} 待审核</Tag>
+            </Space>
+          }
+          open={reviewOpen}
+          onClose={() => setReviewOpen(false)}
+          width={680}
+          extra={
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={() => handleLoadReviewQueue(reviewPage)}
+              loading={reviewLoading}
+            >
+              刷新
+            </Button>
+          }
+        >
+          {reviewLoading ? (
+            <div style={{ textAlign: 'center', padding: 60 }}><Spin size="large" /></div>
+          ) : reviewItems.length === 0 ? (
+            <Empty description="暂无待审核项目">
+              {taskRunning && <Text type="secondary">扩充任务进行中，请稍后刷新查看...</Text>}
+            </Empty>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {reviewItems.map(item => (
+                <Card
+                  key={item.id}
+                  size="small"
+                  title={
+                    <Space>
+                      <Text strong>{item.name}</Text>
+                      <Tag color="gold">{item.category}</Tag>
+                    </Space>
+                  }
+                  extra={
+                    <Space>
+                      <Button
+                        type="primary"
+                        size="small"
+                        icon={<CheckOutlined />}
+                        loading={approving === item.id}
+                        onClick={() => handleApproveItem(item.id, item.name)}
+                      >
+                        通过
+                      </Button>
+                      <Button
+                        danger
+                        size="small"
+                        icon={<CloseOutlined />}
+                        onClick={() => handleRejectItem(item.id, item.name)}
+                        disabled={approving === item.id}
+                      >
+                        拒绝
+                      </Button>
+                    </Space>
+                  }
+                  style={{ borderRadius: 8 }}
+                >
+                  <Row gutter={[16, 8]}>
+                    <Col span={12}>
+                      <Text type="secondary">地区: </Text>
+                      <Text>{item.region || '—'}</Text>
+                    </Col>
+                    <Col span={12}>
+                      <Text type="secondary">时代: </Text>
+                      <Text>{item.era || '—'}</Text>
+                    </Col>
+                    {item.description && (
+                      <Col span={24}>
+                        <Text type="secondary">简介: </Text>
+                        <Paragraph ellipsis={{ rows: 3, expandable: true }} style={{ margin: 0 }}>
+                          {item.description}
+                        </Paragraph>
+                      </Col>
+                    )}
+                    {item.techniques.length > 0 && (
+                      <Col span={24}>
+                        <Text type="secondary">技法: </Text>
+                        {item.techniques.map((t, i) => (
+                          <Tag key={i} color="blue" style={{ marginBottom: 4 }}>{t.name}</Tag>
+                        ))}
+                      </Col>
+                    )}
+                    {item.inheritors.length > 0 && (
+                      <Col span={24}>
+                        <Text type="secondary">传承人: </Text>
+                        {item.inheritors.map((t, i) => (
+                          <Tag key={i} color="green" style={{ marginBottom: 4 }}>{t.name}</Tag>
+                        ))}
+                      </Col>
+                    )}
+                    <Col span={24}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <Text type="secondary" style={{ flexShrink: 0 }}>图片: </Text>
+                        {item.images.length > 0 ? (
+                          <Image.PreviewGroup>
+                            <Space>
+                              {item.images.slice(0, 4).map((img, i) => (
+                                <Image
+                                  key={i}
+                                  src={`/static/${img}`}
+                                  width={64}
+                                  height={64}
+                                  style={{ objectFit: 'cover', borderRadius: 4 }}
+                                  fallback="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZjBmMGVjIi8+PHRleHQgeD0iNDAiIHk9IjQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZmlsbD0iIzk5OSIgZm9udC1zaXplPSIxMiI+5Zu+54mHPC90ZXh0Pjwvc3ZnPg=="
+                                />
+                              ))}
+                            </Space>
+                          </Image.PreviewGroup>
+                        ) : (
+                          <Tag>暂无图片</Tag>
+                        )}
+                        <Upload
+                          accept="image/*"
+                          showUploadList={false}
+                          multiple
+                          maxCount={5}
+                          beforeUpload={async (file) => {
+                            const isImage = file.type.startsWith('image/')
+                            if (!isImage) { message.error('只能上传图片'); return false }
+                            const isLt10M = (file as any).size / 1024 / 1024 < 10
+                            if (!isLt10M) { message.error('图片不能超过10MB'); return false }
+                            try {
+                              const result = await uploadQueueImages(item.id, [file])
+                              // Update local state so images refresh
+                              setReviewItems(prev => prev.map(ri =>
+                                ri.id === item.id ? { ...ri, images: result.images } : ri
+                              ))
+                              message.success('图片已更新')
+                            } catch { message.error('图片上传失败') }
+                            return false
+                          }}
+                        >
+                          <Button size="small" icon={<UploadOutlined />}>替换图片</Button>
+                        </Upload>
+                      </div>
+                    </Col>
+                    {item.cultural_meaning && (
+                      <Col span={24}>
+                        <Text type="secondary">文化寓意: </Text>
+                        <Text>{item.cultural_meaning}</Text>
+                      </Col>
+                    )}
+                  </Row>
+                </Card>
+              ))}
+              {reviewTotal > 20 && (
+                <div style={{ textAlign: 'center', marginTop: 16 }}>
+                  <Pagination
+                    current={reviewPage}
+                    total={reviewTotal}
+                    pageSize={20}
+                    onChange={handleLoadReviewQueue}
+                    size="small"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </Drawer>
+      </Content>
+    </Layout>
+  )
+}
+
+// ========== 藏品详情内容 ==========
+
+function ItemDetail({ item }: { item: HeritageItem }) {
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+
+  // 品类 → 传承人 映射
+  const CATEGORY_TO_INHERITOR: Record<string, string> = {
+    '剪纸': 'paper_cutter',
+    '刺绣': 'embroidery_lady',
+    '苏绣': 'embroidery_lady',
+    '陶瓷': 'ceramic_master',
+    '青瓷': 'ceramic_master',
+    '皮影': 'shadow_puppet',
+    '皮影戏': 'shadow_puppet',
+  }
+
+  const inheritorId = CATEGORY_TO_INHERITOR[item.category]
+
+  return (
+    <div>
+      {/* 图片轮播 */}
+      {item.images.length > 0 ? (
+        <div style={{ marginBottom: 24 }}>
+          <Image.PreviewGroup>
+            <Row gutter={[8, 8]}>
+              {item.images.map((img, i) => (
+                <Col span={item.images.length === 1 ? 24 : 12} key={i}>
+                  <Image src={normalizeImageUrl(img)} alt={`${item.name} ${i + 1}`}
+                    style={{ width: '100%', borderRadius: 8 }} />
+                </Col>
+              ))}
+            </Row>
+          </Image.PreviewGroup>
+        </div>
+      ) : (
+        <Empty description="暂无图片" style={{ marginBottom: 24 }} />
+      )}
+
+      {/* 基础信息 */}
+      <Space wrap size={4} style={{ marginBottom: 16 }}>
+        <Tag color="#C41E3A" style={{ fontSize: 14 }}>{item.category}</Tag>
+        {item.region && <Tag icon={<EnvironmentOutlined />}>{item.region}</Tag>}
+        {item.era && <Tag icon={<FieldTimeOutlined />}>{item.era}</Tag>}
+      </Space>
+
+      {/* 与传承人对话按钮 */}
+      {isAuthenticated && inheritorId && (
+        <div style={{ marginBottom: 16 }}>
+          <Button
+            icon={<MessageOutlined />}
+            onClick={() => navigate(`/workshop?persona=${inheritorId}`)}
+            style={{
+              borderColor: 'var(--color-gold)',
+              color: 'var(--color-gold)',
+            }}
+          >
+            与{inheritorId === 'culture_guide' ? '文化向导' : '传承人'}对话
+          </Button>
+        </div>
+      )}
+
+      {/* 简介 — 可滚动 */}
+      {item.description && (
+        <div style={{ marginBottom: 20 }}>
+          <Text strong style={{ fontSize: 15 }}>📖 简介</Text>
+          <div style={{
+            marginTop: 8, lineHeight: 1.9, maxHeight: 300, overflowY: 'auto',
+            padding: '12px 16px', background: '#fafaf8', borderRadius: 8,
+            border: '1px solid #f0ebe0',
+          }}>
+            <Paragraph style={{ margin: 0, color: '#4a3f35' }}>{item.description}</Paragraph>
+          </div>
+        </div>
+      )}
+
+      {/* 工艺技法 — 折叠效果 */}
+      {item.techniques.length > 0 && (
+        <div style={{ marginBottom: 20 }}>
+          <Collapse
+            ghost
+            expandIconPosition="end"
+            items={[{
+              key: 'techniques',
+              label: <Text strong style={{ fontSize: 15 }}>🔧 工艺技法 ({item.techniques.length}项)</Text>,
+              children: (
+                <div>
+                  {item.techniques.map((t, i) => (
+                    <Card key={i} size="small" style={{ marginBottom: 8, background: '#fafaf8', borderRadius: 8 }}>
+                      <Text strong style={{ color: '#C41E3A' }}>{t.name}</Text>
+                      {t.desc && (
+                        <Paragraph style={{ margin: '8px 0 0', color: '#5a5045', lineHeight: 1.7 }}>
+                          {t.desc}
+                        </Paragraph>
+                      )}
+                    </Card>
+                  ))}
+                </div>
+              ),
+            }]}
+          />
+        </div>
+      )}
+
+      {/* 传承人 — 折叠效果 */}
+      {item.inheritors.length > 0 && (
+        <div style={{ marginBottom: 20 }}>
+          <Collapse
+            ghost
+            expandIconPosition="end"
+            items={[{
+              key: 'inheritors',
+              label: <Text strong style={{ fontSize: 15 }}>👤 传承人 ({item.inheritors.length}位)</Text>,
+              children: (
+                <div>
+                  {item.inheritors.map((inh, i) => (
+                    <Card key={i} size="small" style={{ marginBottom: 8, background: '#fafaf8', borderRadius: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Text strong>{inh.name}</Text>
+                        {inh.title && <Tag color="gold">{inh.title}</Tag>}
+                      </div>
+                      {inh.desc && (
+                        <Paragraph style={{ margin: '8px 0 0', color: '#5a5045', lineHeight: 1.7 }}>
+                          {inh.desc}
+                        </Paragraph>
+                      )}
+                    </Card>
+                  ))}
+                </div>
+              ),
+            }]}
+          />
+        </div>
+      )}
+
+      {/* 文化寓意 — 可滚动 */}
+      {item.cultural_meaning && (
+        <div style={{ marginBottom: 16 }}>
+          <Text strong style={{ fontSize: 15 }}>🎭 文化寓意</Text>
+          <div style={{
+            marginTop: 8, lineHeight: 1.9, maxHeight: 300, overflowY: 'auto',
+            padding: '12px 16px', background: '#fafaf8', borderRadius: 8,
+            border: '1px solid #f0ebe0',
+          }}>
+            <Paragraph style={{ margin: 0, color: '#4a3f35' }}>{item.cultural_meaning}</Paragraph>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

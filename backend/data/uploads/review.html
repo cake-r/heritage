@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>非遗图片审查</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Microsoft YaHei', sans-serif; background: #1a1a2e; color: #eee; padding: 20px; }
+h1 { text-align: center; color: #c9a96e; margin-bottom: 8px; font-size: 28px; }
+.subtitle { text-align: center; color: #888; margin-bottom: 20px; font-size: 14px; }
+.toolbar { position: sticky; top: 0; z-index: 100; background: #16213e; padding: 16px 20px; border-radius: 12px;
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+.toolbar button { padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.2s; }
+.btn-bad { background: #c41e3a; color: #fff; }
+.btn-bad:hover { background: #e82345; }
+.btn-ok { background: #2d6a4f; color: #fff; }
+.btn-ok:hover { background: #40916c; }
+.btn-copy { background: #c9a96e; color: #1a1a2e; }
+.btn-copy:hover { background: #dbb97e; }
+.stats { margin-left: auto; font-size: 14px; color: #aaa; }
+.stats span { font-weight: bold; color: #c9a96e; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.card { background: #16213e; border-radius: 12px; overflow: hidden; transition: all 0.3s;
+  border: 3px solid transparent; cursor: pointer; position: relative; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+.card.marked { border-color: #c41e3a; opacity: 0.5; }
+.card.marked::after { content: '\2716 标记替换'; position: absolute; top: 10px; right: 10px;
+  background: #c41e3a; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+.card .img-wrap { width: 100%; height: 200px; background: #0f0f23; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.card .img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.card .img-wrap .error { color: #666; font-size: 13px; text-align: center; padding: 20px; }
+.card .info { padding: 12px 14px; }
+.card .info .name { font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 4px; }
+.card .info .category { font-size: 12px; color: #c9a96e; }
+.mark-count { position: fixed; bottom: 20px; right: 20px; background: #c41e3a; color: #fff;
+  padding: 14px 22px; border-radius: 30px; font-size: 16px; font-weight: bold; z-index: 200;
+  box-shadow: 0 4px 20px rgba(196,30,58,0.4); cursor: pointer; display: none; }
+.loading { text-align: center; padding: 60px; color: #888; font-size: 18px; }
+</style>
+</head>
+<body>
+
+<h1>非遗图片审查面板</h1>
+<div class="subtitle">点击图片切换标记 — 红色边框 = 需要替换 — 标完后点右下角复制名单</div>
+
+<div class="toolbar">
+  <button class="btn-bad" onclick="markAll()">全部标记为需替换</button>
+  <button class="btn-ok" onclick="clearAll()">全部标记为正常</button>
+  <button class="btn-ok" onclick="invertMarks()">反转标记</button>
+  <button class="btn-copy" onclick="copyList()">复制需替换名单</button>
+  <span class="stats">需替换: <span id="badCount">0</span> / 正常: <span id="okCount">50</span></span>
+</div>
+
+<div class="grid" id="grid"></div>
+<div class="mark-count" id="markFloat" onclick="copyList()">复制需替换名单</div>
+
+<script>
+const API = '/api/exhibition/items?page_size=50';
+const marked = new Set();
+
+async function load() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '<div class="loading">加载中...</div>';
+  try {
+    const resp = await fetch(API);
+    const data = await resp.json();
+    render(data.items);
+  } catch(e) {
+    grid.innerHTML = `<div class="loading">加载失败: ${e.message}<br>请确认后端已启动 (端口8000)</div>`;
+  }
+}
+
+function render(items) {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  items.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => toggle(card, item.name);
+
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'img-wrap';
+
+    if (item.images && item.images.length > 0) {
+      const img = document.createElement('img');
+      img.src = item.images[0];
+      img.alt = item.name;
+      img.loading = 'lazy';
+      img.onerror = () => {
+        img.style.display = 'none';
+        imgWrap.innerHTML = `<div class="error">图片加载失败<br><small>${item.images[0]}</small></div>`;
+      };
+      imgWrap.appendChild(img);
+    } else {
+      imgWrap.innerHTML = '<div class="error">无图片</div>';
+    }
+
+    const info = document.createElement('div');
+    info.className = 'info';
+    info.innerHTML = `<div class="name">${item.name}</div><div class="category">${item.category} · ${item.region || ''}</div>`;
+
+    card.appendChild(imgWrap);
+    card.appendChild(info);
+    grid.appendChild(card);
+  });
+
+  updateStats();
+}
+
+function toggle(card, name) {
+  if (marked.has(name)) {
+    marked.delete(name);
+    card.classList.remove('marked');
+  } else {
+    marked.add(name);
+    card.classList.add('marked');
+  }
+  updateStats();
+}
+
+function markAll() {
+  document.querySelectorAll('.card').forEach(c => {
+    const name = c.querySelector('.name').textContent;
+    marked.add(name);
+    c.classList.add('marked');
+  });
+  updateStats();
+}
+
+function clearAll() {
+  marked.clear();
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('marked'));
+  updateStats();
+}
+
+function invertMarks() {
+  document.querySelectorAll('.card').forEach(c => {
+    const name = c.querySelector('.name').textContent;
+    if (marked.has(name)) {
+      marked.delete(name);
+      c.classList.remove('marked');
+    } else {
+      marked.add(name);
+      c.classList.add('marked');
+    }
+  });
+  updateStats();
+}
+
+function updateStats() {
+  const total = document.querySelectorAll('.card').length;
+  document.getElementById('badCount').textContent = marked.size;
+  document.getElementById('okCount').textContent = total - marked.size;
+  const float = document.getElementById('markFloat');
+  float.style.display = marked.size > 0 ? 'block' : 'none';
+  float.textContent = `📋 复制需替换名单 (${marked.size}个)`;
+}
+
+function copyList() {
+  if (marked.size === 0) { alert('没有标记任何项目'); return; }
+  const list = Array.from(marked).join('\n');
+  navigator.clipboard.writeText(list).then(() => {
+    alert(`已复制 ${marked.size} 个需替换的非遗名称到剪贴板`);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = list;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert(`已复制 ${marked.size} 个需替换的非遗名称`);
+  });
+}
+
+load();
+</script>
+</body>
+</html>

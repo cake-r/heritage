@@ -1,0 +1,112 @@
+[
+  {
+    "category": "苏绣",
+    "confidence": 0.94,
+    "top3": [
+      {"category": "苏绣", "confidence": 0.94},
+      {"category": "湘绣", "confidence": 0.04},
+      {"category": "蜀绣", "confidence": 0.02}
+    ],
+    "features": ["平针绣", "套针", "抢针", "双面绣"],
+    "raw_description": "这是一幅精美的苏绣作品，采用平针绣技法，图案秀丽，色彩清雅。丝绸底料上以细密针法绣制花鸟图案，线条流畅自然，体现了江南水乡的艺术韵味。"
+  },
+  {
+    "category": "剪纸",
+    "confidence": 0.91,
+    "top3": [
+      {"category": "剪纸", "confidence": 0.91},
+      {"category": "年画", "confidence": 0.06},
+      {"category": "皮影", "confidence": 0.03}
+    ],
+    "features": ["阴刻", "阳刻", "对称剪法", "套色剪纸"],
+    "raw_description": "这是一幅典型的中国民间剪纸作品，以红纸为材料，运用阴刻与阳刻相结合的手法，剪出对称的吉祥图案，刀法精细流畅，富有民间艺术特色。"
+  },
+  {
+    "category": "青花瓷",
+    "confidence": 0.88,
+    "top3": [
+      {"category": "青花瓷", "confidence": 0.88},
+      {"category": "景泰蓝", "confidence": 0.07},
+      {"category": "唐三彩", "confidence": 0.05}
+    ],
+    "features": ["青花料", "白釉", "手绘纹饰", "高温烧制"],
+    "raw_description": "这是一件青花瓷器，钴蓝色纹饰在白釉上显得清雅脱俗。花卉图案以流畅的线条勾勒，浓淡相宜，展现了景德镇青花瓷的经典艺术风格。"
+  },
+  {
+    "category": "皮影",
+    "confidence": 0.93,
+    "top3": [
+      {"category": "皮影", "confidence": 0.93},
+      {"category": "剪纸", "confidence": 0.05},
+      {"category": "木版年画", "confidence": 0.02}
+    ],
+    "features": ["牛皮雕刻", "染色", "透光性", "关节结构"],
+    "raw_description": "这是一件传统皮影戏人物造型，以牛皮为材料经精细雕刻而成，关节可活动，色彩鲜艳浓郁，具有透光效果，是华县皮影的经典之作。"
+  },
+  {
+    "category": "唐三彩",
+    "confidence": 0.89,
+    "top3": [
+      {"category": "唐三彩", "confidence": 0.89},
+      {"category": "青花瓷", "confidence": 0.07},
+      {"category": "紫砂壶", "confidence": 0.04}
+    ],
+    "features": ["三彩釉", "黄绿白", "釉色交融", "陶胎"],
+    "raw_description": "这是一件唐三彩陶器，黄、绿、白三色釉彩自然流淌交融，釉色绚丽。器型饱满圆润，体现了唐代雍容华贵的艺术风格和卓越的制陶工艺。"
+  },
+  {
+    "category": "紫砂壶",
+    "confidence": 0.90,
+    "top3": [
+      {"category": "紫砂壶", "confidence": 0.90},
+      {"category": "青花瓷", "confidence": 0.06},
+      {"category": "景泰蓝", "confidence": 0.04}
+    ],
+    "features": ["紫砂泥", "手工拍打", "明针", "壶钮"],
+    "raw_description": "这是一把宜兴紫砂壶，以紫砂泥手工拍打成型，壶身线条流畅，表面温润如玉。壶盖与壶身严丝合缝，体现了紫砂陶制作技艺的精湛水平。"
+  },
+  {
+    "category": "景泰蓝",
+    "confidence": 0.87,
+    "top3": [
+      {"category": "景泰蓝", "confidence": 0.87},
+      {"category": "青花瓷", "confidence": 0.08},
+      {"category": "唐三彩", "confidence": 0.05}
+    ],
+    "features": ["掐丝珐琅", "铜胎", "填釉", "镀金"],
+    "raw_description": "这是一件景泰蓝掐丝珐琅器，以铜为胎，用细铜丝掐出图案轮廓，填入各色珐琅釉料后烧制而成。色彩华贵富丽，具有皇家气派。"
+  },
+  {
+    "category": "木版年画",
+    "confidence": 0.92,
+    "top3": [
+      {"category": "木版年画", "confidence": 0.92},
+      {"category": "剪纸", "confidence": 0.05},
+      {"category": "蓝印花布", "confidence": 0.03}
+    ],
+    "features": ["木版套印", "多色印刷", "吉祥图案", "线版"],
+    "raw_description": "这是一幅传统木版年画，采用多色套印工艺，色彩鲜艳饱满，线条粗犷有力。画面中吉祥图案寓意美好，具有浓郁的民间年节气息。"
+  },
+  {
+    "category": "敦煌壁画",
+    "confidence": 0.86,
+    "top3": [
+      {"category": "敦煌壁画", "confidence": 0.86},
+      {"category": "唐三彩", "confidence": 0.08},
+      {"category": "景泰蓝", "confidence": 0.06}
+    ],
+    "features": ["矿物颜料", "飞天", "西域风格", "壁画肌理"],
+    "raw_description": "这是一幅敦煌壁画风格的艺术作品，以矿物颜料绘制，色彩浓郁古朴。飞天仙女造型飘逸灵动，融合了西域与中原的艺术元素，具有鲜明的敦煌艺术特色。"
+  },
+  {
+    "category": "蓝印花布",
+    "confidence": 0.90,
+    "top3": [
+      {"category": "蓝印花布", "confidence": 0.90},
+      {"category": "木版年画", "confidence": 0.06},
+      {"category": "剪纸", "confidence": 0.04}
+    ],
+    "features": ["靛蓝染色", "镂空花版", "防染印花", "棉布"],
+    "raw_description": "这是一块蓝印花布，以传统防染印花工艺制成。靛蓝色底上呈现白色花纹图案，纹样清新雅致，棉布质感质朴，体现了民间印染工艺的独特魅力。"
+  }
+]

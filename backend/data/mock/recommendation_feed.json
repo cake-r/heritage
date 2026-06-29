@@ -1,0 +1,70 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "item_type": "heritage",
+      "title": "苏绣·双面猫",
+      "image_url": "/static/images/suxiu_demo.jpg",
+      "category": "苏绣",
+      "region": "江苏",
+      "reason": "你最近对刺绣工艺很感兴趣，苏绣双面绣是这项技艺的巅峰之作",
+      "score": 0.92,
+      "target_route": "/exhibition?id=1"
+    },
+    {
+      "id": 7,
+      "item_type": "heritage",
+      "title": "景德镇青花瓷·缠枝莲纹瓶",
+      "image_url": "/static/images/taoci_demo.jpg",
+      "category": "陶瓷",
+      "region": "江西",
+      "reason": "景德镇青花瓷与你的审美偏好高度契合",
+      "score": 0.85,
+      "target_route": "/exhibition?id=7"
+    },
+    {
+      "id": 3,
+      "item_type": "heritage",
+      "title": "扬州剪纸·百蝶图",
+      "image_url": "/static/images/jianzhi_demo.jpg",
+      "category": "剪纸",
+      "region": "江苏",
+      "reason": "剪纸艺术与苏绣在纹样设计上有许多相通之处",
+      "score": 0.78,
+      "target_route": "/exhibition?id=3"
+    },
+    {
+      "id": 8,
+      "item_type": "heritage",
+      "title": "宜兴紫砂陶·提梁壶",
+      "image_url": "/static/images/zishahu_demo.jpg",
+      "category": "紫砂陶",
+      "region": "江苏",
+      "reason": "江苏非遗文化探索——紫砂壶艺与刺绣共筑江南文人雅趣",
+      "score": 0.72,
+      "target_route": "/exhibition?id=8"
+    },
+    {
+      "id": 12,
+      "item_type": "heritage",
+      "title": "唐三彩·骆驼载乐俑",
+      "image_url": "/static/images/tangsancai_demo.jpg",
+      "category": "唐三彩",
+      "region": "河南",
+      "reason": "换个品类看看——唐三彩的釉色流光溢彩，别具一格",
+      "score": 0.65,
+      "target_route": "/exhibition?id=12"
+    },
+    {
+      "id": 5,
+      "item_type": "user_upload",
+      "title": "湘绣·狮虎图",
+      "image_url": "/static/images/xiangxiu_demo.jpg",
+      "category": "湘绣",
+      "region": "湖南",
+      "reason": "社区热门——湘绣鬅毛针法独步天下",
+      "score": 0.60,
+      "target_route": "/exhibition?id=5"
+    }
+  ]
+}

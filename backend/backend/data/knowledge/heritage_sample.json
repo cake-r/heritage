@@ -1,0 +1,91 @@
+[
+  {
+    "name": "苏绣",
+    "category": "刺绣",
+    "region": "江苏苏州",
+    "era": "春秋战国",
+    "description": "苏绣是苏州地区刺绣产品的总称，起源于苏州，与湘绣、粤绣、蜀绣并称中国四大名绣。",
+    "techniques": [
+      {
+        "name": "平绣",
+        "desc": "最基本绣法"
+      },
+      {
+        "name": "乱针绣",
+        "desc": "不规则针法表现光影"
+      },
+      {
+        "name": "双面绣",
+        "desc": "正反两面图案一致"
+      }
+    ],
+    "inheritors": [
+      {
+        "name": "姚建萍",
+        "title": "中国工艺美术大师"
+      }
+    ],
+    "images": [
+      "/static/knowledge/suxiu_1.jpg"
+    ],
+    "cultural_meaning": "苏绣承载江南水乡的柔美与精致"
+  },
+  {
+    "name": "景德镇手工制瓷",
+    "category": "陶瓷",
+    "region": "江西景德镇",
+    "era": "汉代",
+    "description": "景德镇手工制瓷技艺始于汉代，以白如玉明如镜薄如纸声如磬著称。",
+    "techniques": [
+      {
+        "name": "拉坯",
+        "desc": "手工塑造器型"
+      },
+      {
+        "name": "利坯",
+        "desc": "精修至薄厚均匀"
+      },
+      {
+        "name": "施釉",
+        "desc": "覆盖釉料"
+      }
+    ],
+    "inheritors": [
+      {
+        "name": "张松茂",
+        "title": "中国工艺美术大师"
+      }
+    ],
+    "images": [
+      "/static/knowledge/jdz_1.jpg"
+    ],
+    "cultural_meaning": "中国对外文化交流的重要名片"
+  },
+  {
+    "name": "剪纸",
+    "category": "剪纸",
+    "region": "全国各地",
+    "era": "北朝",
+    "description": "中国剪纸是用剪刀或刻刀在纸上剪刻花纹的民间艺术。",
+    "techniques": [
+      {
+        "name": "阴刻",
+        "desc": "保留轮廓线刻去中间"
+      },
+      {
+        "name": "阳刻",
+        "desc": "刻去轮廓线保留中间"
+      }
+    ],
+    "inheritors": [
+      {
+        "name": "高凤莲",
+        "title": "国家级非遗传承人"
+      }
+    ],
+    "images": [
+      "/static/knowledge/jianzhi_1.jpg"
+    ],
+    "cultural_meaning": "体现对美好生活的向往和祈福纳祥"
+  }
+]

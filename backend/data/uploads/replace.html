@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>非遗图片替换工具</title>
+<style>
+:root {
+  --vermilion: #B8463A;
+  --gold: #C4A265;
+  --ink: #2C241A;
+  --ink-secondary: #6B5F52;
+  --paper: #F7F4ED;
+  --paper-white: #FFFDF9;
+  --deep: #1E1B18;
+  --border: #E8E4D8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+.top{background:var(--paper-white);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(30,27,24,.06);border-bottom:1px solid var(--border)}
+.top h1{color:var(--vermilion);font-size:20px;font-weight:700;white-space:nowrap}
+.top .stats{color:var(--ink-secondary);font-size:13px;white-space:nowrap}
+.top .spacer{flex:1}
+.top input,.top select{padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--paper);color:var(--ink);outline:none}
+.top input:focus,.top select:focus{border-color:var(--vermilion)}
+.top input{width:200px}
+.top select{width:120px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;padding:12px 24px}
+.card{background:var(--paper-white);border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s;border:2px solid transparent;position:relative}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(30,27,24,.1);border-color:var(--gold)}
+.card.selected{border-color:var(--vermilion);box-shadow:0 0 0 2px rgba(184,70,58,.2)}
+.card .img-wrap{height:160px;background:var(--paper);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.card .img-wrap img{width:100%;height:100%;object-fit:cover}
+.card .img-wrap .no-img{color:var(--ink-secondary);font-size:12px}
+.card .info{padding:8px 10px}
+.card .info .n{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .info .c{font-size:11px;color:var(--gold);margin-top:2px}
+.card .badge{position:absolute;top:6px;right:6px;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:600;background:var(--vermilion);color:#fff}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(30,27,24,.85);justify-content:center;align-items:center}
+.modal.open{display:flex}
+.modal .box{background:var(--paper-white);border-radius:16px;padding:28px;max-width:700px;width:90%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(30,27,24,.3)}
+.modal .box h2{color:var(--vermilion);font-size:18px;margin-bottom:16px}
+.modal .box .preview{display:flex;gap:16px;flex-wrap:wrap}
+.modal .box .preview .side{flex:1;min-width:220px;text-align:center}
+.modal .box .preview .side img{max-width:100%;max-height:260px;border-radius:8px;border:2px solid var(--border)}
+.modal .box .preview .side .label{color:var(--ink-secondary);font-size:13px;margin-bottom:8px}
+.upload-area{border:2px dashed var(--border);border-radius:12px;padding:30px 20px;text-align:center;cursor:pointer;transition:.2s;margin-top:16px}
+.upload-area:hover,.upload-area.drag{border-color:var(--gold);background:rgba(196,162,101,.05)}
+.upload-area .icon{font-size:40px;margin-bottom:8px}
+.upload-area .txt{color:var(--ink-secondary);font-size:14px}
+.upload-area .sub{color:#aaa;font-size:12px;margin-top:4px}
+.upload-area input{display:none}
+.btns{display:flex;gap:10px;justify-content:center;margin-top:20px}
+.btns button{padding:9px 24px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:.15s}
+.btn-cancel{background:var(--paper);color:var(--ink)}
+.btn-cancel:hover{background:var(--border)}
+.btn-replace{background:var(--vermilion);color:#fff}
+.btn-replace:hover{background:#a03d32}
+.btn-replace:disabled{background:#ccc;cursor:not-allowed}
+.btn-reset{background:var(--gold);color:#fff}
+.btn-reset:hover{background:#b08a4e}
+.btn-reset:disabled{background:#ccc;cursor:not-allowed}
+.actions{display:flex;gap:8px;align-items:center;margin-top:6px}
+.actions button{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--paper-white);color:var(--vermilion);cursor:pointer;font-size:12px;transition:.15s}
+.actions button:hover{background:var(--vermilion);color:#fff;border-color:var(--vermilion)}
+.actions button.danger{color:#999}
+.actions button.danger:hover{background:#c5533b;color:#fff;border-color:#c5533b}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--deep);color:#fff;
+  padding:12px 30px;border-radius:30px;font-size:15px;font-weight:600;z-index:300;display:none;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.empty-state{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--ink-secondary)}
+@media(max-width:600px){
+  .top{flex-wrap:wrap;padding:8px 12px}
+  .top h1{font-size:16px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));padding:8px}
+  .card .img-wrap{height:120px}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>非遗图片替换工具</h1>
+  <span class="stats" id="stats">加载中...</span>
+  <span class="spacer"></span>
+  <select id="filterCategory" onchange="filter()">
+    <option value="">全部品类</option>
+  </select>
+  <input type="text" id="filterSearch" placeholder="搜索名称..." oninput="filter()">
+</div>
+
+<div class="grid" id="grid">
+  <div class="empty-state">加载中...</div>
+</div>
+
+<!-- 替换弹窗 -->
+<div class="modal" id="modal">
+  <div class="box">
+    <h2 id="modalTitle">替换图片</h2>
+    <div class="preview">
+      <div class="side">
+        <div class="label">当前图片</div>
+        <img id="oldImg" src="" alt="当前" style="display:none">
+        <div id="noOldImg" style="color:var(--ink-secondary);padding:60px 0">暂无图片</div>
+      </div>
+      <div class="side">
+        <div class="label">新图片预览</div>
+        <img id="newImg" src="" alt="预览" style="display:none">
+        <div id="noPreview" style="color:var(--ink-secondary);padding:60px 0">尚未选择文件</div>
+      </div>
+    </div>
+    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+      <div class="icon">📁</div>
+      <div class="txt">点击选择图片 或 拖拽到此处</div>
+      <div class="sub">支持 JPG / PNG / WebP，最大 10MB</div>
+      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" onchange="handleFile(event)">
+    </div>
+    <div class="btns">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-reset" id="btnReset" disabled onclick="doReplace('reset')">替换(清除旧图)</button>
+      <button class="btn-replace" id="btnAdd" disabled onclick="doReplace('add')">追加图片</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let allItems = [];
+let categories = [];
+let currentItem = null;
+let selectedFile = null;
+
+function normalizeUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('/') || path.startsWith('http')) return path;
+  return '/static/' + path;
+}
+
+async function load() {
+  try {
+    // Fetch all items (paginated, max 50 per page)
+    allItems = [];
+    let page = 1;
+    while (true) {
+      const resp = await fetch(`/api/exhibition/items?page_size=50&page=${page}`);
+      if (!resp.ok) throw new Error(`API ${resp.status}`);
+      const data = await resp.json();
+      const heritage = data.items.filter(i => i.item_type === 'heritage');
+      allItems.push(...heritage);
+      if (page >= data.pages) break;
+      page++;
+    }
+    categories = [...new Set(allItems.map(i => i.category))].sort();
+    document.getElementById('stats').textContent = `共 ${allItems.length} 项`;
+    // Populate category filter
+    const sel = document.getElementById('filterCategory');
+    categories.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      sel.appendChild(opt);
+    });
+    render(allItems);
+  } catch(e) {
+    document.getElementById('grid').innerHTML = `<div class="empty-state">加载失败: ${e.message}</div>`;
+  }
+}
+
+function render(items) {
+  const grid = document.getElementById('grid');
+  if (items.length === 0) {
+    grid.innerHTML = '<div class="empty-state">无匹配项目</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => openModal(item);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'img-wrap';
+    if (item.images && item.images[0]) {
+      const img = document.createElement('img');
+      img.src = normalizeUrl(item.images[0]) + '?t=' + Date.now();
+      img.alt = item.name;
+      img.loading = 'lazy';
+      img.onerror = () => { img.style.display='none'; wrap.innerHTML='<div class="no-img">加载失败</div>'; };
+      wrap.appendChild(img);
+      if (item.images.length > 1) {
+        const badge = document.createElement('div');
+        badge.className = 'badge';
+        badge.textContent = item.images.length + '张';
+        card.appendChild(badge);
+      }
+    } else {
+      wrap.innerHTML = '<div class="no-img">无图片</div>';
+    }
+
+    const info = document.createElement('div');
+    info.className = 'info';
+    info.innerHTML = `<div class="n" title="${item.name}">${item.name}</div><div class="c">${item.category}</div>`;
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+    actions.onclick = e => e.stopPropagation();
+
+    const btnDel = document.createElement('button');
+    btnDel.className = 'danger';
+    btnDel.textContent = '清空';
+    btnDel.title = '清除所有图片';
+    btnDel.onclick = async (e) => {
+      e.stopPropagation();
+      if (!confirm(`确定要清除「${item.name}」的所有图片吗？`)) return;
+      try {
+        const resp = await fetch(`/api/tools/clear-images?item_id=${item.id}`, { method: 'POST' });
+        if (resp.ok) {
+          item.images = [];
+          showToast(`已清空: ${item.name}`);
+          render(filteredItems());
+        }
+      } catch {}
+    };
+    actions.appendChild(btnDel);
+
+    card.appendChild(wrap);
+    card.appendChild(info);
+    card.appendChild(actions);
+    grid.appendChild(card);
+  });
+}
+
+function filteredItems() {
+  const cat = document.getElementById('filterCategory').value;
+  const search = document.getElementById('filterSearch').value.toLowerCase();
+  return allItems.filter(i => {
+    if (cat && i.category !== cat) return false;
+    if (search && !i.name.toLowerCase().includes(search)) return false;
+    return true;
+  });
+}
+
+function filter() { render(filteredItems()); }
+
+function openModal(item) {
+  currentItem = item;
+  selectedFile = null;
+  document.getElementById('modalTitle').textContent = `替换: ${item.name} (ID:${item.id})`;
+  const oldImg = document.getElementById('oldImg');
+  const noOld = document.getElementById('noOldImg');
+  if (item.images && item.images[0]) {
+    oldImg.src = normalizeUrl(item.images[item.images.length - 1]);
+    oldImg.style.display = 'block';
+    noOld.style.display = 'none';
+  } else {
+    oldImg.style.display = 'none';
+    noOld.style.display = 'block';
+  }
+  document.getElementById('newImg').style.display = 'none';
+  document.getElementById('noPreview').style.display = 'block';
+  document.getElementById('btnAdd').disabled = true;
+  document.getElementById('btnReset').disabled = true;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  currentItem = null;
+}
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const valid = ['image/jpeg','image/png','image/webp'];
+  if (!valid.includes(file.type)) { alert('仅支持 JPG/PNG/WebP'); return; }
+  if (file.size > 10*1024*1024) { alert('文件不能超过 10MB'); return; }
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('newImg').src = ev.target.result;
+    document.getElementById('newImg').style.display = 'block';
+    document.getElementById('noPreview').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+  document.getElementById('btnAdd').disabled = false;
+  document.getElementById('btnReset').disabled = false;
+}
+
+async function doReplace(mode) {
+  if (!selectedFile || !currentItem) return;
+  const isReset = mode === 'reset';
+  const btn = document.getElementById(isReset ? 'btnReset' : 'btnAdd');
+  btn.disabled = true;
+  btn.textContent = '替换中...';
+
+  const form = new FormData();
+  form.append('file', selectedFile);
+  form.append('item_id', currentItem.id);
+
+  const endpoint = isReset ? '/api/tools/replace-image-reset' : '/api/tools/replace-image';
+
+  try {
+    const resp = await fetch(endpoint, { method: 'POST', body: form });
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.detail || '替换失败');
+    }
+    const data = await resp.json();
+
+    // Update local data
+    if (isReset) {
+      currentItem.images = [data.path];
+    } else {
+      if (!currentItem.images) currentItem.images = [];
+      currentItem.images.push(data.path);
+    }
+
+    // Update preview
+    document.getElementById('oldImg').src = data.path + '?t=' + Date.now();
+    document.getElementById('oldImg').style.display = 'block';
+    document.getElementById('noOldImg').style.display = 'none';
+
+    showToast(`已${isReset ? '替换' : '追加'}: ${currentItem.name}`);
+    btn.textContent = isReset ? '替换(清除旧图)' : '追加图片';
+    btn.disabled = true;
+    selectedFile = null;
+    document.getElementById('newImg').style.display = 'none';
+    document.getElementById('noPreview').style.display = 'block';
+
+    // Refresh grid
+    render(filteredItems());
+  } catch(e) {
+    alert('替换失败: ' + e.message);
+    btn.textContent = isReset ? '替换(清除旧图)' : '追加图片';
+    btn.disabled = false;
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+
+// Drag & drop on upload area
+const ua = document.getElementById('uploadArea');
+ua.addEventListener('dragover', e => { e.preventDefault(); ua.classList.add('drag'); });
+ua.addEventListener('dragleave', () => ua.classList.remove('drag'));
+ua.addEventListener('drop', e => {
+  e.preventDefault();
+  ua.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    document.getElementById('fileInput').files = e.dataTransfer.files;
+    handleFile({ target: { files: [file] } });
+  }
+});
+
+// Close modal with Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// Click modal backdrop to close
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+load();
+</script>
+</body>
+</html>

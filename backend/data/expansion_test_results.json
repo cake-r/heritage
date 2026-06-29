@@ -1,0 +1,101 @@
+[
+  {
+    "name": "竹编（青神竹编）",
+    "category": "竹编",
+    "region": "四川青神",
+    "era": "唐代",
+    "description": "青神竹编是四川省青神县的传统美术，国家级非物质文化遗产之一。青神竹编历史悠久，起源于唐代，兴盛于明清，距今已有千年历史。青神县地处四川盆地西南边缘，盛产慈竹，为竹编提供了优质原料。青神竹编工艺精细复杂，从选竹、刮青、分篾到编织，需经数十道工序。其特色在于“细如发丝、薄如蝉翼”，匠人将竹篾剖至极薄极细，通过挑、压、破、拼等技法，编织出平面或立体的图案，甚至能表现山水、人物、花鸟等复杂画面。青神竹编既有实用功能，又具极高艺术价值，被誉为“东方艺术之花”。",
+    "techniques": [
+      {
+        "name": "分篾",
+        "desc": "将竹片剖分成极薄极细的竹篾"
+      },
+      {
+        "name": "挑压编织",
+        "desc": "通过经篾与纬篾的挑压交错成形"
+      }
+    ],
+    "inheritors": [
+      {
+        "name": "陈云华",
+        "title": "国家级非遗传承人",
+        "desc": "创新平面竹编和立体竹编，培养大量后继人才"
+      }
+    ],
+    "cultural_meaning": "青神竹编承载着川蜀地区农耕文明的智慧与审美，体现了人与自然和谐共生的哲学。竹编器物常用于日常生活，象征质朴、坚韧与吉祥，竹节寓意节节高升，竹编图案中的龙凤、福寿等纹样寄托了人们对美好生活的向往与祝福。",
+    "images": [
+      "images/expansion_竹编_青神竹编__1_14367b.jpg",
+      "images/expansion_竹编_青神竹编__2_ec9849.jpg"
+    ],
+    "search_keyword": "竹编 非物质文化遗产 中国传统技艺",
+    "source_urls": [
+      "https://www.so.com/link?m=bUROpE6ijSrwgDutZQW54xzFZD7L7QwERCiHzU80GY3Sof0JjeenFcVqZvyCVxrZzWDn2ZMPFHCQFqmga8IQnQF0E0XcNA82PWQ4%2BmxVam%2BNwLoWcK2XBSdF0dVWLnDfHwAthlHTDE6zMaygUW1UKxlmlTopPr5olsmZkE7gu%2BBqHruu9nVsWqAHZV%2FFw01cuIIUxWqkkvk96EH7SeqJ3EQX4YIvTGJCzuD5sdf98ThxZzQdMGc1P7rSbDqg74PWgVJxrJt7WjVuFyjb84X6RZdwHyqQotDl4FoJgfEhJXc2wnds9tXxj0ESTQzCsrLv%2BuGewuxyNEZMkcxdG5Vd49tOaacSPy5Lk1LIW91AoqMgLakb7bqGDWsKKsOrYrgKWqP%2BEyzNRS64%3D"
+    ]
+  },
+  {
+    "name": "木雕（东固传统造像）",
+    "category": "木雕",
+    "region": "江西吉安",
+    "era": "明代",
+    "description": "东固传统造像是流传于江西省吉安市青原区东固畲族乡的一种传统木雕技艺，起源于明代，至今已有数百年历史。该技艺以雕刻佛教、道教及民间宗教神像为主，由神像造像和开光仪式两个核心部分组成。传承人被称为“丹青先生”，需同时掌握精湛的木雕技艺和宗教绘画能力，能够根据传统仪轨塑造各类神像。东固传统造像注重神像的庄严与灵动，雕刻手法细腻，线条流畅，色彩古朴，融合了雕刻、绘画、宗教仪式等多种艺术形式，具有鲜明的地域特色和深厚的民间信仰内涵。2021年，东固传统造像被列入国家级非物质文化遗产代表性项目名录。",
+    "techniques": [
+      {
+        "name": "神像雕刻",
+        "desc": "以樟木为主，按仪轨雕琢神像形体与神态"
+      },
+      {
+        "name": "开光仪式",
+        "desc": "通过宗教仪式赋予神像灵性与神圣意义"
+      }
+    ],
+    "inheritors": [
+      {
+        "name": "刘节明",
+        "title": "国家级非遗传承人",
+        "desc": "东固传统造像代表性传承人，恢复并传承核心技艺"
+      }
+    ],
+    "cultural_meaning": "东固传统造像不仅是民间木雕技艺的结晶，更承载着赣南地区民众对佛教、道教与民间信仰的虔诚与敬畏。神像作为人与神灵沟通的媒介，其雕刻与开光过程体现了天人合一、敬神崇德的传统观念，是地方民俗文化、宗教信仰与手工艺术融合的活态见证。",
+    "images": [
+      "images/expansion_木雕_东固传统造像__2_4f11c4.jpg",
+      "images/expansion_木雕_东固传统造像__3_9a1f58.jpg"
+    ],
+    "search_keyword": "木雕 非物质文化遗产 中国传统技艺",
+    "source_urls": [
+      "https://www.so.com/link?m=eokFQP4FV3D7iElvLbOMbbsHy%2BgymXsO43o2QLd41t3RmNygadl0bvCm27ASVEvu7%2Ft10eU0a4QaD0zhYzxOcle4jtsQpP%2Fea0GYFJu4kmSvnzvmFjVZlDDJaFkLvftG6C4OymaD3XPMY72WscKeU%2BWPXgR5kATCZ9LeOZfjAuKIVFqqVQuk4zfAtRxwsG6y06%2FfiluGHSudpR%2FxsVd5WPUIZAlWKpXxpao5QZkm9kg0nVzvyCINAGKGkgsDUcbsB45t%2FGpIYYQLTWeEDbYDj9GdElbg1uzgudCVmb1VUvWtgoUrC4FLKDpRZxYuG2klEPiHNzeNlDcoDBchLT3I28WOmMt1cReUgzRZvMQcRt91W7BG%2FqEU%2Bgu0GdFEAScf%2F1%2F1LeiKrtlX3xnMPYOLqTs1OiglDu4G%2F"
+    ]
+  },
+  {
+    "name": "吉州窑陶瓷烧制技艺",
+    "category": "陶瓷",
+    "region": "江西吉安",
+    "era": "唐代",
+    "description": "吉州窑陶瓷烧制技艺起源于唐代，兴盛于宋代，主要分布在江西省吉安县永和镇一带。吉州窑是江南地区著名的综合性民窑，以烧制黑釉瓷、剪纸贴花、木叶纹等产品闻名。其陶瓷技艺融合了民间艺术与实用美学，尤以黑釉瓷中的木叶盏最具代表性，将天然树叶经特殊处理后贴于釉面，烧成后叶脉清晰、形态自然，呈现独特的装饰效果。吉州窑还擅长运用剪纸、刻花、剔花等技法，使瓷器兼具质朴与灵动之美。该技艺在宋代达到鼎盛，产品远销海内外，对后世陶瓷发展产生了深远影响。2006年，吉州窑陶瓷烧制技艺被列入国家级非物质文化遗产名录。",
+    "techniques": [
+      {
+        "name": "木叶贴花",
+        "desc": "将天然树叶贴于釉面烧制，叶脉清晰"
+      },
+      {
+        "name": "剪纸贴花",
+        "desc": "剪纸图案贴于坯体上釉烧成，纹样独特"
+      }
+    ],
+    "inheritors": [
+      {
+        "name": "刘品三",
+        "title": "国家级非遗传承人",
+        "desc": "恢复吉州窑木叶纹等传统技艺，培养后继人才"
+      }
+    ],
+    "cultural_meaning": "吉州窑陶瓷烧制技艺承载了赣中地区千年的民间生活与审美情趣，其木叶纹、剪纸贴花等工艺将自然物象与人文巧思完美结合，体现了中国古代工匠‘天人合一’的造物哲学。它不仅是陶瓷技艺的瑰宝，更是江南地域文化、民俗信仰与艺术精神的生动载体，具有极高的历史、艺术与科学价值。",
+    "images": [
+      "images/expansion_吉州窑陶瓷烧制技艺_1_a31b14.jpg",
+      "images/expansion_吉州窑陶瓷烧制技艺_2_8d09e7.jpg"
+    ],
+    "search_keyword": "陶瓷 非物质文化遗产 中国传统技艺",
+    "source_urls": [
+      "https://www.so.com/link?m=zbhyrg1AnBTqQN6HdSe8vTqZUtloM7QQA8aq94zGrjqSH%2F66aRlrdpFlwbOHdgayO5YcojrYk4xNt7HUcltTtfALzXPWgF2w129E%2Fj3p0YePoLl%2BAkr815QmD3rv30UqghfDwTD0AXu60IsO190mTZkbgxYFIxhgUWC3CJg4ZWl1nuEm9saUUltRhEP5Mhd7Gt6GLYK%2BDKaI8hz0yvOsrt2UgpyWQbTFpRxqAGFnjhy114f2EM6kutNVwlr48JGV0dCgV5i3x1YXE8fpcs5A4%2FimTLq06%2FVIX%2F9vlLGrI7guwfZeVlCYI2wgRVFaklScifdHs8rRTre0Q73xXg3dyWAF65SAyi7atE%2Fs%2FssI6A2XhB4O8mYSyP%2FKnZNnxBlYqzv3fogxVMoOsngcW"
+    ]
+  }
+]

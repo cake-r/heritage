@@ -1,0 +1,9 @@
+{
+  "陶瓷": "修复该陶瓷器物，保持青花瓷的钴蓝色调和白釉底色。重点修复釉面剥落区域，使用与周围一致的釉色填充，保持釉面的光泽感和透明度。修复底部裂纹，确保纹路自然连续。还原口沿处因氧化变黄的青花纹饰，恢复其原始鲜艳的钴蓝色。整体保持文物的历史质感，不过度美化，保留适度的岁月痕迹。high quality, exquisite craftsmanship, Chinese ceramic restoration, professional photography, 4K, detailed texture, traditional Chinese celadon and blue-white porcelain style.",
+  "刺绣": "修复该刺绣作品，保持丝绸底布的自然光泽和纹理。针对褪色区域，恢复红色丝线的鲜艳度和蓝色丝线的深沉感，与周围未褪色的区域自然过渡。修复左下角的破损区域，根据周围纹样推理并重建缺失的针法。清除黄色污渍，保持绣面的整洁。保留刺绣的手工质感和丝线的自然光泽变化。high quality, Chinese silk embroidery, Suzhou embroidery style, professional photography, 4K, exquisite detail, traditional textile art.",
+  "剪纸": "修复该剪纸作品，恢复红色纸张的原始鲜艳度，去除泛黄。修复边缘破损和缺失区域，根据对称图案推理重建缺失部分。平滑折叠痕迹，保持纸张的平整感。修复折痕处脱落的红色颜料，使整体色彩均匀。保留剪纸手工雕刻的刀痕质感，不使其看起来像机器切割。high quality, traditional Chinese papercut art, vivid red color, professional photography, 4K, intricate cut patterns.",
+  "皮影": "修复该皮影人偶，重建龟裂皮革的完整性，修复脱落的面部颜料，恢复其鲜艳的红绿色彩。加固松动关节，使皮影恢复完整的可活动状态。色彩还原至原始饱和度，皮革纹理保持自然。high quality, Chinese shadow puppet art, vibrant colors, detailed leather texture, professional photography, 4K.",
+  "紫砂壶": "修复该紫砂壶，平滑表面磨损痕迹，修复壶盖边缘的微小缺口使其完整。均匀化包浆色泽，恢复紫砂特有的温润质感。底部款识清晰可辨。保持紫砂泥料的天然颗粒感和手工制作痕迹。high quality, Chinese Yixing zisha teapot, warm earth tones, professional photography, 4K, natural clay texture.",
+  "木雕": "修复该木雕作品，填补干裂纹理使其与周围木质自然融合。重新涂覆剥落的漆面区域，色彩与原有漆面匹配。填补虫蛀小孔，恢复木质表面的完整性。保留木雕手工雕刻的刀法痕迹和木质天然纹理。high quality, traditional Chinese wood carving, rich wood tones, professional photography, 4K, natural grain texture.",
+  "default": "修复该文物图像，增强清晰度和对比度，去除噪点和模糊。恢复细节纹理和色彩饱和度。修复破损和缺失区域，根据周围内容推理重建。保持原始艺术风格和材质质感，不过度锐化或改变原有特征。保持文物的历史真实感和手工制作痕迹。high quality, cultural heritage artwork restoration, professional photography, 4K, detailed texture, Chinese traditional craftsmanship."
+}
