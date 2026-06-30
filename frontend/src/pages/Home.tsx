@@ -244,33 +244,39 @@ export default function Home() {
               <Statistic
                 value={itemsCount}
                 suffix="+"
-                title="非遗藏品"
-                valueStyle={{
-                  color: 'var(--color-gold)',
-                  fontSize: isMobile ? 24 : 30,
-                  fontWeight: 500,
+                title={<span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 'var(--text-sm)' }}>非遗藏品</span>}
+                styles={{
+                  content: {
+                    color: '#C4A265',
+                    fontSize: isMobile ? 24 : 30,
+                    fontWeight: 500,
+                  },
                 }}
               />
             </Col>
             <Col>
               <Statistic
                 value={10}
-                title="风格模板"
-                valueStyle={{
-                  color: 'var(--color-gold)',
-                  fontSize: isMobile ? 24 : 30,
-                  fontWeight: 500,
+                title={<span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 'var(--text-sm)' }}>风格模板</span>}
+                styles={{
+                  content: {
+                    color: '#C4A265',
+                    fontSize: isMobile ? 24 : 30,
+                    fontWeight: 500,
+                  },
                 }}
               />
             </Col>
             <Col>
               <Statistic
                 value={5}
-                title="传承人角色"
-                valueStyle={{
-                  color: 'var(--color-gold)',
-                  fontSize: isMobile ? 24 : 30,
-                  fontWeight: 500,
+                title={<span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 'var(--text-sm)' }}>传承人角色</span>}
+                styles={{
+                  content: {
+                    color: '#C4A265',
+                    fontSize: isMobile ? 24 : 30,
+                    fontWeight: 500,
+                  },
                 }}
               />
             </Col>
