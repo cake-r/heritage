@@ -1,7 +1,8 @@
 /** 个性化推荐卡片 — 可复用于首页 / 模块推荐 */
 
+import { useState } from 'react'
 import { Card, Tag, Typography } from 'antd'
-import { RightOutlined, BulbOutlined } from '@ant-design/icons'
+import { RightOutlined, BulbOutlined, PictureOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { normalizeImageUrl } from '../../utils/imageUrl'
 import type { RecommendationItem } from '../../services/recommendation'
@@ -14,6 +15,7 @@ interface Props {
 
 export default function RecommendationCard({ item }: Props) {
   const navigate = useNavigate()
+  const [imgError, setImgError] = useState(false)
 
   return (
     <Card
@@ -41,10 +43,23 @@ export default function RecommendationCard({ item }: Props) {
       <div style={{
         width: '100%',
         height: 160,
-        background: item.image_url
-          ? `url(${normalizeImageUrl(item.image_url)}) center/cover no-repeat`
-          : 'linear-gradient(135deg, var(--color-paper), var(--color-border-light))',
-      }} />
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, var(--color-paper), var(--color-border-light))',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        {item.image_url && !imgError ? (
+          <img
+            src={normalizeImageUrl(item.image_url)}
+            alt={item.title}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <PictureOutlined style={{ fontSize: 40, color: 'var(--color-border-medium)', opacity: 0.5 }} />
+        )}
+      </div>
 
       {/* 内容区 */}
       <div style={{ padding: '16px 20px' }}>

@@ -119,7 +119,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
         gap: 20,
       }}
     >
-      {messages.map(msg => (
+      {messages.map((msg, idx) => (
         <div key={msg.id}>
           {/* 工具调用标识 */}
           {msg.toolUsed && (
