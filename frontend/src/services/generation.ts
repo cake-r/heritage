@@ -74,6 +74,11 @@ export async function publishWork(id: number, isPublic: boolean) {
   return res.data
 }
 
+export async function getDetail(id: number): Promise<GenerationResult> {
+  const res = await api.get(`/api/generation/${id}`)
+  return res.data
+}
+
 export async function deleteWork(id: number) {
   const res = await api.delete(`/api/generation/${id}`)
   return res.data

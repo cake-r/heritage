@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Card, Upload, Typography, Spin, Tag, Button,
   Row, Col, Space, message, Steps, Progress, Tabs, Descriptions, Empty, Divider,
@@ -13,7 +14,7 @@ import type { TabsProps } from 'antd'
 // RcFile is the type passed by Ant Design's beforeUpload (extends browser File)
 type RcFile = File
 import {
-  uploadAndRestore,
+  uploadAndRestore, getDetail,
   type RestorationResult,
   type PipelineStep,
 } from '../../services/restoration'
@@ -244,6 +245,28 @@ export default function DigitalRestoration() {
   const [previewImage, setPreviewImage] = useState<string>('')
   const [visibleSteps, setVisibleSteps] = useState<number>(0)
   const [errorMsg, setErrorMsg] = useState<string>('')
+  const [searchParams] = useSearchParams()
+
+  // 支持 ?id=xxx 从个人中心跳转查看详情
+  useEffect(() => {
+    const idParam = searchParams.get('id')
+    if (idParam) {
+      const id = parseInt(idParam, 10)
+      if (!isNaN(id)) {
+        setStep('running')
+        setErrorMsg('')
+        setVisibleSteps(0)
+        getDetail(id).then(data => {
+          setResult(data)
+          setPreviewImage(data.original_image_url)
+          setStep('complete')
+        }).catch(err => {
+          setErrorMsg(err.response?.data?.detail || err.message || '加载修复记录失败')
+          setStep('error')
+        })
+      }
+    }
+  }, [searchParams])
 
   // Sequential step reveal animation
   useEffect(() => {

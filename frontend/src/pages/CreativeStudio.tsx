@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Card, Typography, Tabs, Radio, Checkbox, Slider, Input, Button,
   Row, Col, Spin, Image, Space, Tag, message, Empty, Pagination,
@@ -7,10 +8,10 @@ import {
 import {
   PictureOutlined, DownloadOutlined, HeartOutlined,
   SendOutlined, LoadingOutlined,
-  EyeOutlined, UploadOutlined,
+  EyeOutlined, UploadOutlined, LeftOutlined,
 } from '@ant-design/icons'
 import {
-  textToImage, imageToImage, getGallery,
+  textToImage, imageToImage, getGallery, getDetail,
   type GenerationResult, type GenerationItem,
 } from '../services/generation'
 import { normalizeImageUrl } from '../utils/imageUrl'
@@ -37,6 +38,13 @@ const COMPOSITIONS = ['', '中心对称', '散点透视', '长卷式', '团扇�
 
 export default function CreativeStudio() {
   const [activeTab, setActiveTab] = useState<'create' | 'gallery'>('create')
+  const [searchParams] = useSearchParams()
+  const workIdParam = searchParams.get('work')
+
+  // 支持 ?work=xxx 从个人中心跳转查看作品详情
+  if (workIdParam) {
+    return <WorkDetailView workId={parseInt(workIdParam, 10)} />
+  }
 
   return (
     <div style={{ maxWidth: 1300, margin: '0 auto' }}>
@@ -373,5 +381,77 @@ function GalleryPanel() {
         </>
       )}
     </Card>
+  )
+}
+
+// ========== 作品详情视图（从个人中心跳转） ==========
+
+function WorkDetailView({ workId }: { workId: number }) {
+  const [work, setWork] = useState<GenerationResult | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (!isNaN(workId)) {
+      setLoading(true)
+      getDetail(workId)
+        .then(data => { setWork(data); setLoading(false) })
+        .catch(err => { setError(err.message || '加载作品失败'); setLoading(false) })
+    }
+  }, [workId])
+
+  if (loading) {
+    return (
+      <div style={{ maxWidth: 1300, margin: '0 auto', textAlign: 'center', padding: 80 }}>
+        <Spin size="large" tip="加载作品详情..." />
+      </div>
+    )
+  }
+
+  if (error || !work) {
+    return (
+      <div style={{ maxWidth: 1300, margin: '0 auto' }}>
+        <Empty description={error || '作品不存在'} style={{ padding: 80 }}>
+          <Button type="primary" onClick={() => window.history.back()}>返回</Button>
+        </Empty>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ maxWidth: 1300, margin: '0 auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+        <Button icon={<LeftOutlined />} onClick={() => window.history.back()}>返回</Button>
+        <Title level={3} style={{ margin: 0 }}>🎨 作品详情</Title>
+      </div>
+
+      <Card style={{ borderRadius: 12, marginBottom: 16 }}>
+        <Image.PreviewGroup>
+          <Row gutter={[12, 12]}>
+            {work.images.map((img, i) => (
+              <Col span={work.images.length <= 2 ? 12 : 8} key={i}>
+                <Image src={normalizeImageUrl(img)} alt={`生成结果 ${i + 1}`}
+                  style={{ width: '100%', borderRadius: 8, aspectRatio: '1', objectFit: 'cover' }}
+                />
+              </Col>
+            ))}
+          </Row>
+        </Image.PreviewGroup>
+      </Card>
+
+      <Card size="small" style={{ background: 'var(--color-bg-hover, #F5F5F0)', borderRadius: 12 }}>
+        <Space wrap size="small">
+          <Tag color="blue">Seed: {work.seed}</Tag>
+          <Tag>{work.params.base_style || '未知风格'}</Tag>
+          <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
+            创建于 {new Date(work.created_at).toLocaleDateString('zh-CN')}
+          </Text>
+        </Space>
+        <div style={{ marginTop: 12 }}>
+          <Text strong style={{ fontSize: 'var(--text-sm)' }}>Prompt: </Text>
+          <Text style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary)' }}>{work.prompt_used}</Text>
+        </div>
+      </Card>
+    </div>
   )
 }

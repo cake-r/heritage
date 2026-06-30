@@ -56,6 +56,7 @@ def init_db():
     _migrate_add_column("user_uploads", "inheritors_json", "TEXT")
     _migrate_add_column("user_uploads", "cultural_meaning", "TEXT")
     _migrate_add_column("passport_stamps", "progress", "INTEGER DEFAULT 1")
+    _migrate_add_column("recognition_records", "heatmap_data_json", "TEXT")
 
 
 def _migrate_add_column(table: str, column: str, col_type: str):

@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Card, Upload, Typography, Spin, Tabs, Tag, Button,
   Row, Col, Space, message, Empty, Progress,
@@ -12,7 +12,7 @@ import {
 type RcFile = File
 import ReactMarkdown from 'react-markdown'
 import AudioPlayer from '../components/recognition/AudioPlayer'
-import { uploadAndRecognize, type RecognitionResult } from '../services/recognition'
+import { uploadAndRecognize, getDetail, type RecognitionResult } from '../services/recognition'
 
 const { Dragger } = Upload
 const { Title, Text } = Typography
@@ -26,6 +26,27 @@ export default function Recognition() {
   const [error, setError] = useState<string>('')
   const [uploadProgress, setUploadProgress] = useState(0)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+
+  // 支持 ?id=xxx 从个人中心跳转查看详情
+  useEffect(() => {
+    const idParam = searchParams.get('id')
+    if (idParam) {
+      const id = parseInt(idParam, 10)
+      if (!isNaN(id)) {
+        setStep('loading')
+        setError('')
+        getDetail(id).then(data => {
+          setResult(data)
+          setPreviewImage(data.image_url)
+          setStep('result')
+        }).catch(err => {
+          setError(err.message || '加载识别记录失败')
+          setStep('upload')
+        })
+      }
+    }
+  }, [searchParams])
 
   const handleUpload = async (file: RcFile) => {
     // beforeUpload 接收的是 RcFile (extends File), 不是 UploadFile

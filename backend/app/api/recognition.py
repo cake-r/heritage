@@ -98,6 +98,7 @@ def upload_and_recognize(
         explanation_json=json.dumps(explanation, ensure_ascii=False),
         raw_response_json=json.dumps(rec_result, ensure_ascii=False),
         heatmap_path=heatmap_url,
+        heatmap_data_json=json.dumps(heatmap_data, ensure_ascii=False) if heatmap_data else None,
         voice_path=voice_url,
     )
     db.add(record)
@@ -247,6 +248,13 @@ def _build_response(
     explanation = json.loads(record.explanation_json) if record.explanation_json else {
         "history": "", "technique": "", "inheritor": "", "meaning": ""
     }
+
+    # 优先使用传入的 heatmap_data（上传时实时生成），否则从数据库读取
+    if heatmap_data is None and record.heatmap_data_json:
+        try:
+            heatmap_data = json.loads(record.heatmap_data_json)
+        except (json.JSONDecodeError, TypeError):
+            heatmap_data = []
 
     return RecognitionResponse(
         id=record.id,

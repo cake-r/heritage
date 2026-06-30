@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Layout, Menu, Card, Typography, Spin, Empty, Button,
-  List, Image, Tag, Space, Input, Form, message, Popconfirm, Tabs,
+  List, Image, Tag, Space, Input, Form, message, Popconfirm, Tabs, Tooltip,
 } from 'antd'
 import {
   CameraOutlined, PictureOutlined, MessageOutlined,
@@ -121,7 +121,7 @@ function RecordsTab() {
       renderItem={item => (
         <List.Item
           extra={
-            <Button type="link" icon={<RightOutlined />} onClick={() => navigate(`/recognition`)}>
+            <Button type="link" icon={<RightOutlined />} onClick={() => navigate(`/recognition?id=${item.id}`)}>
               查看详情
             </Button>
           }
@@ -151,6 +151,7 @@ function RecordsTab() {
 function WorksTab() {
   const [works, setWorks] = useState<GenerationItem[]>([])
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   useEffect(() => { load() }, [])
 
@@ -195,6 +196,10 @@ function WorksTab() {
           }
           bodyStyle={{ padding: '8px 12px' }}
           actions={[
+            <Tooltip title="查看详情" key="view">
+              <Button type="text" size="small" icon={<RightOutlined />}
+                onClick={() => navigate(`/creative-studio?work=${w.id}`)} />
+            </Tooltip>,
             <Popconfirm key="del" title="确定删除？" onConfirm={() => handleDelete(w.id)}>
               <Button type="text" size="small" danger icon={<DeleteOutlined />} />
             </Popconfirm>,
@@ -242,7 +247,7 @@ function RestorationTab() {
       renderItem={item => (
         <List.Item
           extra={
-            <Button type="link" icon={<RightOutlined />} onClick={() => navigate('/restoration')}>
+            <Button type="link" icon={<RightOutlined />} onClick={() => navigate(`/restoration?id=${item.id}`)}>
               查看详情
             </Button>
           }

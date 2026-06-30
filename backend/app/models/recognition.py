@@ -22,5 +22,6 @@ class RecognitionRecord(Base):
     raw_response_json = Column(Text)  # Qwen-VL原始响应
 
     heatmap_path = Column(String(500))
+    heatmap_data_json = Column(Text)   # [{name, x, y, label}] 前端交互热点数据
     voice_path = Column(String(500))
     created_at = Column(DateTime, default=datetime.utcnow)

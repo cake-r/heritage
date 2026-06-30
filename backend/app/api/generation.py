@@ -16,7 +16,7 @@ from app.schemas.generation import (
 )
 from app.schemas.common import PaginatedResponse, MessageResponse
 from app.api.deps import get_current_user, get_optional_user
-from app.utils.exceptions import AppException
+from app.utils.exceptions import AppException, NotFoundException
 
 logger = logging.getLogger("generation_api")
 router = APIRouter()
@@ -253,6 +253,33 @@ def get_gallery(
 
     total_pages = max(1, (total + page_size - 1) // page_size)
     return PaginatedResponse(items=items, total=total, page=page, pages=total_pages)
+
+
+@router.get("/{work_id}", response_model=GenerationResponse)
+def get_detail(
+    work_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """获取单件作品的详情"""
+    work = db.query(GeneratedWork).filter(
+        GeneratedWork.id == work_id,
+        GeneratedWork.user_id == current_user.id,
+    ).first()
+    if not work:
+        raise NotFoundException("作品不存在")
+
+    images = json.loads(work.images_json) if work.images_json else []
+    params = json.loads(work.params_json) if work.params_json else {}
+
+    return GenerationResponse(
+        id=work.id,
+        images=images,
+        params=params,
+        seed=work.seed,
+        prompt_used=work.prompt,
+        created_at=work.created_at,
+    )
 
 
 @router.post("/{work_id}/publish", response_model=MessageResponse)
