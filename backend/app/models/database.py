@@ -32,14 +32,23 @@ def get_db():
 def init_db():
     """创建所有表 — 在应用启动时调用"""
     # 确保所有模型被导入以便 Base.metadata 发现
-    import app.models.user  # noqa: F401 (expansion FK 依赖)
+    import app.models.user  # noqa: F401
+    import app.models.recognition  # noqa: F401
+    import app.models.generation  # noqa: F401
+    import app.models.favorite  # noqa: F401
+    import app.models.chat  # noqa: F401
+    import app.models.exhibition  # noqa: F401
+    import app.models.custom_inheritor  # noqa: F401
+    import app.models.restoration  # noqa: F401
     import app.models.passport  # noqa: F401
     import app.models.expansion  # noqa: F401
     import app.models.recommendation  # noqa: F401
     import app.models.cultivation  # noqa: F401
+    import app.models.companion  # noqa: F401
     Base.metadata.create_all(bind=engine)
 
     # 迁移: 为已有数据库添加新列
+    _migrate_add_column("heritage_items", "embedding_json", "TEXT")
     _migrate_add_column("chat_messages", "voice_url", "VARCHAR(500)")
     _migrate_add_column("user_uploads", "region", "VARCHAR(100)")
     _migrate_add_column("user_uploads", "era", "VARCHAR(100)")

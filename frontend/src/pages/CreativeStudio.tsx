@@ -87,6 +87,8 @@ function CreationPanel() {
         : await imageToImage(refFile!, params)
       setResult(data)
       message.success('生成完成！')
+      // 通知伴游：完成创作操作
+      window.dispatchEvent(new CustomEvent('companion:action', { detail: { action: 'just_completed_generation' } }))
     } catch (err: any) {
       message.error(err.message || '生成失败')
     } finally {
@@ -143,8 +145,8 @@ function CreationPanel() {
               {STYLES.map(s => (
                 <Tag
                   key={s}
-                  color={style === s ? '#C41E3A' : 'default'}
-                  style={{ cursor: 'pointer', padding: '4px 12px', fontSize: 13 }}
+                  color={style === s ? 'var(--color-vermilion, #B8463A)' as any : 'default'}
+                  style={{ cursor: 'pointer', padding: '4px 12px', fontSize: 'var(--text-sm)' }}
                   onClick={() => setStyle(s)}
                 >
                   {s}
@@ -254,7 +256,7 @@ function CreationPanel() {
               </Image.PreviewGroup>
 
               {/* 参数面板 */}
-              <Card size="small" style={{ marginTop: 16, background: '#fafafa' }}>
+              <Card size="small" style={{ marginTop: 16, background: 'var(--color-bg-hover, #F5F5F0)' }}>
                 <Space wrap size="small">
                   <Tag color="blue">Seed: {result.seed}</Tag>
                   <Tag>{result.params.base_style}</Tag>
@@ -298,7 +300,7 @@ function ResultCard({ image, index, result }: { image: string; index: number; re
       />
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        background: 'rgba(0,0,0,0.6)', padding: '6px 8px',
+        background: 'var(--color-deep, rgba(30,27,24,0.85))', padding: '6px 8px',
         display: 'flex', justifyContent: 'center', gap: 8,
       }}>
         <Tooltip title="下载"><Button size="small" type="text" ghost icon={<DownloadOutlined />} onClick={handleDownload} /></Tooltip>
@@ -356,7 +358,7 @@ function GalleryPanel() {
                     }
                     bodyStyle={{ padding: '8px 12px' }}
                   >
-                    <Text strong style={{ fontSize: 13 }}>{item.base_style}</Text>
+                    <Text strong style={{ fontSize: 'var(--text-sm)' }}>{item.base_style}</Text>
                     <br />
                     <Text type="secondary" style={{ fontSize: 11 }}>{item.prompt.slice(0, 40)}...</Text>
                   </Card>

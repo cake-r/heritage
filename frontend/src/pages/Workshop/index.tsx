@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { message } from 'antd'
+import { message, Button, Popconfirm, Drawer, Grid } from 'antd'
+import { DeleteOutlined, ToolOutlined } from '@ant-design/icons'
 import {
   getCharacters, createSession, listSessions, getSessionDetail,
   deleteSession, sendMessageSSE,
@@ -48,6 +49,9 @@ export const TOOL_NAMES: Record<string, string> = {
   create: '创作·生成',
   connect: '博学·关联',
   teach: '教学·答疑',
+  pattern: '纹样·提取',
+  story: '故事·讲述',
+  compare: '对比·鉴赏',
 }
 
 export const TOOL_ICONS: Record<string, string> = {
@@ -55,11 +59,19 @@ export const TOOL_ICONS: Record<string, string> = {
   create: '🎨',
   connect: '🔗',
   teach: '📖',
+  pattern: '🏮',
+  story: '📜',
+  compare: '⚖️',
 }
 
 export default function Workshop() {
   const [searchParams] = useSearchParams()
   const initialPersona = searchParams.get('persona') || ''
+  const screens = Grid.useBreakpoint()
+  const isCompact = !screens.xxl  // < 1600px: 收起工具箱
+
+  // 工具箱 Drawer 状态（紧凑模式）
+  const [toolboxOpen, setToolboxOpen] = useState(false)
 
   // 传承人
   const [presets, setPresets] = useState<InheritorInfo[]>([])
@@ -239,23 +251,61 @@ export default function Workshop() {
           setStreamingContent(contentRef.current)
         },
         onDone: (data: SSEDoneData) => {
-          const finalContent = contentRef.current
-          const aiMsg: WorkshopMessage = {
-            id: data.message_id,
-            role: 'assistant',
-            content: finalContent,
-            image_url: null,
-            voice_url: data.voice_url,
-            created_at: new Date().toISOString(),
-            toolUsed: data.tool_used,
-            curriculumSections: curriculumSections.length > 0 ? curriculumSections : undefined,
+          if (data.tool_used) {
+            // teach 工具无 tool_result 事件，需从 streaming content 创建消息
+            if (data.tool_used === 'teach') {
+              const finalContent = contentRef.current
+              setMessages(prev => [...prev, {
+                id: data.message_id,
+                role: 'assistant' as const,
+                content: finalContent,
+                image_url: null,
+                voice_url: data.voice_url,
+                created_at: new Date().toISOString(),
+                toolUsed: data.tool_used,
+                curriculumSections: curriculumSections.length > 0 ? curriculumSections : undefined,
+              }])
+            } else {
+              // 其他工具：消息已由 onToolResult / onImageBatch 创建，补充 voice_url
+              setMessages(prev => {
+                const updated = [...prev]
+                for (let i = updated.length - 1; i >= 0; i--) {
+                  if (updated[i].role === 'assistant' && updated[i].toolUsed === data.tool_used) {
+                    updated[i] = { ...updated[i], id: data.message_id, voice_url: data.voice_url }
+                    return updated
+                  }
+                }
+                // 兜底：没找到则新建
+                updated.push({
+                  id: data.message_id,
+                  role: 'assistant',
+                  content: contentRef.current,
+                  image_url: null,
+                  voice_url: data.voice_url,
+                  created_at: new Date().toISOString(),
+                  toolUsed: data.tool_used,
+                })
+                return updated
+              })
+            }
+          } else {
+            const finalContent = contentRef.current
+            const aiMsg: WorkshopMessage = {
+              id: data.message_id,
+              role: 'assistant',
+              content: finalContent,
+              image_url: null,
+              voice_url: data.voice_url,
+              created_at: new Date().toISOString(),
+            }
+            setMessages(prev => [...prev, aiMsg])
           }
-          setMessages(prev => [...prev, aiMsg])
           setStreaming(false)
           setStreamingContent('')
           setActiveToolId(null)
           setToolStatus('')
           contentRef.current = ''
+          curriculumSections = []
         },
         onError: (err) => {
           message.error(err)
@@ -271,13 +321,21 @@ export default function Workshop() {
           contentRef.current = ''
         },
         onToolProgress: (data) => {
-          setToolStatus(`正在${data.step === 'recognizing' ? '识别' : data.step === 'generating' ? '生成' : data.step === 'searching' ? '搜索' : '整理'}...`)
+          const stepLabels: Record<string, string> = {
+            recognizing: '识别',
+            generating: '生成',
+            searching: '搜索',
+            curating: '整理',
+            writing: '撰写',
+            analyzing: '分析',
+          }
+          setToolStatus(`正在${stepLabels[data.step] || '处理'}...`)
         },
         onToolResult: (data: ToolResultEvent) => {
           const aiMsg: WorkshopMessage = {
             id: Date.now(),
             role: 'assistant',
-            content: data.summary || data.commentary || '',
+            content: data.summary || data.commentary || (data as any).story || '',
             image_url: null,
             voice_url: null,
             created_at: new Date().toISOString(),
@@ -361,6 +419,22 @@ export default function Workshop() {
     } catch { message.error('删除失败') }
   }
 
+  // 处理清除对话历史
+  const handleClearHistory = async () => {
+    if (!currentSessionId || !selectedInheritor) return
+    try {
+      await deleteSession(currentSessionId)
+      // 从 sessions 列表中移除
+      setSessions(prev => prev.filter(s => s.id !== currentSessionId))
+      // 清除消息
+      setMessages([])
+      // 为新对话创建会话
+      const s = await createSession(selectedInheritor)
+      setSessions(prev => [s, ...prev])
+      setCurrentSessionId(s.id)
+    } catch { message.error('清除失败') }
+  }
+
   // 处理删除自定义传承人
   const handleDeleteCustom = (id: number) => {
     setCustoms(prev => prev.filter(c => c.id !== `custom:${id}`))
@@ -378,17 +452,40 @@ export default function Workshop() {
     } catch { /* ignore */ }
   }
 
+  // 工具箱点击 → 自动填入工具前缀
+  const chatInputRef = useRef<{ selectTool: (toolId: string) => void }>(null)
+
+  const handleToolClick = useCallback((toolId: string) => {
+    if (chatInputRef.current) {
+      chatInputRef.current.selectTool(toolId)
+    }
+    // 紧凑模式下关闭 Drawer
+    if (isCompact) {
+      setToolboxOpen(false)
+    }
+  }, [isCompact])
+
   const selectedInheritorInfo = [...presets, ...customs].find(i => i.id === selectedInheritor)
   const sessionCount = sessions.length
+
+  // 工具箱组件（复用）
+  const toolboxElement = (
+    <WorkshopToolbox
+      tools={availableTools}
+      activeToolId={activeToolId}
+      toolStatus={toolStatus}
+      onToolClick={handleToolClick}
+    />
+  )
 
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: '240px 1fr 260px',
+      gridTemplateColumns: isCompact ? '220px 1fr' : '240px 1fr 260px',
       gridTemplateRows: '1fr auto',
       height: 'calc(100vh - 64px - 48px)',
-      gap: 20,
-      padding: '0 20px 20px',
+      gap: isCompact ? 12 : 20,
+      padding: isCompact ? '0 8px 12px' : '0 20px 20px',
     }}>
       {/* 左侧：传承人列表 */}
       <InheritorRoster
@@ -410,6 +507,57 @@ export default function Workshop() {
         overflow: 'hidden',
         boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(30,27,24,0.06))',
       }}>
+        {/* 聊天头部 — 传承人名称 + 工具按钮 + 清除按钮 */}
+        {selectedInheritorInfo && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 20px',
+            borderBottom: '1px solid var(--color-paper, #F7F4ED)',
+            flexShrink: 0,
+          }}>
+            <span style={{
+              fontSize: 'var(--text-sm)',
+              fontWeight: 600,
+              color: 'var(--color-ink, #2C241A)',
+            }}>
+              {selectedInheritorInfo.name} · 对话
+            </span>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {isCompact && availableTools.length > 0 && (
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<ToolOutlined />}
+                  onClick={() => setToolboxOpen(true)}
+                  style={{ fontSize: 'var(--text-xs)' }}
+                >
+                  工具箱
+                </Button>
+              )}
+              {messages.length > 0 && !streaming && (
+                <Popconfirm
+                  title="确定清除当前对话记录？"
+                  description="清除后将开启新对话，历史消息不可恢复。"
+                  onConfirm={handleClearHistory}
+                  okText="确定"
+                  cancelText="取消"
+                >
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<DeleteOutlined />}
+                    danger
+                    style={{ fontSize: 'var(--text-xs)' }}
+                  >
+                    清除对话
+                  </Button>
+                </Popconfirm>
+              )}
+            </div>
+          </div>
+        )}
         <WorkshopChat
           messages={messages}
           streaming={streaming}
@@ -417,8 +565,24 @@ export default function Workshop() {
           loading={loading}
           inheritor={selectedInheritorInfo}
           onQuickQuestion={handleQuickQuestion}
+          onRegenerate={() => {
+            // 找到最后一条用户消息，重新发送
+            const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')
+            if (lastUserMsg) {
+              // 移除最后一条 AI 消息后重发
+              setMessages(prev => {
+                const lastAiIdx = prev.map((m, i) => ({ m, i })).reverse().find(({ m }) => m.role === 'assistant')
+                if (lastAiIdx) {
+                  return prev.slice(0, lastAiIdx.i)
+                }
+                return prev
+              })
+              handleSendMessage(lastUserMsg.content)
+            }
+          }}
         />
         <WorkshopChatInput
+          ref={chatInputRef}
           onSend={handleSendMessage}
           streaming={streaming}
           availableTools={availableTools}
@@ -427,15 +591,18 @@ export default function Workshop() {
         />
       </div>
 
-      {/* 右侧：工具箱 */}
-      <WorkshopToolbox
-        tools={availableTools}
-        activeToolId={activeToolId}
-        toolStatus={toolStatus}
-        onToolClick={(toolId) => {
-          // 工具箱点击在 WorkshopChatInput 中处理
-        }}
-      />
+      {/* 右侧：工具箱 — 宽屏固定显示，紧凑屏收起到 Drawer */}
+      {!isCompact && toolboxElement}
+
+      <Drawer
+        title="🛠️ 工具"
+        open={toolboxOpen}
+        onClose={() => setToolboxOpen(false)}
+        width={280}
+        styles={{ body: { padding: 0 } }}
+      >
+        {toolboxElement}
+      </Drawer>
 
       {/* 底部：状态栏 */}
       <WorkshopStatusBar

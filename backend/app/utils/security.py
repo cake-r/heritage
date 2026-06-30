@@ -11,20 +11,33 @@ from jose import JWTError, jwt
 from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_HOURS
 
 
+# PBKDF2 iteration count (≥600,000 per OWASP 2025 recommendation)
+PBKDF2_ITERATIONS = 600_000
+
+
 def hash_password(password: str) -> str:
-    """PBKDF2-SHA256 密码哈希"""
+    """PBKDF2-SHA256 密码哈希（600,000 次迭代）"""
     salt = os.urandom(32)
-    key = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 100000)
-    return salt.hex() + ":" + key.hex()
+    key = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, PBKDF2_ITERATIONS)
+    # 格式: salt_hex:iterations:key_hex (向前兼容旧格式 salt_hex:key_hex)
+    return f"{salt.hex()}:{PBKDF2_ITERATIONS}:{key.hex()}"
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """验证密码"""
+    """验证密码 — 兼容旧格式（100,000次迭代）和新格式（600,000次迭代）"""
     try:
-        salt_hex, key_hex = hashed_password.split(":")
+        parts = hashed_password.split(":")
+        if len(parts) == 3:
+            # 新格式: salt:iterations:key
+            salt_hex, iterations_str, key_hex = parts
+            iterations = int(iterations_str)
+        else:
+            # 旧格式: salt:key (默认 100,000 次迭代)
+            salt_hex, key_hex = parts
+            iterations = 100_000
         salt = bytes.fromhex(salt_hex)
         key = bytes.fromhex(key_hex)
-        new_key = hashlib.pbkdf2_hmac("sha256", plain_password.encode(), salt, 100000)
+        new_key = hashlib.pbkdf2_hmac("sha256", plain_password.encode(), salt, iterations)
         return hmac.compare_digest(new_key, key)
     except (ValueError, AttributeError):
         return False

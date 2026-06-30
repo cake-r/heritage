@@ -10,11 +10,16 @@ import {
   type CategoryInfo, type GeneratePersonaRequest, type GeneratePersonaResponse,
 } from '../services/inheritor'
 
+const ALL_CATEGORIES = ['suxiu', 'xiangxiu', 'shuxiu', 'yuexiu', 'jianzhi', 'piying', 'nianhua', 'lanbuhua', 'tangsancai', 'qinghua', 'zisha', 'jingju', 'dunhuang', 'miaoyin', 'jingtailan', 'muban', 'shufa', 'zhuanke', 'dongyang']
+
 const TOOL_OPTIONS = [
   { id: 'inspect', name: '识物·品鉴', icon: '🔍', desc: '上传非遗作品图片，AI分析工艺技法和风格特征', supportedBy: ['suxiu', 'xiangxiu', 'shuxiu', 'yuexiu', 'jianzhi', 'tangsancai', 'qinghua', 'zisha', 'jingtailan', 'dongyang'] },
   { id: 'create', name: '创作·生成', icon: '🎨', desc: 'AI生成非遗艺术图案、纹样和设计作品', supportedBy: ['jianzhi', 'piying', 'nianhua', 'lanbuhua', 'tangsancai', 'qinghua', 'jingju', 'dunhuang', 'miaoyin', 'muban', 'shufa', 'zhuanke', 'dongyang'] },
-  { id: 'connect', name: '博学·关联', icon: '🔗', desc: '从知识图谱中发现不同非遗品类之间的文化关联', supportedBy: ['suxiu', 'xiangxiu', 'shuxiu', 'yuexiu', 'jianzhi', 'piying', 'nianhua', 'lanbuhua', 'tangsancai', 'qinghua', 'zisha', 'jingju', 'dunhuang', 'miaoyin', 'jingtailan', 'muban', 'shufa', 'zhuanke', 'dongyang'] },
-  { id: 'teach', name: '教学·答疑', icon: '📖', desc: '自动生成系统化的入门课程，从基础技法到实践项目', supportedBy: ['suxiu', 'xiangxiu', 'shuxiu', 'yuexiu', 'jianzhi', 'piying', 'nianhua', 'lanbuhua', 'tangsancai', 'qinghua', 'zisha', 'jingju', 'dunhuang', 'miaoyin', 'jingtailan', 'muban', 'shufa', 'zhuanke', 'dongyang'] },
+  { id: 'connect', name: '博学·关联', icon: '🔗', desc: '从知识图谱中发现不同非遗品类之间的文化关联', supportedBy: ALL_CATEGORIES },
+  { id: 'teach', name: '教学·答疑', icon: '📖', desc: '自动生成系统化的入门课程，从基础技法到实践项目', supportedBy: ALL_CATEGORIES },
+  { id: 'pattern', name: '纹样·提取', icon: '🏮', desc: '上传纹样图片，AI提取并分析母题、对称性、文化寓意', supportedBy: ['suxiu', 'xiangxiu', 'shuxiu', 'yuexiu', 'jianzhi', 'nianhua', 'lanbuhua', 'tangsancai', 'qinghua', 'jingtailan', 'dunhuang', 'muban', 'dongyang'] },
+  { id: 'story', name: '故事·讲述', icon: '📜', desc: '根据主题生成非遗传说、匠人轶事，寓教于乐', supportedBy: ALL_CATEGORIES },
+  { id: 'compare', name: '对比·鉴赏', icon: '⚖️', desc: '对比两个非遗项目的技法、风格、历史背景异同', supportedBy: ALL_CATEGORIES },
 ]
 
 export default function CustomInheritorWizard() {
@@ -242,7 +247,7 @@ export default function CustomInheritorWizard() {
                           {checked && <CheckOutlined style={{ color: 'var(--color-vermilion, #B8463A)', marginRight: 4 }} />}
                           {tool.name}
                         </div>
-                        <div style={{ fontSize: 11, color: 'var(--color-ink-secondary, #6B5F52)' }}>
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)' }}>
                           {tool.desc}
                         </div>
                       </div>

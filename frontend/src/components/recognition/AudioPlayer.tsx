@@ -90,13 +90,13 @@ export default function AudioPlayer({ src, title = '语音讲解' }: Props) {
             onChange={handleSeek}
             tooltip={{ formatter: (v?: number) => formatTime(v ?? 0) }}
           />
-          <Text type="secondary" style={{ fontSize: 13, minWidth: 60 }}>
+          <Text type="secondary" style={{ fontSize: 'var(--text-sm)', minWidth: 60 }}>
             {formatTime(currentTime)} / {formatTime(duration)}
           </Text>
         </Space>
 
         <Space>
-          <Text type="secondary" style={{ fontSize: 13 }}>语速:</Text>
+          <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>语速:</Text>
           {[0.5, 1.0, 1.5].map(s => (
             <Button
               key={s}

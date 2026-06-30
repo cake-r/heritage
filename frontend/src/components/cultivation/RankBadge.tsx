@@ -51,7 +51,7 @@ export default function RankBadge() {
       <span style={{ fontSize: 16 }}>{icon}</span>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 64 }}>
         <span style={{
-          fontSize: 11,
+          fontSize: 'var(--text-xs)',
           fontWeight: 600,
           color: 'var(--color-gold)',
           lineHeight: 1.2,

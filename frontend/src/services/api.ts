@@ -13,6 +13,11 @@ api.interceptors.response.use(
     if (error.response) {
       const { status, data } = error.response
       if (status === 401) {
+        // 保存当前路径，登录后恢复
+        const currentPath = window.location.pathname + window.location.search
+        if (currentPath !== '/login' && currentPath !== '/register') {
+          sessionStorage.setItem('redirectAfterLogin', currentPath)
+        }
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         window.location.href = '/login'

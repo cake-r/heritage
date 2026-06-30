@@ -145,7 +145,7 @@ export default function ItemDetailDrawer({
             <div style={{ flex: 1 }}>
               <Text strong style={{ color: 'var(--color-ink, #2C241A)' }}>该藏品年代久远（{item.era}），可能存在损伤？</Text>
               <br />
-              <Text type="secondary" style={{ fontSize: 12 }}>试试 AI 数字修复技术，让文物重现光彩</Text>
+              <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>试试 AI 数字修复技术，让文物重现光彩</Text>
             </div>
           </div>
           <Button
@@ -177,16 +177,16 @@ export default function ItemDetailDrawer({
       {/* 相关项目 */}
       {related && (
         <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--color-border-light, #E8E4D8)' }}>
-          <Text strong style={{ fontSize: 15, display: 'block', marginBottom: 12 }}>🔗 相关非遗项目</Text>
+          <Text strong style={{ fontSize: 'var(--text-base)', display: 'block', marginBottom: 12 }}>🔗 相关非遗项目</Text>
           {related.same_category.length > 0 && (
             <div style={{ marginBottom: 12 }}>
-              <Text type="secondary" style={{ fontSize: 12 }}>同类项目</Text>
+              <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>同类项目</Text>
               <Row gutter={[8, 8]} style={{ marginTop: 4 }}>
                 {related.same_category.slice(0, 3).map((r: any) => (
                   <Col span={8} key={r.id}>
                     <Card size="small" hoverable onClick={() => onRelatedClick(r.id)} bodyStyle={{ padding: 8 }}>
                       {r.image && <img src={r.image} alt={r.name} style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 4, marginBottom: 4 }} />}
-                      <Text style={{ fontSize: 12 }}>{r.name}</Text>
+                      <Text style={{ fontSize: 'var(--text-xs)' }}>{r.name}</Text>
                     </Card>
                   </Col>
                 ))}
@@ -195,13 +195,13 @@ export default function ItemDetailDrawer({
           )}
           {related.shared_techniques.filter((r: any) => !related.same_category.find((s: any) => s.id === r.id)).length > 0 && (
             <div>
-              <Text type="secondary" style={{ fontSize: 12 }}>共享技法</Text>
+              <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>共享技法</Text>
               <Row gutter={[8, 8]} style={{ marginTop: 4 }}>
                 {related.shared_techniques.filter((r: any) => !related.same_category.find((s: any) => s.id === r.id)).slice(0, 3).map((r: any) => (
                   <Col span={8} key={r.id}>
                     <Card size="small" hoverable onClick={() => onRelatedClick(r.id)} bodyStyle={{ padding: 8 }}>
                       {r.image && <img src={r.image} alt={r.name} style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 4, marginBottom: 4 }} />}
-                      <Text style={{ fontSize: 12 }}>{r.name}</Text>
+                      <Text style={{ fontSize: 'var(--text-xs)' }}>{r.name}</Text>
                     </Card>
                   </Col>
                 ))}

@@ -8,6 +8,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 
 import logging
 
@@ -21,6 +23,33 @@ from app.utils.exceptions import AppException
 from app.utils.middleware import log_requests
 
 logger = logging.getLogger("ich_backend")
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """添加安全响应头，缓解 XSS/点击劫持等攻击"""
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        # CSP: 限制脚本来源，防止 XSS token 窃取
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data: blob: https:; "
+            "font-src 'self' data:; "
+            "connect-src 'self' https: wss:; "
+            "media-src 'self' data: blob:; "
+            "object-src 'none'; "
+            "base-uri 'self'; "
+            "form-action 'self'"
+        )
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = (
+            "camera=(), microphone=(), geolocation=()"
+        )
+        return response
 
 
 @asynccontextmanager
@@ -50,6 +79,9 @@ app.add_middleware(
 
 # 请求日志中间件
 app.middleware("http")(log_requests)
+
+# 安全响应头（CSP + XSS 防护）
+app.add_middleware(SecurityHeadersMiddleware)
 
 # 静态文件挂载
 app.mount("/static", StaticFiles(directory=str(UPLOAD_DIR)), name="static")

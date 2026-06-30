@@ -22,7 +22,7 @@ export default function GraphBanner({ drilledCategory, techniqueName }: Props) {
         <Title level={4} style={{ margin: 0, display: 'inline', marginRight: 12 }}>
           🏛 非遗探索
         </Title>
-        <Text type="secondary" style={{ fontSize: 13 }}>
+        <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
           {breadcrumb.join(' > ')}
         </Text>
       </div>

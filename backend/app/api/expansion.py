@@ -115,6 +115,7 @@ def _build_queue_item(q: ExpansionQueue) -> ExpansionQueueItem:
 def _structure_with_llm(raw_info: dict) -> dict | None:
     """使用 DeepSeek 将搜索到的原始信息结构化为 HeritageItem 格式"""
     prompt = f"""你是中国非物质文化遗产研究专家。请根据以下搜索结果，为这项非遗项目补全结构化信息。
+请务必详尽深入地填写工艺技法和传承人信息，这是本次任务的核心关注点。
 
 搜索关键词: {raw_info.get('keyword', '')}
 搜索摘要: {raw_info.get('snippet', '')}
@@ -127,16 +128,29 @@ def _structure_with_llm(raw_info: dict) -> dict | None:
   "region": "发源地/主要流传地区(省市格式, 如'江苏苏州')",
   "era": "起源朝代或时期(如'宋代'、'明代'、'春秋战国')",
   "description": "150-250字的简介，包含历史背景和艺术特色",
-  "techniques": [{{"name": "技法名1", "desc": "简要说明(20字以内)"}}, ...],
-  "inheritors": [{{"name": "传承人名", "title": "称号(如'国家级非遗传承人')", "desc": "简要贡献(30字以内)"}}, ...],
+  "techniques": [
+    {{
+      "name": "核心技法名称",
+      "desc": "技法详细说明(40-80字)，包含工艺步骤、使用工具、技术难点、与其他技法的区别"
+    }}
+  ],
+  "inheritors": [
+    {{
+      "name": "代表性传承人姓名",
+      "title": "称号(如'国家级非遗传承人'、'省级工艺美术大师')",
+      "desc": "传承人详细介绍(50-100字)，包含师承关系、代表作品、获奖情况、对传承发展的贡献"
+    }}
+  ],
   "cultural_meaning": "80-150字的文化寓意说明"
 }}
 
 要求:
-1. 所有信息必须真实准确，不要编造
-2. 如果搜索结果信息不足，基于你的知识库补充
-3. techniques 至少2个，inheritors 至少1个
-4. 确保 category 严格匹配上述19个品类之一"""
+1. 所有信息必须真实准确，不要编造；如搜索结果信息不足，基于专业知识库充分补充
+2. 技法信息和传承人信息请尽可能详尽，不要简单堆砌名称，要有实质性内容
+3. techniques 至少3个，每个技法的 desc 必须详细（40-80字），说明工艺特征和技术价值
+4. inheritors 至少2个，每位传承人的 desc 必须详实（50-100字），包含师承渊源和代表成就
+5. 确保 category 严格匹配上述19个品类之一
+6. 技法和传承人是本次扩充的核心内容，请投入最多精力确保质量"""
 
     messages = [{"role": "user", "content": prompt}]
     try:

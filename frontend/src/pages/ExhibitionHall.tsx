@@ -463,7 +463,7 @@ export default function ExhibitionHall() {
                     }
                     bodyStyle={{ padding: '12px 16px' }}
                   >
-                    <Text strong style={{ fontSize: 14 }}>{item.name}</Text>
+                    <Text strong style={{ fontSize: 'var(--text-sm)' }}>{item.name}</Text>
                     <div style={{ marginTop: 4 }}>
                       <Space size={4} wrap>
                         <Tag color="gold">{item.category}</Tag>
@@ -830,7 +830,7 @@ function ItemDetail({ item }: { item: HeritageItem }) {
 
       {/* 基础信息 */}
       <Space wrap size={4} style={{ marginBottom: 16 }}>
-        <Tag color="#C41E3A" style={{ fontSize: 14 }}>{item.category}</Tag>
+        <Tag color="#C41E3A" style={{ fontSize: 'var(--text-sm)' }}>{item.category}</Tag>
         {item.region && <Tag icon={<EnvironmentOutlined />}>{item.region}</Tag>}
         {item.era && <Tag icon={<FieldTimeOutlined />}>{item.era}</Tag>}
       </Space>

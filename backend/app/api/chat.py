@@ -24,7 +24,8 @@ from app.config import IMAGE_DIR
 from app.services.ai.workshop_tool_dispatcher import (
     detect_tool_intent, extract_tool_payload,
     execute_tool_inspect, execute_tool_create, execute_tool_connect,
-    TOOL_DISPLAY,
+    execute_tool_pattern, execute_tool_story, execute_tool_compare,
+    TOOL_DISPLAY, PERSONA_CATEGORY_MAP,
 )
 
 logger = logging.getLogger("chat_api")
@@ -276,9 +277,31 @@ def _resolve_inheritor_tools(session_persona: str, db: Session) -> dict:
         }
 
 
+def _update_session_timestamp(session_id: int):
+    """Fire-and-forget 更新会话时间戳（独立线程 + 独立Session，杜绝跨线程ORM污染）"""
+    from app.utils.fire_and_forget import run_in_thread
+    from app.models.database import SessionLocal
+    from datetime import datetime as dt
+
+    def _run():
+        db_local = SessionLocal()
+        try:
+            db_local.query(ChatSession).filter(
+                ChatSession.id == session_id
+            ).update({"updated_at": dt.utcnow()}, synchronize_session=False)
+            db_local.commit()
+        except Exception:
+            db_local.rollback()
+            raise  # re-raise for logging in run_in_thread
+        finally:
+            db_local.close()
+
+    run_in_thread(_run, name="update_session_ts")
+
+
 def _trigger_stamp_check(user_id: int, module: str, db_session: Session):
-    """Fire-and-forget 印章检查"""
-    import threading
+    """Fire-and-forget 印章检查（含重试）"""
+    from app.utils.fire_and_forget import run_in_thread
     from app.models.database import SessionLocal
     from app.services.passport_service import check_and_earn_stamps
 
@@ -299,10 +322,11 @@ def _trigger_stamp_check(user_id: int, module: str, db_session: Session):
             check_and_earn_stamps(user_id, module, context, db)
         except Exception:
             db.rollback()
+            raise  # re-raise for logging + retry in run_in_thread
         finally:
             db.close()
 
-    threading.Thread(target=_earn, daemon=True).start()
+    run_in_thread(_earn, name="stamp_check", retry=True)
 
 
 # === SSE 流式对话 ===
@@ -324,11 +348,15 @@ async def send_message(
     if not session:
         raise AppException("会话不存在", code=404)
 
+    # ⚠️ 必须在 db.commit() 之前提取 ORM 字段到普通变量
+    # commit 后 ORM 实例会过期，后续任何属性访问都会触发隐式 refresh 导致报错
+    session_persona: str = session.persona
+
     # 获取传承人完整上下文（支持预设角色和自定义传承人）
-    inheritor_ctx = _resolve_inheritor_tools(session.persona, db)
+    inheritor_ctx = _resolve_inheritor_tools(session_persona, db)
     if not inheritor_ctx.get("available_tools") and not inheritor_ctx.get("inheritor_name"):
         # 既不是预设也不是自定义 → 回退到 CHARACTERS
-        char = CHARACTERS.get(session.persona)
+        char = CHARACTERS.get(session_persona)
         if not char:
             raise AppException("角色配置缺失")
         inheritor_ctx = {
@@ -341,16 +369,16 @@ async def send_message(
         }
 
     # 获取 system_prompt（预设从 CHARACTERS，自定义从 DB）
-    if session.persona.startswith("custom:"):
+    if session_persona.startswith("custom:"):
         try:
-            inheritor_id = int(session.persona.split(":", 1)[1])
+            inheritor_id = int(session_persona.split(":", 1)[1])
             from app.models.custom_inheritor import CustomInheritor
             ci = db.query(CustomInheritor).filter(CustomInheritor.id == inheritor_id).first()
             system_prompt = ci.persona if ci else "你是一位非遗文化传承人。"
         except Exception:
             system_prompt = "你是一位非遗文化传承人。"
     else:
-        char = CHARACTERS.get(session.persona, {})
+        char = CHARACTERS.get(session_persona, {})
         system_prompt = char.get("system_prompt", "你是一位非遗文化传承人。")
 
     available_tools = inheritor_ctx.get("available_tools", [])
@@ -489,9 +517,11 @@ async def send_message(
                     payload = extract_tool_payload(content, tool_id)
                     yield f"event: tool_progress\ndata: {json.dumps({'tool': tool_id, 'step': 'searching'}, ensure_ascii=False)}\n\n"
 
+                    # 将 persona ID 映射为中文品类名（如 paper_cutter → 剪纸）
+                    category = PERSONA_CATEGORY_MAP.get(session_persona, "")
                     inheritor_info = {
                         "name": inheritor_name,
-                        "category": session.persona,
+                        "category": category,
                         "system_prompt": system_prompt,
                         "style": inheritor_ctx.get("style", ""),
                         "domain_prompts": domain_prompts,
@@ -499,7 +529,7 @@ async def send_message(
 
                     loop = asyncio.get_running_loop()
                     result = await loop.run_in_executor(
-                        None, lambda: execute_tool_connect(payload, inheritor_info, db)
+                        None, lambda: execute_tool_connect(payload, inheritor_info)
                     )
 
                     summary = result.get("summary", "")
@@ -511,6 +541,94 @@ async def send_message(
                     full_content = f"【{tool_name}】\n\n{summary}"
                     yield f"event: tool_result\ndata: {json.dumps({'tool': tool_id, 'related_items': result.get('related_items', []), 'summary': summary}, ensure_ascii=False)}\n\n"
 
+                elif tool_id == "pattern":
+                    yield f"event: tool_progress\ndata: {json.dumps({'tool': tool_id, 'step': 'recognizing'}, ensure_ascii=False)}\n\n"
+                    if not image_path:
+                        yield f"event: error\ndata: {json.dumps({'error': '请上传一张纹样图片用于提取分析'}, ensure_ascii=False)}\n\n"
+                        return
+
+                    domain_prompt = domain_prompts.get("pattern", domain_prompts.get("inspect", ""))
+                    inheritor_info = {
+                        "name": inheritor_name,
+                        "system_prompt": system_prompt,
+                        "style": inheritor_ctx.get("style", ""),
+                        "domain_prompts": domain_prompts,
+                    }
+
+                    loop = asyncio.get_running_loop()
+                    result = await loop.run_in_executor(
+                        None, lambda: execute_tool_pattern(image_path, domain_prompt, inheritor_info)
+                    )
+
+                    # 流式输出纹样评析
+                    commentary = result.get("commentary", "")
+                    for i in range(0, len(commentary), 3):
+                        chunk = commentary[i:i+3]
+                        yield f"event: message\ndata: {json.dumps({'token': chunk}, ensure_ascii=False)}\n\n"
+                        await asyncio.sleep(0.02)
+
+                    full_content = f"【{tool_name}】\n\n{commentary}"
+                    yield f"event: tool_result\ndata: {json.dumps({'tool': tool_id, 'analysis': result.get('analysis', {}), 'commentary': commentary}, ensure_ascii=False)}\n\n"
+
+                elif tool_id == "story":
+                    payload = extract_tool_payload(content, tool_id)
+                    yield f"event: tool_progress\ndata: {json.dumps({'tool': tool_id, 'step': 'writing'}, ensure_ascii=False)}\n\n"
+
+                    domain_prompt = domain_prompts.get("story", domain_prompts.get("teach", ""))
+                    inheritor_info = {
+                        "name": inheritor_name,
+                        "system_prompt": system_prompt,
+                        "style": inheritor_ctx.get("style", ""),
+                        "domain_prompts": domain_prompts,
+                    }
+
+                    loop = asyncio.get_running_loop()
+                    result = await loop.run_in_executor(
+                        None, lambda: execute_tool_story(payload, domain_prompt, inheritor_info)
+                    )
+
+                    story_text = result.get("story", "")
+                    # 先发送标题
+                    title = result.get("title", "")
+                    if title:
+                        yield f"event: message\ndata: {json.dumps({'token': '📖 ' + title + '\n\n'}, ensure_ascii=False)}\n\n"
+
+                    # 流式输出故事内容
+                    for i in range(0, len(story_text), 3):
+                        chunk = story_text[i:i+3]
+                        yield f"event: message\ndata: {json.dumps({'token': chunk}, ensure_ascii=False)}\n\n"
+                        await asyncio.sleep(0.025)
+
+                    full_content = f"【{tool_name}】\n\n📖 {title}\n\n{story_text}"
+                    yield f"event: tool_result\ndata: {json.dumps({'tool': tool_id, 'title': title, 'story': story_text, 'tags': result.get('tags', [])}, ensure_ascii=False)}\n\n"
+
+                elif tool_id == "compare":
+                    payload = extract_tool_payload(content, tool_id)
+                    yield f"event: tool_progress\ndata: {json.dumps({'tool': tool_id, 'step': 'analyzing'}, ensure_ascii=False)}\n\n"
+
+                    domain_prompt = domain_prompts.get("compare", domain_prompts.get("connect", ""))
+                    inheritor_info = {
+                        "name": inheritor_name,
+                        "system_prompt": system_prompt,
+                        "style": inheritor_ctx.get("style", ""),
+                        "domain_prompts": domain_prompts,
+                    }
+
+                    loop = asyncio.get_running_loop()
+                    result = await loop.run_in_executor(
+                        None, lambda: execute_tool_compare(payload, domain_prompt, inheritor_info)
+                    )
+
+                    # 流式输出对比分析
+                    summary = result.get("summary", "")
+                    for i in range(0, len(summary), 3):
+                        chunk = summary[i:i+3]
+                        yield f"event: message\ndata: {json.dumps({'token': chunk}, ensure_ascii=False)}\n\n"
+                        await asyncio.sleep(0.02)
+
+                    full_content = f"【{tool_name}】\n\n{summary}"
+                    yield f"event: tool_result\ndata: {json.dumps({'tool': tool_id, 'item_a': result.get('item_a', ''), 'item_b': result.get('item_b', ''), 'comparison': result.get('comparison', {}), 'common_ground': result.get('common_ground', ''), 'verdict': result.get('verdict', ''), 'summary': summary}, ensure_ascii=False)}\n\n"
+
                 elif tool_id == "teach":
                     payload = extract_tool_payload(content, tool_id)
                     yield f"event: tool_progress\ndata: {json.dumps({'tool': tool_id, 'step': 'curating'}, ensure_ascii=False)}\n\n"
@@ -518,7 +636,7 @@ async def send_message(
                     domain_prompt = domain_prompts.get("teach", "")
                     inheritor_info = {
                         "name": inheritor_name,
-                        "category": session.persona,
+                        "category": session_persona,
                         "system_prompt": system_prompt,
                         "style": inheritor_ctx.get("style", ""),
                         "domain_prompts": domain_prompts,
@@ -595,10 +713,10 @@ async def send_message(
 
                     assistant_msg.voice_url = voice_url
                     db.add(assistant_msg)
-                    from datetime import datetime as dt
-                    session.updated_at = dt.utcnow()
                     db.commit()
                     db.refresh(assistant_msg)
+                    # 时间戳更新放入独立线程，避免跨线程 ORM 污染
+                    _update_session_timestamp(session_id)
 
                     quick_qs = inheritor_ctx.get("quick_questions", [])
                     if not quick_qs:
@@ -680,10 +798,10 @@ async def send_message(
 
                 assistant_msg.voice_url = voice_url
                 db.add(assistant_msg)
-                from datetime import datetime as dt
-                session.updated_at = dt.utcnow()
                 db.commit()
                 db.refresh(assistant_msg)
+                # 时间戳更新放入独立线程，避免跨线程 ORM 污染
+                _update_session_timestamp(session_id)
 
                 quick_qs = await _generate_quick_questions(full_content)
                 done_data = json.dumps({

@@ -55,7 +55,7 @@ export default function TechniquePanel({ open, onClose, data, loading, onItemCli
       )}
 
       {/* 使用品类 */}
-      <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 8 }}>📂 使用品类</Text>
+      <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>📂 使用品类</Text>
       <div style={{ marginBottom: 20, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
         {data.categories.map(c => (
           <Tag key={c} color={getCategoryColor(c)}>{c}</Tag>
@@ -65,13 +65,13 @@ export default function TechniquePanel({ open, onClose, data, loading, onItemCli
       {/* 时代分布 */}
       {sortedEras.length > 0 && (
         <>
-          <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 8 }}>📅 时代分布</Text>
+          <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>📅 时代分布</Text>
           <Row gutter={[6, 6]} style={{ marginBottom: 20 }}>
             {sortedEras.map(([eraName, count]) => (
               <Col span={8} key={eraName}>
                 <Card size="small" bodyStyle={{ padding: '8px 10px', textAlign: 'center' }}>
-                  <Text strong style={{ fontSize: 13, display: 'block' }}>{eraName}</Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>{count}个项目</Text>
+                  <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block' }}>{eraName}</Text>
+                  <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>{count}个项目</Text>
                 </Card>
               </Col>
             ))}
@@ -82,7 +82,7 @@ export default function TechniquePanel({ open, onClose, data, loading, onItemCli
       {/* 相关技法 */}
       {data.related_techniques.length > 0 && (
         <>
-          <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 8 }}>🔗 相关技法</Text>
+          <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>🔗 相关技法</Text>
           <div style={{ marginBottom: 20, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {data.related_techniques.map(t => (
               <Tag key={t}>{t}</Tag>
@@ -92,7 +92,7 @@ export default function TechniquePanel({ open, onClose, data, loading, onItemCli
       )}
 
       {/* 使用此技法的项目 */}
-      <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 8 }}>📦 使用此技法的非遗项目</Text>
+      <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>📦 使用此技法的非遗项目</Text>
       <List
         dataSource={data.items}
         renderItem={(it: any) => (
@@ -104,8 +104,8 @@ export default function TechniquePanel({ open, onClose, data, loading, onItemCli
               <Tag color={getCategoryColor(it.category)} style={{ margin: 0 }}>{it.category}</Tag>
               <Text strong>{it.name}</Text>
               <div style={{ flex: 1 }} />
-              <Text type="secondary" style={{ fontSize: 12 }}>{it.region}</Text>
-              <Text type="secondary" style={{ fontSize: 12 }}>{it.era}</Text>
+              <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>{it.region}</Text>
+              <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>{it.era}</Text>
             </div>
           </List.Item>
         )}

@@ -65,7 +65,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
             position: 'absolute',
             top: -6,
             right: -6,
-            fontSize: 10,
+            fontSize: 'var(--text-xs)',
             background: 'var(--color-gold, #C4A265)',
             color: '#fff',
             padding: '1px 6px',
@@ -84,7 +84,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
         />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
-            fontSize: 14,
+            fontSize: 'var(--text-sm)',
             fontWeight: 600,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -97,7 +97,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
               <Tag
                 key={t}
                 style={{
-                  fontSize: 12,
+                  fontSize: 'var(--text-xs)',
                   padding: '2px 8px',
                   margin: 0,
                   lineHeight: '20px',
@@ -110,7 +110,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
               </Tag>
             ))}
             {item.tools.length > 2 && (
-              <Tag style={{ fontSize: 12, padding: '2px 8px', margin: 0, lineHeight: '20px', background: 'transparent' }}>
+              <Tag style={{ fontSize: 'var(--text-xs)', padding: '2px 8px', margin: 0, lineHeight: '20px', background: 'transparent' }}>
                 +{item.tools.length - 2}
               </Tag>
             )}
@@ -156,7 +156,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
     }}>
       {/* 预设传承人 */}
       <div style={{
-        fontSize: 13,
+        fontSize: 'var(--text-sm)',
         fontWeight: 600,
         color: 'var(--color-ink-secondary, #6B5F52)',
         marginBottom: 12,
@@ -185,7 +185,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
         paddingLeft: 4,
       }}>
         <span style={{
-          fontSize: 13,
+          fontSize: 'var(--text-sm)',
           fontWeight: 600,
           color: 'var(--color-ink-secondary, #6B5F52)',
           textTransform: 'uppercase',
@@ -210,7 +210,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
             padding: 16,
             textAlign: 'center',
             color: 'var(--color-ink-secondary, #6B5F52)',
-            fontSize: 14,
+            fontSize: 'var(--text-sm)',
           }}>
             还没有自定义传承人
             <br />

@@ -1,4 +1,5 @@
 import { Card, Button, Tag, Progress } from 'antd'
+import { PlayCircleOutlined } from '@ant-design/icons'
 import { TOOL_NAMES, TOOL_ICONS } from './index'
 
 interface ToolInfo {
@@ -38,6 +39,27 @@ const ALL_TOOLS: ToolInfo[] = [
     description: '自动生成系统化入门课程，从基础到实践',
     usage: '输入 /teach 加学习主题',
   },
+  {
+    id: 'pattern',
+    name: '纹样·提取',
+    icon: '🏮',
+    description: '上传纹样图片，AI提取并分析母题、对称性、文化寓意',
+    usage: '输入 /pattern 并上传纹样图片',
+  },
+  {
+    id: 'story',
+    name: '故事·讲述',
+    icon: '📜',
+    description: '根据主题生成非遗传说、匠人轶事，寓教于乐',
+    usage: '输入 /story 加故事主题',
+  },
+  {
+    id: 'compare',
+    name: '对比·鉴赏',
+    icon: '⚖️',
+    description: '对比两个非遗项目的技法、风格、历史背景异同',
+    usage: '输入 /compare 项目A vs 项目B',
+  },
 ]
 
 interface Props {
@@ -62,7 +84,7 @@ export default function WorkshopToolbox({ tools, activeToolId, toolStatus, onToo
         <div style={{
           textAlign: 'center',
           color: 'var(--color-ink-secondary, #6B5F52)',
-          fontSize: 14,
+          fontSize: 'var(--text-sm)',
         }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🛠️</div>
           <div>选择一位传承人</div>
@@ -83,7 +105,7 @@ export default function WorkshopToolbox({ tools, activeToolId, toolStatus, onToo
       boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(30,27,24,0.06))',
     }}>
       <div style={{
-        fontSize: 13,
+        fontSize: 'var(--text-sm)',
         fontWeight: 600,
         color: 'var(--color-ink-secondary, #6B5F52)',
         marginBottom: 16,
@@ -115,29 +137,47 @@ export default function WorkshopToolbox({ tools, activeToolId, toolStatus, onToo
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                 <span style={{ fontSize: 24, lineHeight: 1 }}>{tool.icon}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 2 }}>
+                  <div style={{ fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 2 }}>
                     {tool.name}
                   </div>
-                  <div style={{ fontSize: 13, color: 'var(--color-ink-secondary, #6B5F52)', lineHeight: 1.6 }}>
+                  <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary, #6B5F52)', lineHeight: 1.6 }}>
                     {tool.description}
                   </div>
 
                   {isActive && toolStatus && (
                     <div style={{ marginTop: 8 }}>
                       <Progress percent={99} status="active" size="small" />
-                      <div style={{ fontSize: 12, color: 'var(--color-ink-secondary, #6B5F52)', marginTop: 2 }}>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)', marginTop: 2 }}>
                         {toolStatus}
                       </div>
                     </div>
                   )}
 
                   {!isActive && (
-                    <Tag
-                      style={{ marginTop: 6, fontSize: 12, cursor: 'pointer' }}
-                      color="default"
-                    >
-                      {tool.usage}
-                    </Tag>
+                    <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Tag
+                        style={{ fontSize: 'var(--text-xs)' }}
+                        color="default"
+                      >
+                        {tool.usage}
+                      </Tag>
+                      <Button
+                        type="link"
+                        size="small"
+                        icon={<PlayCircleOutlined />}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onToolClick(tool.id)
+                        }}
+                        style={{
+                          fontSize: 'var(--text-xs)',
+                          padding: '0 4px',
+                          color: 'var(--color-vermilion, #B8463A)',
+                        }}
+                      >
+                        使用
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>

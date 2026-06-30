@@ -37,8 +37,15 @@ export default function Register() {
           <Form.Item name="nickname">
             <Input prefix={<SmileOutlined />} placeholder="昵称（可选）" />
           </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, min: 6, message: '密码至少6位' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+          <Form.Item
+            name="password"
+            rules={[
+              { required: true, min: 8, message: '密码至少8位' },
+              { pattern: /[a-zA-Z]/, message: '密码必须包含字母' },
+              { pattern: /\d/, message: '密码必须包含数字' },
+            ]}
+          >
+            <Input.Password prefix={<LockOutlined />} placeholder="密码（至少8位，需含字母和数字）" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} block>

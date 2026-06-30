@@ -41,8 +41,8 @@ export default function ProvinceDetailPanel({ province, regionData, items, onIte
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
           <EnvironmentOutlined style={{ color: 'var(--color-vermilion, #B8463A)', fontSize: 16 }} />
-          <span style={{ fontSize: 15, fontWeight: 600 }}>{province}</span>
-          <span style={{ fontSize: 13, color: 'var(--color-ink-secondary, #6B5F52)' }}>
+          <span style={{ fontSize: 'var(--text-base)', fontWeight: 600 }}>{province}</span>
+          <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary, #6B5F52)' }}>
             {regionData?.value || 0} 项
           </span>
         </div>
@@ -50,7 +50,7 @@ export default function ProvinceDetailPanel({ province, regionData, items, onIte
         {/* Category breakdown */}
         {categoryCounts.length > 0 && (
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, color: 'var(--color-ink-secondary, #6B5F52)', marginBottom: 6 }}>品类分布</div>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)', marginBottom: 6 }}>品类分布</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
               {categoryCounts.map(([cat, count]) => {
                 const catColor = getCategoryColor(cat)
@@ -59,7 +59,7 @@ export default function ProvinceDetailPanel({ province, regionData, items, onIte
                   <Tag
                     key={cat}
                     style={{
-                      fontSize: 12,
+                      fontSize: 'var(--text-xs)',
                       borderRadius: 6,
                       margin: 0,
                       background: `rgba(${rgb}, 0.12)`,
@@ -78,10 +78,10 @@ export default function ProvinceDetailPanel({ province, regionData, items, onIte
         {/* Top techniques */}
         {regionData?.top_techniques && regionData.top_techniques.length > 0 && (
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, color: 'var(--color-ink-secondary, #6B5F52)', marginBottom: 6 }}>热门技法</div>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)', marginBottom: 6 }}>热门技法</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
               {regionData.top_techniques.slice(0, 8).map(t => (
-                <Tag key={t} style={{ fontSize: 12, borderRadius: 6, margin: 0, color: 'var(--color-gold, #C4A265)', background: 'var(--color-paper, #F7F4ED)', borderColor: 'var(--color-gold-light, #E8D5B0)' }}>
+                <Tag key={t} style={{ fontSize: 'var(--text-xs)', borderRadius: 6, margin: 0, color: 'var(--color-gold, #C4A265)', background: 'var(--color-paper, #F7F4ED)', borderColor: 'var(--color-gold-light, #E8D5B0)' }}>
                   {t}
                 </Tag>
               ))}
@@ -99,7 +99,7 @@ export default function ProvinceDetailPanel({ province, regionData, items, onIte
         gap: 10,
         maxHeight: 340,
       }}>
-        <div style={{ fontSize: 12, color: 'var(--color-ink-secondary, #6B5F52)', paddingLeft: 4 }}>
+        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)', paddingLeft: 4 }}>
           {province}的非遗项目 ({items.length})
         </div>
 
@@ -131,17 +131,17 @@ export default function ProvinceDetailPanel({ province, regionData, items, onIte
               }}
             >
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{ fontSize: 'var(--text-sm)', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {item.name}
                 </div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
-                  <Tag style={{ fontSize: 12, borderRadius: 6, margin: 0, padding: '0 6px', lineHeight: '20px' }}
+                  <Tag style={{ fontSize: 'var(--text-xs)', borderRadius: 6, margin: 0, padding: '0 6px', lineHeight: '20px' }}
                     color="gold">{item.era}</Tag>
-                  <Tag style={{ fontSize: 12, borderRadius: 6, margin: 0, padding: '0 6px', lineHeight: '20px' }}
+                  <Tag style={{ fontSize: 'var(--text-xs)', borderRadius: 6, margin: 0, padding: '0 6px', lineHeight: '20px' }}
                     color="blue">{item.category}</Tag>
                 </div>
               </div>
-              <RightOutlined style={{ color: 'var(--gray-300, #C4BEB4)', fontSize: 12, flexShrink: 0, marginLeft: 8 }} />
+              <RightOutlined style={{ color: 'var(--gray-300, #C4BEB4)', fontSize: 'var(--text-xs)', flexShrink: 0, marginLeft: 8 }} />
             </div>
           ))
         )}

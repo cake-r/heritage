@@ -157,7 +157,7 @@ export default function PassportPage() {
                   <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-ink)' }}>
                     {pct?.toFixed(0)}%
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--color-ink-secondary)' }}>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)' }}>
                     {status.earned_count}/{status.total_stamps}
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export default function PassportPage() {
                   <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-ink)' }}>
                     {status.common_count}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--color-ink-secondary)' }}>普通印章</div>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)' }}>普通印章</div>
                 </Card>
               </Col>
               <Col span={8}>
@@ -185,7 +185,7 @@ export default function PassportPage() {
                   <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-ink)' }}>
                     {status.rare_count}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--color-ink-secondary)' }}>稀有印章</div>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)' }}>稀有印章</div>
                 </Card>
               </Col>
               <Col span={8}>
@@ -196,7 +196,7 @@ export default function PassportPage() {
                   <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-ink)' }}>
                     {status.epic_count}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--color-ink-secondary)' }}>传说印章</div>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)' }}>传说印章</div>
                 </Card>
               </Col>
             </Row>
@@ -252,14 +252,14 @@ export default function PassportPage() {
                 title={
                   <div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>{def.name}</div>
-                    <div style={{ fontSize: 12, opacity: 0.8 }}>{def.description}</div>
+                    <div style={{ fontSize: 'var(--text-xs)', opacity: 0.8 }}>{def.description}</div>
                     {isEarned && earned && (
-                      <div style={{ fontSize: 11, marginTop: 4, opacity: 0.6 }}>
+                      <div style={{ fontSize: 'var(--text-xs)', marginTop: 4, opacity: 0.6 }}>
                         获得于 {new Date(earned.earned_at).toLocaleDateString('zh-CN')}
                       </div>
                     )}
                     {!isEarned && (
-                      <div style={{ fontSize: 11, marginTop: 4, opacity: 0.6 }}>
+                      <div style={{ fontSize: 'var(--text-xs)', marginTop: 4, opacity: 0.6 }}>
                         来自: {MODULE_LABELS[def.module] || def.module}
                       </div>
                     )}
@@ -294,7 +294,7 @@ export default function PassportPage() {
                     {def.icon}
                   </span>
                   <span style={{
-                    fontSize: 11,
+                    fontSize: 'var(--text-xs)',
                     color: isEarned ? 'var(--color-ink)' : 'var(--color-ink-tertiary)',
                     fontWeight: 500,
                     textAlign: 'center',
@@ -305,7 +305,7 @@ export default function PassportPage() {
                   {isEarned && (
                     <Tag
                       color={RARITY_CONFIG[def.rarity]?.color}
-                      style={{ fontSize: 10, lineHeight: '16px', padding: '0 6px', margin: 0 }}
+                      style={{ fontSize: 'var(--text-xs)', lineHeight: '16px', padding: '0 6px', margin: 0 }}
                     >
                       {RARITY_CONFIG[def.rarity]?.label}
                     </Tag>
@@ -358,10 +358,10 @@ export default function PassportPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontSize: 24 }}>{stamp.icon}</span>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--color-ink)' }}>
+                    <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
                       {stamp.name}
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--color-ink-secondary)' }}>
+                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)' }}>
                       {new Date(stamp.earned_at).toLocaleDateString('zh-CN')}
                     </div>
                   </div>

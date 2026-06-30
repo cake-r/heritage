@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { Input, Button, Upload, Segmented, Space } from 'antd'
 import { SendOutlined, PictureOutlined, CloseOutlined } from '@ant-design/icons'
 import { TOOL_NAMES, type InheritorInfo } from './index'
@@ -11,7 +11,13 @@ interface Props {
   onCancelTool: () => void
 }
 
-export default function WorkshopChatInput({ onSend, streaming, availableTools, activeToolId, onCancelTool }: Props) {
+export interface WorkshopChatInputHandle {
+  selectTool: (toolId: string) => void
+}
+
+const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function WorkshopChatInput(
+  { onSend, streaming, availableTools, activeToolId, onCancelTool }, ref
+) {
   const [inputValue, setInputValue] = useState('')
   const [activeTool, setActiveTool] = useState<string>('')
   const [uploadedImage, setUploadedImage] = useState<File | null>(null)
@@ -80,11 +86,23 @@ export default function WorkshopChatInput({ onSend, streaming, availableTools, a
     }
   }
 
+  // 暴露 selectTool 给父组件（工具箱一键填入）
+  useImperativeHandle(ref, () => ({
+    selectTool: (toolId: string) => {
+      setActiveTool(toolId)
+      const prefix = `/${toolId} `
+      if (!inputValue.startsWith(prefix)) {
+        setInputValue(prefix + inputValue.replace(/^\/[a-z]+\s/, ''))
+      }
+    },
+  }), [inputValue])
+
   // 构建工具选项
   const toolOptions = [
     { label: '💬 对话', value: '' },
     ...availableTools.map(t => {
-      const icon = t === 'inspect' ? '🔍' : t === 'create' ? '🎨' : t === 'connect' ? '🔗' : '📖'
+      const icons: Record<string, string> = { inspect: '🔍', create: '🎨', connect: '🔗', teach: '📖', pattern: '🏮', story: '📜', compare: '⚖️' }
+      const icon = icons[t] || '🛠️'
       return { label: `${icon} ${TOOL_NAMES[t] || t}`, value: t }
     }),
   ]
@@ -152,7 +170,7 @@ export default function WorkshopChatInput({ onSend, streaming, availableTools, a
             type="text"
             icon={<PictureOutlined />}
             disabled={streaming}
-            style={{ color: 'var(--color-ink-secondary, #6B5F52)', fontSize: 13 }}
+            style={{ color: 'var(--color-ink-secondary, #6B5F52)', fontSize: 'var(--text-sm)' }}
           >
             上传
           </Button>
@@ -170,7 +188,7 @@ export default function WorkshopChatInput({ onSend, streaming, availableTools, a
             border: 'none',
             background: 'transparent',
             resize: 'none',
-            fontSize: 15,
+            fontSize: 'var(--text-base)',
           }}
         />
 
@@ -199,4 +217,6 @@ export default function WorkshopChatInput({ onSend, streaming, availableTools, a
       </div>
     </div>
   )
-}
+})
+
+export default WorkshopChatInput

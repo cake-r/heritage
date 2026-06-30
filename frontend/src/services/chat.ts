@@ -70,6 +70,18 @@ export interface ToolResultEvent {
     image: string
   }>
   summary?: string
+  // pattern tool
+  analysis?: Record<string, unknown>
+  // story tool
+  title?: string
+  story?: string
+  tags?: string[]
+  // compare tool
+  item_a?: string
+  item_b?: string
+  comparison?: Record<string, string>
+  common_ground?: string
+  verdict?: string
 }
 
 export interface ImageBatchEvent {
@@ -155,9 +167,16 @@ export function sendMessageSSE(
     const decoder = new TextDecoder()
     let buffer = ''
 
+    let receivedDoneEvent = false
     while (true) {
       const { done, value } = await reader.read()
-      if (done) break
+      if (done) {
+        // 流结束但未收到 done 事件 → 连接异常中断
+        if (!receivedDoneEvent) {
+          callbacks?.onError('连接中断，AI 回复未完成。请重试。')
+        }
+        break
+      }
       buffer += decoder.decode(value, { stream: true })
 
       // 解析SSE事件
@@ -177,6 +196,7 @@ export function sendMessageSSE(
                 callbacks?.onToken(data.token)
                 break
               case 'done':
+                receivedDoneEvent = true
                 callbacks?.onDone(data)
                 break
               case 'error':

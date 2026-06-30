@@ -1,3 +1,15 @@
+/**
+ * 时间脉络散点图 — 朝代分段式设计
+ * X轴：7个历史分期（先秦→近现代），宋体水平排列，无倾斜
+ * Y轴：品类纵向错落，每品类一个槽位
+ * 散点：颜色=品类，大小=项目数，外晕=墨点晕染
+ * 底色：markArea 交替浅米黄/浅鎏金分段
+ * 交互：hover 中式卡片，click→setEra 联动筛选
+ *
+ * 注意：ECharts 渲染到 Canvas，所有颜色值必须使用硬编码 hex/rgba，
+ * CSS 变量（var(--xxx)）在 Canvas 中不会解析。
+ */
+
 import { useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { Empty } from 'antd'
@@ -8,199 +20,297 @@ import type { TimelineItem, ItemNode } from '../../services/knowledgeGraph'
 interface Props {
   timelineData: TimelineItem[]
   allItems: ItemNode[]
+  activeCategory: string | null
 }
 
+// ===== 硬编码色值（来自 tokens.css，Canvas 兼容） =====
+const INK = '#2C241A'
+const INK_SECONDARY = '#6B5F52'
+const INK_TERTIARY = '#5A4F42'
+const PAPER_WHITE = '#FFFDF9'
+const GOLD_LIGHT = '#E8D5B0'
+const BORDER_MEDIUM = '#D5CFC0'
+const BORDER_LIGHT = '#E8E4D8'
+const FONT_DISPLAY = '"Noto Serif SC", "Source Han Serif SC", SimSun, serif'
+const FONT_BODY = '"Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif'
+
+// ===== 朝代→历史分期映射 =====
+const ERA_TO_PERIOD: Record<string, string> = {
+  '先秦': '先秦', '商': '先秦', '西周': '先秦', '春秋': '先秦', '战国': '先秦',
+  '秦': '秦汉', '汉': '秦汉', '西汉': '秦汉', '东汉': '秦汉',
+  '魏晋': '魏晋南北朝', '南北朝': '魏晋南北朝', '三国': '魏晋南北朝',
+  '隋': '隋唐', '唐': '隋唐', '五代': '隋唐',
+  '宋': '宋元', '北宋': '宋元', '南宋': '宋元', '元': '宋元', '辽': '宋元', '金': '宋元',
+  '明': '明清', '清': '明清',
+  '民国': '近现代', '现代': '近现代', '当代': '近现代',
+}
+
+const PERIODS = ['先秦', '秦汉', '魏晋南北朝', '隋唐', '宋元', '明清', '近现代']
+const PERIOD_BG_COLORS = [
+  'rgba(247,244,237,0.55)',   // 先秦 — 极浅米黄
+  'rgba(196,162,101,0.10)',   // 秦汉 — 浅鎏金
+  'rgba(247,244,237,0.55)',   // 魏晋南北朝
+  'rgba(196,162,101,0.10)',   // 隋唐
+  'rgba(247,244,237,0.55)',   // 宋元
+  'rgba(196,162,101,0.10)',   // 明清
+  'rgba(247,244,237,0.55)',   // 近现代
+]
+
+// 品类纵向槽位（Y轴位置）
 const CATEGORY_ORDER = [
   '刺绣', '陶瓷', '剪纸', '皮影', '织锦', '金属', '漆器', '竹编',
   '雕塑', '泥塑', '民间美术', '戏曲', '年画', '蓝印花布',
-  '紫砂', '篆刻', '唐三彩', '书法', '其他',
+  '紫砂', '篆刻', '唐三彩', '书法',
 ]
 
-export default function TimelineScatter({ timelineData, allItems }: Props) {
+export default function TimelineScatter({ timelineData, allItems, activeCategory }: Props) {
   const { era, setEra } = useFilters()
 
-  // Build technique count map from allItems
-  const techniqueCountMap = useMemo(() => {
-    const map = new Map<number, number>()
-    for (const item of allItems) {
-      map.set(item.id, (item.techniques || []).length)
+  // 聚合数据：{ period -> { category -> { count, items } } }
+  const periodData = useMemo(() => {
+    const map: Record<string, Record<string, { count: number; items: { id: number; name: string; era: string; techniques: number }[] }>> = {}
+    for (const p of PERIODS) {
+      map[p] = {}
+      for (const cat of CATEGORY_ORDER) {
+        map[p][cat] = { count: 0, items: [] }
+      }
+    }
+
+    for (const eraEntry of timelineData) {
+      const period = ERA_TO_PERIOD[eraEntry.era] || '近现代'
+      if (!map[period]) continue
+      for (const item of eraEntry.items) {
+        const cat = item.category
+        if (!map[period][cat]) map[period][cat] = { count: 0, items: [] }
+        map[period][cat].count++
+        map[period][cat].items.push({
+          id: item.id,
+          name: item.name,
+          era: eraEntry.era,
+          techniques: (allItems.find(n => n.id === item.id)?.techniques || []).length,
+        })
+      }
     }
     return map
-  }, [allItems])
+  }, [timelineData, allItems])
 
-  // Build cumulative era data for timeline
-  const { timelineLabels, timelineOptions } = useMemo(() => {
-    if (!timelineData.length) return { timelineLabels: [] as string[], timelineOptions: [] as any[] }
-
-    const labels: string[] = []
-    const options: any[] = []
-
-    // Track seen item ids for cumulative display
-    const seenItemIds = new Set<number>()
-
-    for (let eraIdx = 0; eraIdx < timelineData.length; eraIdx++) {
-      const eraEntry = timelineData[eraIdx]
-      labels.push(eraEntry.era)
-
-      // Mark new items this era
-      const newThisEra = new Set<number>()
-      for (const item of eraEntry.items) {
-        newThisEra.add(item.id)
-        seenItemIds.add(item.id)
+  // 计算全局最大 count 用于散点大小归一化
+  const maxGlobalCount = useMemo(() => {
+    let m = 0
+    for (const p of PERIODS) {
+      for (const cat of CATEGORY_ORDER) {
+        m = Math.max(m, periodData[p]?.[cat]?.count || 0)
       }
-
-      // Build scatter data: all items seen so far
-      const scatterData: any[] = []
-      for (let pastIdx = 0; pastIdx <= eraIdx; pastIdx++) {
-        for (const item of timelineData[pastIdx].items) {
-          const catIdx = CATEGORY_ORDER.indexOf(item.category)
-          if (catIdx < 0) continue
-          const tc = techniqueCountMap.get(item.id) || 1
-          const isNew = newThisEra.has(item.id)
-          scatterData.push({
-            value: [catIdx, Math.random() * 0.8 + 0.1, tc],
-            name: item.name,
-            itemStyle: {
-              color: getCategoryColor(item.category),
-              opacity: isNew ? 1 : 0.2,
-            },
-            symbolSize: Math.max(8, Math.min(tc * 4 + 6, 28)),
-            _tooltip: {
-              name: item.name,
-              category: item.category,
-              era: timelineData[pastIdx].era,
-              techniques: tc,
-              isNew,
-            },
-          })
-        }
-      }
-
-      // Mark points for techniques introduced in this era
-      const markPoints: any[] = []
-      for (const techName of eraEntry.techniques_introduced || []) {
-        // Find an item that uses this technique in the current era
-        let foundCatIdx = -1
-        for (const item of eraEntry.items) {
-          const catIdx = CATEGORY_ORDER.indexOf(item.category)
-          if (catIdx >= 0) {
-            foundCatIdx = catIdx
-            break
-          }
-        }
-        if (foundCatIdx >= 0) {
-          markPoints.push({
-            name: techName,
-            coord: [foundCatIdx, 0.95],
-            symbol: 'pin',
-            symbolSize: 22,
-            itemStyle: { color: '#B8463A' },
-            label: { show: false },
-            _tooltip: { isNewTechnique: true, name: techName },
-          })
-        }
-      }
-
-      options.push({
-        tooltip: {
-          trigger: 'item',
-          formatter: (params: any) => {
-            const d = params.data?._tooltip || params.data
-            if (d?.isNewTechnique) {
-              return `<b>🆕 ${d.name}</b><br/>技法首次出现`
-            }
-            if (d?.name) {
-              return `<b>${d.name}</b><br/>品类: ${d.category}<br/>时代: ${d.era}<br/>技法数: ${d.techniques}<br/>${d.isNew ? '<span style="color:#B8463A">✦ 本朝新出现</span>' : '<span style="color:#8A8378">历史传承</span>'}`
-            }
-            return params.name
-          },
-        },
-        grid: { top: 20, bottom: 60, left: 10, right: 20 },
-        xAxis: {
-          type: 'category',
-          data: CATEGORY_ORDER,
-          axisLabel: { rotate: 30, fontSize: 12, color: '#555' },
-          name: '品类',
-          nameLocation: 'middle',
-          nameGap: 50,
-          nameTextStyle: { fontSize: 12, color: '#777' },
-        },
-        yAxis: {
-          type: 'value',
-          show: false,
-          min: -0.1,
-          max: 1.1,
-        },
-        series: [
-          {
-            type: 'scatter',
-            data: scatterData,
-            emphasis: {
-              scale: 1.5,
-              focus: 'self',
-            },
-            markPoint: markPoints.length > 0 ? {
-              data: markPoints,
-              animation: true,
-              label: { show: false },
-            } : undefined,
-          },
-        ],
-      })
     }
+    return m || 1
+  }, [periodData])
 
-    return { timelineLabels: labels, timelineOptions: options }
-  }, [timelineData, techniqueCountMap])
+  // 构建 scatter series 数据
+  const scatterSeries = useMemo(() => {
+    const allScatterData: any[] = []
+
+    for (let pi = 0; pi < PERIODS.length; pi++) {
+      const period = PERIODS[pi]
+      for (let ci = 0; ci < CATEGORY_ORDER.length; ci++) {
+        const cat = CATEGORY_ORDER[ci]
+        const cell = periodData[period]?.[cat]
+        if (!cell || cell.count === 0) continue
+
+        const catColor = getCategoryColor(cat)
+        const isDimmed = !!(activeCategory && activeCategory !== cat)
+
+        // 散点大小：基础 10px，最大 34px，按 count 线性映射
+        const baseSize = 10
+        const maxSize = 34
+        const size = baseSize + (cell.count / maxGlobalCount) * (maxSize - baseSize)
+
+        allScatterData.push({
+          value: [pi, ci],
+          name: cat,
+          symbolSize: size,
+          itemStyle: {
+            color: catColor,
+            opacity: isDimmed ? 0.12 : 0.88,
+            shadowBlur: isDimmed ? 0 : 10,
+            shadowColor: isDimmed ? 'transparent' : catColor,
+            shadowOffsetX: 0,
+            shadowOffsetY: 0,
+            borderColor: 'rgba(255,255,255,0.5)',
+            borderWidth: 0.5,
+          },
+          emphasis: {
+            scale: 1.8,
+            itemStyle: {
+              shadowBlur: 20,
+              shadowColor: catColor,
+              opacity: 1,
+              borderColor: '#fff',
+              borderWidth: 1.5,
+            },
+          },
+          _cell: cell,
+          _period: period,
+          _category: cat,
+          _periodIdx: pi,
+        })
+      }
+    }
+    return allScatterData
+  }, [periodData, activeCategory, maxGlobalCount])
 
   const option = useMemo(() => {
-    if (!timelineLabels.length) return {}
+    if (!timelineData.length) return {}
+
     return {
-      timeline: {
-        data: timelineLabels,
-        axisType: 'category' as const,
-        autoPlay: true,
-        playInterval: 2000,
-        loop: true,
-        label: {
-          fontSize: 12,
-          fontWeight: 'bold' as const,
-          color: '#2C241A',
+      tooltip: {
+        trigger: 'item' as const,
+        backgroundColor: PAPER_WHITE,
+        borderColor: GOLD_LIGHT,
+        borderWidth: 1,
+        padding: [14, 18],
+        extraCssText: 'border-radius:10px;box-shadow:0 4px 16px rgba(30,27,24,0.10);',
+        textStyle: {
+          color: INK,
+          fontSize: 13,
+          fontFamily: FONT_BODY,
         },
-        checkpointStyle: {
-          color: '#B8463A',
-          borderColor: '#B8463A',
-        },
-        controlStyle: {
-          show: true,
-          position: 'left' as const,
-          itemSize: 24,
-          borderColor: '#C4A265',
-        },
-        lineStyle: { color: '#C4A265' },
-        emphasis: {
-          label: { color: '#B8463A' },
-          checkpointStyle: { color: '#B8463A' },
+        formatter: (params: any) => {
+          const d = params.data
+          if (!d?._cell) return ''
+          const { _cell, _period, _category } = d
+          const itemNames = _cell.items.slice(0, 8).map((i: any) => i.name).join('、')
+          const more = _cell.items.length > 8 ? ` 等${_cell.items.length}项` : ''
+          // 硬编码色值 — tooltip 是 HTML 但独立渲染，不继承页面 CSS 变量
+          return `
+            <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif;min-width:190px">
+              <div style="font-size:15px;font-weight:600;color:#2C241A;margin-bottom:8px;border-bottom:1px solid #E8D5B0;padding-bottom:6px">
+                📜 ${_period} · ${_category}
+              </div>
+              <div style="font-size:13px;color:#6B5F52;margin-bottom:4px">
+                非遗项目：<b style="color:#B8463A">${_cell.count}</b> 项
+              </div>
+              <div style="font-size:12px;color:#5A4F42;line-height:1.7;max-width:270px">
+                ${itemNames}${more}
+              </div>
+              <div style="font-size:11px;color:#C4BEB4;margin-top:8px;font-style:italic">
+                点击散点筛选此历史分期
+              </div>
+            </div>`
         },
       },
-      options: timelineOptions,
+      grid: {
+        top: 36,
+        bottom: 36,
+        left: 24,
+        right: 16,
+      },
+      xAxis: {
+        type: 'category',
+        data: PERIODS,
+        position: 'bottom',
+        axisTick: { show: false },
+        axisLine: {
+          lineStyle: { color: BORDER_MEDIUM, width: 0.5 },
+        },
+        axisLabel: {
+          fontSize: 13,
+          fontFamily: FONT_DISPLAY,
+          color: INK,
+          fontWeight: 500,
+          interval: 0,
+        },
+        splitLine: { show: false },
+      },
+      yAxis: {
+        type: 'category',
+        data: CATEGORY_ORDER,
+        position: 'left',
+        axisTick: { show: false },
+        axisLine: { show: false },
+        axisLabel: {
+          fontSize: 11,
+          fontFamily: FONT_BODY,
+          color: INK_SECONDARY,
+          width: 52,
+          overflow: 'truncate',
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: BORDER_LIGHT,
+            width: 0.5,
+            type: 'dashed' as const,
+          },
+        },
+        inverse: true,
+      },
+      series: [
+        {
+          type: 'scatter',
+          data: scatterSeries,
+          cursor: 'pointer',
+          symbol: 'circle',
+          // markArea 分段底色
+          markArea: {
+            silent: true,
+            itemStyle: { borderWidth: 0 },
+            data: PERIODS.map((name, idx) => ({
+              name,
+              itemStyle: { color: PERIOD_BG_COLORS[idx] },
+              coord: [
+                { xAxis: idx - 0.46, yAxis: -0.5 },
+                { xAxis: idx + 0.46, yAxis: CATEGORY_ORDER.length - 0.5 },
+              ],
+            })),
+          },
+        },
+      ],
+      // 左上角极简图例
+      graphic: [
+        {
+          type: 'text' as const,
+          left: 12,
+          top: 4,
+          style: {
+            text: '● 颜色 = 品类    ● 大小 = 数量',
+            fill: INK_SECONDARY,
+            font: '11px "Noto Sans SC", sans-serif',
+          },
+        },
+      ],
     }
-  }, [timelineLabels, timelineOptions])
+  }, [timelineData, scatterSeries])
 
-  // Handle timeline label click (era selection)
+  // 点击事件 → setEra
   const onEvents = useMemo(() => ({
-    timelinechanged: (params: any) => {
-      if (params && params.currentIndex !== undefined) {
-        const clickedEra = timelineLabels[params.currentIndex]
-        if (clickedEra) {
-          setEra(era === clickedEra ? null : clickedEra)
+    click: (params: any) => {
+      // ECharts scatter 点击: componentType === 'series', componentSubType === 'scatter'
+      if (params.componentType === 'series' && params.componentSubType === 'scatter') {
+        const clickedPeriod = params.data?._period
+        if (!clickedPeriod) return
+
+        const periodEras = timelineData
+          .filter(e => ERA_TO_PERIOD[e.era] === clickedPeriod)
+          .map(e => e.era)
+
+        if (periodEras.length > 0) {
+          const currentPeriod = era ? ERA_TO_PERIOD[era] : null
+          if (currentPeriod === clickedPeriod) {
+            setEra(null)
+          } else {
+            setEra(periodEras[0])
+          }
         }
       }
     },
-  }), [timelineLabels, era, setEra])
+  }), [timelineData, era, setEra])
 
   if (!timelineData.length) {
     return (
-      <div style={{ height: 360, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{
+        height: 420, display: 'flex', alignItems: 'center',
+        justifyContent: 'center', color: INK_SECONDARY,
+      }}>
         <Empty description="暂无时间轴数据" />
       </div>
     )
@@ -209,7 +319,7 @@ export default function TimelineScatter({ timelineData, allItems }: Props) {
   return (
     <ReactECharts
       option={option}
-      style={{ height: 360, width: '100%' }}
+      style={{ height: 420, width: '100%' }}
       onEvents={onEvents}
       notMerge
       lazyUpdate

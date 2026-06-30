@@ -60,7 +60,7 @@ function PromptCard({ result }: { result: Record<string, any> }) {
       padding: 16,
     }}>
       <Text style={{
-        fontSize: 14,
+        fontSize: 'var(--text-sm)',
         lineHeight: 1.8,
         whiteSpace: 'pre-wrap',
         fontFamily: 'var(--font-body)',
@@ -88,7 +88,7 @@ function ImageRestoredCard({ result }: { result: Record<string, any> }) {
         ))}
       </Row>
       {result.seed && (
-        <Text type="secondary" style={{ fontSize: 12, marginTop: 8, display: 'block' }}>
+        <Text type="secondary" style={{ fontSize: 'var(--text-xs)', marginTop: 8, display: 'block' }}>
           Seed: {result.seed}
         </Text>
       )}
@@ -133,7 +133,7 @@ function VerificationCard({ result }: { result: Record<string, any> }) {
         </Col>
       </Row>
       <Divider style={{ margin: '16px 0' }} />
-      <Paragraph style={{ fontSize: 14, color: 'var(--color-ink-secondary)', marginBottom: 12 }}>
+      <Paragraph style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary)', marginBottom: 12 }}>
         {result.verdict}
       </Paragraph>
       {result.artifacts?.length > 0 && (
@@ -172,7 +172,7 @@ function OverlaySlider({ original, restored }: { original: string; restored: str
         <div style={{
           position: 'absolute', top: 8, left: 8,
           background: 'rgba(0,0,0,0.6)', color: '#fff',
-          padding: '2px 8px', borderRadius: 4, fontSize: 12,
+          padding: '2px 8px', borderRadius: 4, fontSize: 'var(--text-xs)',
         }}>
           原始
         </div>
@@ -181,7 +181,7 @@ function OverlaySlider({ original, restored }: { original: string; restored: str
       <div style={{
         position: 'absolute', top: 8, right: 8,
         background: 'rgba(0,0,0,0.6)', color: '#fff',
-        padding: '2px 8px', borderRadius: 4, fontSize: 12,
+        padding: '2px 8px', borderRadius: 4, fontSize: 'var(--text-xs)',
       }}>
         修复
       </div>
@@ -394,7 +394,7 @@ export default function DigitalRestoration() {
             <p style={{ color: '#999' }}>
               支持 JPG / PNG / WebP · 最大 10MB · 图片尺寸 ≥ 200px
             </p>
-            <p style={{ color: 'var(--color-ink-secondary)', fontSize: 13, marginTop: 16 }}>
+            <p style={{ color: 'var(--color-ink-secondary)', fontSize: 'var(--text-sm)', marginTop: 16 }}>
               AI 将自动执行四步修复管道：损伤分析 → 修复方案生成 → AI图像修复 → 修复质量验证
             </p>
           </Dragger>
@@ -414,7 +414,7 @@ export default function DigitalRestoration() {
                 style={{ maxWidth: 200, maxHeight: 200, borderRadius: 8, marginBottom: 16, border: '1px solid var(--color-border-light)' }}
               />
             )}
-            <div style={{ fontSize: 13, lineHeight: 2 }}>
+            <div style={{ fontSize: 'var(--text-sm)', lineHeight: 2 }}>
               <div>🔍 步骤 1: 分析损伤类型与程度...</div>
               <div>💡 步骤 2: 生成修复方案...</div>
               <div>🎨 步骤 3: AI 执行图像修复...</div>

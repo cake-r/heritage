@@ -1,20 +1,39 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { Spin } from 'antd'
 import MainLayout from './components/layout/MainLayout'
 import ProtectedRoute from './components/common/ProtectedRoute'
+
+// 公共页面 — 同步加载（首屏关键路径）
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import Recognition from './pages/Recognition'
-import CreativeStudio from './pages/CreativeStudio'
-import Workshop from './pages/Workshop'
-import ExhibitionHall from './pages/ExhibitionHall'
-import KnowledgeGraph from './pages/KnowledgeGraph'
-import UserCenter from './pages/UserCenter'
-import CustomInheritorWizard from './pages/CustomInheritorWizard'
-import DigitalRestoration from './pages/DigitalRestoration'
-import Passport from './pages/Passport'
-import Cultivation from './pages/Cultivation'
-import NotFound from './pages/NotFound'
+
+// 需登录页面 — 懒加载
+const Recognition = lazy(() => import('./pages/Recognition'))
+const CreativeStudio = lazy(() => import('./pages/CreativeStudio'))
+const Workshop = lazy(() => import('./pages/Workshop'))
+const ExhibitionHall = lazy(() => import('./pages/ExhibitionHall'))
+const KnowledgeGraph = lazy(() => import('./pages/KnowledgeGraph'))
+const UserCenter = lazy(() => import('./pages/UserCenter'))
+const CustomInheritorWizard = lazy(() => import('./pages/CustomInheritorWizard'))
+const DigitalRestoration = lazy(() => import('./pages/DigitalRestoration'))
+const Passport = lazy(() => import('./pages/Passport'))
+const Cultivation = lazy(() => import('./pages/Cultivation'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+
+function PageLoader() {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '60vh',
+    }}>
+      <Spin size="large" tip="加载中..." />
+    </div>
+  )
+}
 
 function App() {
   return (
@@ -23,23 +42,47 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/exhibition" element={<ExhibitionHall />} />
-        <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
+        <Route path="/exhibition" element={
+          <Suspense fallback={<PageLoader />}><ExhibitionHall /></Suspense>
+        } />
+        <Route path="/knowledge-graph" element={
+          <Suspense fallback={<PageLoader />}><KnowledgeGraph /></Suspense>
+        } />
 
         {/* 404 页面 */}
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={
+          <Suspense fallback={<PageLoader />}><NotFound /></Suspense>
+        } />
 
         {/* 需登录 */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/recognition" element={<Recognition />} />
-          <Route path="/creative-studio" element={<CreativeStudio />} />
-          <Route path="/workshop" element={<Workshop />} />
-          <Route path="/workshop/wizard" element={<CustomInheritorWizard />} />
-          <Route path="/restoration" element={<DigitalRestoration />} />
-          <Route path="/passport" element={<Passport />} />
-          <Route path="/cultivation" element={<Cultivation />} />
-          <Route path="/virtual-inheritor" element={<Workshop />} />
-          <Route path="/user-center/:tab?" element={<UserCenter />} />
+          <Route path="/recognition" element={
+            <Suspense fallback={<PageLoader />}><Recognition /></Suspense>
+          } />
+          <Route path="/creative-studio" element={
+            <Suspense fallback={<PageLoader />}><CreativeStudio /></Suspense>
+          } />
+          <Route path="/workshop" element={
+            <Suspense fallback={<PageLoader />}><Workshop /></Suspense>
+          } />
+          <Route path="/workshop/wizard" element={
+            <Suspense fallback={<PageLoader />}><CustomInheritorWizard /></Suspense>
+          } />
+          <Route path="/restoration" element={
+            <Suspense fallback={<PageLoader />}><DigitalRestoration /></Suspense>
+          } />
+          <Route path="/passport" element={
+            <Suspense fallback={<PageLoader />}><Passport /></Suspense>
+          } />
+          <Route path="/cultivation" element={
+            <Suspense fallback={<PageLoader />}><Cultivation /></Suspense>
+          } />
+          <Route path="/virtual-inheritor" element={
+            <Suspense fallback={<PageLoader />}><Workshop /></Suspense>
+          } />
+          <Route path="/user-center/:tab?" element={
+            <Suspense fallback={<PageLoader />}><UserCenter /></Suspense>
+          } />
         </Route>
       </Route>
     </Routes>

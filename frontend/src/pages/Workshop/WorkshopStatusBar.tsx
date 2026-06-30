@@ -19,7 +19,7 @@ export default function WorkshopStatusBar({ inheritor, messageCount, sessionCoun
       background: 'var(--color-paper-white, #FFFDF9)',
       borderRadius: 8,
       border: '1px solid var(--color-paper, #F7F4ED)',
-      fontSize: 13,
+      fontSize: 'var(--text-sm)',
       color: 'var(--color-ink-secondary, #6B5F52)',
     }}>
       {/* 左侧：传承人信息 */}
@@ -31,10 +31,10 @@ export default function WorkshopStatusBar({ inheritor, messageCount, sessionCoun
               {inheritor.name}
             </span>
             {inheritor.expertise.slice(0, 3).map(e => (
-              <Tag key={e} style={{ fontSize: 12, margin: 0, lineHeight: '20px' }}>{e}</Tag>
+              <Tag key={e} style={{ fontSize: 'var(--text-xs)', margin: 0, lineHeight: '20px' }}>{e}</Tag>
             ))}
             {inheritor.isCustom && (
-              <Tag color="gold" style={{ fontSize: 12, margin: 0, lineHeight: '20px' }}>自定义</Tag>
+              <Tag color="gold" style={{ fontSize: 'var(--text-xs)', margin: 0, lineHeight: '20px' }}>自定义</Tag>
             )}
           </>
         ) : (

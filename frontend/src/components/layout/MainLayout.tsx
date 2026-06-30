@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Layout, Grid } from 'antd'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,6 +9,9 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useCompanion } from '../../contexts/CompanionContext'
 import CompanionFloatButton from '../companion/CompanionFloatButton'
 import CompanionDrawer from '../companion/CompanionDrawer'
+
+const OnboardingGuide = lazy(() => import('../onboarding/OnboardingGuide'))
+import { isOnboardingShown } from '../onboarding/OnboardingGuide'
 
 const { Content, Sider } = Layout
 const { useBreakpoint } = Grid
@@ -30,7 +33,17 @@ export default function MainLayout() {
   // Mobile: use Drawer; Desktop: use inline Sider
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
 
-  const { checkForSuggestions } = useCompanion()
+  const { checkForSuggestions, notifyAction } = useCompanion()
+
+  // 首次登录引导
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  useEffect(() => {
+    if (isAuthenticated && !isOnboardingShown()) {
+      // 延迟 1s 等页面渲染完毕
+      const t = setTimeout(() => setShowOnboarding(true), 1000)
+      return () => clearTimeout(t)
+    }
+  }, [isAuthenticated])
 
   const handleNavigate = useCallback(() => {
     // Close mobile drawer on navigation
@@ -43,6 +56,26 @@ export default function MainLayout() {
       checkForSuggestions(location.pathname)
     }
   }, [location.pathname, isAuthenticated, checkForSuggestions])
+
+  // 停留触发：同一页面停留 45s 且无对话历史时重新触发
+  useEffect(() => {
+    if (!isAuthenticated) return
+    const timer = setTimeout(() => {
+      checkForSuggestions(location.pathname, 'prolonged_stay')
+    }, 45_000)
+    return () => clearTimeout(timer)
+  }, [location.pathname, isAuthenticated, checkForSuggestions])
+
+  // 监听跨页面操作完成事件
+  useEffect(() => {
+    const handler = (e: CustomEvent) => {
+      if (isAuthenticated && e.detail?.action) {
+        notifyAction(location.pathname, e.detail.action)
+      }
+    }
+    window.addEventListener('companion:action', handler as EventListener)
+    return () => window.removeEventListener('companion:action', handler as EventListener)
+  }, [isAuthenticated, location.pathname, notifyAction])
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -81,7 +114,7 @@ export default function MainLayout() {
         />
         <Content
           style={{
-            padding: isMobile ? 12 : 24,
+            padding: isMobile ? 12 : 16,
             background: 'var(--color-paper)',
             minHeight: `calc(100vh - 64px)`,
             transition: `background var(--duration-normal) var(--ease-out)`,
@@ -107,6 +140,14 @@ export default function MainLayout() {
             <>
               <CompanionFloatButton />
               <CompanionDrawer />
+              {showOnboarding && (
+                <Suspense fallback={null}>
+                  <OnboardingGuide
+                    open={showOnboarding}
+                    onClose={() => setShowOnboarding(false)}
+                  />
+                </Suspense>
+              )}
             </>
           )}
         </Content>

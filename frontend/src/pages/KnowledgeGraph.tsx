@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { Card, Spin, Empty, Button, message } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { Card, Spin, Empty, Button, message, Alert } from 'antd'
+import { ReloadOutlined, InfoCircleOutlined } from '@ant-design/icons'
 import * as echarts from 'echarts'
 import { FilterProvider, useFilters } from './knowledge-graph/FilterContext'
 import GraphBanner from './knowledge-graph/GraphBanner'
 import SunburstChart from './knowledge-graph/SunburstChart'
-import TimelineScatter from './knowledge-graph/TimelineScatter'
+import TimelineChart, { PERIOD_TO_ERAS } from './knowledge-graph/TimelineChart'
 import ChoroplethMap from './knowledge-graph/ChoroplethMap'
 import CategorySidebar from './knowledge-graph/CategorySidebar'
 import ProvinceDetailPanel from './knowledge-graph/ProvinceDetailPanel'
@@ -53,6 +53,11 @@ function KnowledgeGraph() {
   const [techPanelOpen, setTechPanelOpen] = useState(false)
   const [favIds, setFavIds] = useState<Set<number>>(new Set())
 
+  // 首次访问操作提示
+  const [showGuide, setShowGuide] = useState(() => {
+    return localStorage.getItem('kg_guide_shown') !== '1'
+  })
+
   // ========== Load Data ==========
   useEffect(() => {
     setLoading(true)
@@ -76,7 +81,9 @@ function KnowledgeGraph() {
       nodes = nodes.filter(n => n.region.includes(region))
     }
     if (era) {
-      nodes = nodes.filter(n => n.era.includes(era))
+      // era 可能是分期名（如"明清"）或具体朝代名（如"明"）
+      const eraSet = PERIOD_TO_ERAS[era] || [era]
+      nodes = nodes.filter(n => eraSet.some(e => n.era?.includes(e)))
     }
     return { ...allItems, nodes }
   }, [allItems, region, era])
@@ -176,6 +183,27 @@ function KnowledgeGraph() {
         <GraphBanner drilledCategory={drilledCategory} />
       </div>
 
+      {/* 首次访问操作提示 */}
+      {showGuide && (
+        <Alert
+          message="💡 操作提示"
+          description={
+            <span>
+              点击<strong>左侧品类</strong>筛选分类 · 点击<strong>旭日图</strong>深入探索 · 点击<strong>地图省份</strong>查看该省非遗分布 · 点击<strong>时间轴柱子</strong>筛选朝代
+            </span>
+          }
+          type="info"
+          closable
+          onClose={() => { setShowGuide(false); localStorage.setItem('kg_guide_shown', '1') }}
+          style={{
+            marginBottom: 16,
+            borderRadius: 8,
+            background: 'var(--color-bg-active, #FFF3E0)',
+            border: '1px solid var(--color-gold-light, #E8D5B0)',
+          }}
+        />
+      )}
+
       {/* Main content: Sidebar | Sunburst | ProvincePanel */}
       <div style={{
         display: 'grid',
@@ -195,9 +223,18 @@ function KnowledgeGraph() {
 
         {/* Center: Sunburst Chart */}
         <Card
-          title={drilledCategory ? `📊 ${drilledCategory}` : '☀️ 品类 · 项目 · 技法'}
-          bodyStyle={{ padding: 16 }}
-          style={{ borderRadius: 12 }}
+          title={
+            <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
+              {drilledCategory ? `📊 ${drilledCategory}` : '☀️ 品类 · 项目 · 技法'}
+            </span>
+          }
+          style={{
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--color-border-light)',
+            boxShadow: 'none',
+            background: 'var(--color-paper-white)',
+          }}
+          styles={{ body: { padding: 16 } }}
         >
           <SunburstChart
             data={sunburstData}
@@ -225,23 +262,46 @@ function KnowledgeGraph() {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: 20,
+        marginBottom: 24,
       }}>
         <Card
-          title="📅 时间脉络"
-          bodyStyle={{ padding: '8px 4px' }}
-          style={{ borderRadius: 12 }}
+          title={
+            <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
+              ☀️ 时间脉络
+            </span>
+          }
+          style={{
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--color-border-light)',
+            boxShadow: 'none',
+            background: 'var(--color-paper-white)',
+          }}
+          styles={{ body: { padding: '8px 4px' } }}
         >
-          <TimelineScatter
+          <TimelineChart
             timelineData={timeline}
-            allItems={allItems?.nodes || []}
+            activeCategory={drilledCategory}
           />
         </Card>
         <Card
-          title="🗺 地域分布"
-          bodyStyle={{ padding: 16 }}
-          style={{ borderRadius: 12 }}
+          title={
+            <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
+              🏛 地域分布
+            </span>
+          }
+          style={{
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--color-border-light)',
+            boxShadow: 'none',
+            background: 'var(--color-paper-white)',
+          }}
+          styles={{ body: { padding: 8 } }}
         >
-          <ChoroplethMap data={regions} />
+          <ChoroplethMap
+            data={regions}
+            allItems={allItems?.nodes || []}
+            activeCategory={drilledCategory}
+          />
         </Card>
       </div>
 

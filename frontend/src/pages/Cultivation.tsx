@@ -1,7 +1,7 @@
 /** 非遗修习之路 — 游戏化学习旅程主页面 */
 
 import { useEffect, useState, Component } from 'react'
-import { Card, Typography, Progress, Row, Col, Button, Empty, Spin, Grid, message } from 'antd'
+import { Card, Typography, Progress, Row, Col, Button, Empty, Spin, Grid, message, Tooltip } from 'antd'
 import { TrophyOutlined, FireOutlined, ClockCircleOutlined, CheckCircleFilled, RightOutlined } from '@ant-design/icons'
 import { motion } from 'framer-motion'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
@@ -140,7 +140,7 @@ export default function Cultivation() {
             position: 'right',
             verticalAlign: 'middle',
             align: 'left',
-            fontSize: 10,
+            fontSize: 'var(--text-xs)',
           },
         },
         expandAndCollapse: true,
@@ -181,7 +181,7 @@ export default function Cultivation() {
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? 16 : 32 }}>
       {/* ================================================================ */}
-      {/* 段位横幅                                                          */}
+      {/* 段位横幅 — 5个段位：初窥门径(0) → 略有小成(100) → 融会贯通(300) → 炉火纯青(800) → 一代宗师(2000) */}
       {/* ================================================================ */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -264,7 +264,7 @@ export default function Cultivation() {
             <Card
               title={
                 <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2 }}>
-                  🌳 六艺技能树
+                  <Tooltip title="六艺对应非遗六大技能方向：识·创·联·教·纹·述，每个方向通过任务获得经验值（XP）提升">🌳 六艺技能树</Tooltip>
                 </span>
               }
               style={{
@@ -366,7 +366,7 @@ export default function Cultivation() {
                           </Text>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                             <span style={{
-                              fontSize: 10,
+                              fontSize: 'var(--text-xs)',
                               background: 'var(--color-vermilion)',
                               color: '#fff',
                               padding: '1px 6px',
@@ -374,7 +374,7 @@ export default function Cultivation() {
                             }}>
                               +{quest.xp_reward} XP
                             </span>
-                            <Text type="secondary" style={{ fontSize: 10 }}>
+                            <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
                               {MODULE_LABELS[quest.module] || quest.module}
                             </Text>
                           </div>
@@ -387,7 +387,7 @@ export default function Cultivation() {
                             style={{
                               flexShrink: 0,
                               borderRadius: 'var(--radius-sm)',
-                              fontSize: 12,
+                              fontSize: 'var(--text-xs)',
                             }}
                           >
                             完成

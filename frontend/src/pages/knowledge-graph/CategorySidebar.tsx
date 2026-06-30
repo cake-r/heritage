@@ -30,7 +30,7 @@ export default function CategorySidebar({
 
   if (!categories.length) {
     return (
-      <div style={{ width: 240, padding: 16, background: 'var(--color-paper-white, #FFFDF9)', borderRadius: 12, fontSize: 13, color: 'var(--color-ink-secondary, #6B5F52)', textAlign: 'center' }}>
+      <div style={{ width: 240, padding: 16, background: 'var(--color-paper-white, #FFFDF9)', borderRadius: 12, fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary, #6B5F52)', textAlign: 'center' }}>
         暂无品类数据
       </div>
     )
@@ -53,7 +53,7 @@ export default function CategorySidebar({
         maxHeight: 360,
         overflowY: 'auto',
       }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-ink, #2C241A)', marginBottom: 12, padding: '0 8px' }}>
+        <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-ink, #2C241A)', marginBottom: 12, padding: '0 8px' }}>
           📂 非遗品类
         </div>
 
@@ -63,7 +63,7 @@ export default function CategorySidebar({
           style={{
             padding: '10px 8px',
             borderRadius: 8,
-            fontSize: 13,
+            fontSize: 'var(--text-sm)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -78,7 +78,7 @@ export default function CategorySidebar({
         >
           <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--gray-500, #8A8378)', flexShrink: 0 }} />
           <span style={{ flex: 1 }}>全部</span>
-          <span style={{ fontSize: 12, color: 'var(--color-ink-secondary, #6B5F52)', minWidth: 24, textAlign: 'center' }}>{categories.reduce((s, c) => s + c.item_count, 0)}</span>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)', minWidth: 24, textAlign: 'center' }}>{categories.reduce((s, c) => s + c.item_count, 0)}</span>
         </div>
 
         {/* Category items */}
@@ -92,7 +92,7 @@ export default function CategorySidebar({
               style={{
                 padding: '10px 8px',
                 borderRadius: 8,
-                fontSize: 13,
+                fontSize: 'var(--text-sm)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -107,7 +107,7 @@ export default function CategorySidebar({
               <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, flexShrink: 0 }} />
               <span style={{ flex: 1 }}>{cat.name}</span>
               <span style={{
-                fontSize: 12,
+                fontSize: 'var(--text-xs)',
                 color: 'var(--color-ink-secondary, #6B5F52)',
                 background: isActive ? 'var(--color-paper-white, #FFFDF9)' : 'var(--color-paper, #F7F4ED)',
                 borderRadius: 6,
@@ -132,7 +132,7 @@ export default function CategorySidebar({
           overflowY: 'auto',
           flex: 1,
         }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-ink, #2C241A)', marginBottom: 12, padding: '0 8px' }}>
+          <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-ink, #2C241A)', marginBottom: 12, padding: '0 8px' }}>
             🏷️ 技法标签
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '0 4px' }}>
@@ -145,7 +145,7 @@ export default function CategorySidebar({
                     style={{
                       cursor: 'pointer',
                       borderRadius: 6,
-                      fontSize: 12,
+                      fontSize: 'var(--text-xs)',
                       padding: '6px 12px',
                       borderColor: color,
                       color: color,

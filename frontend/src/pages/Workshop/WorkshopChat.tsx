@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Avatar, Tag, Button, Card, Spin, Empty } from 'antd'
-import { UserOutlined, RobotOutlined, NodeIndexOutlined } from '@ant-design/icons'
+import { Avatar, Tag, Button, Card, Spin, Empty, Popconfirm } from 'antd'
+import { UserOutlined, RobotOutlined, NodeIndexOutlined, ReloadOutlined } from '@ant-design/icons'
 import ReactMarkdown from 'react-markdown'
 import AudioPlayer from '../../components/recognition/AudioPlayer'
 import type { WorkshopMessage, InheritorInfo } from './index'
@@ -14,6 +14,7 @@ interface Props {
   loading: boolean
   inheritor?: InheritorInfo
   onQuickQuestion?: (question: string) => void
+  onRegenerate?: () => void
 }
 
 export default function WorkshopChat({ messages, streaming, streamingContent, loading, inheritor, onQuickQuestion }: Props) {
@@ -52,7 +53,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                 <Tag key={e} style={{ marginBottom: 4 }}>{e}</Tag>
               ))}
             </div>
-            <p style={{ color: 'var(--color-ink-secondary, #6B5F52)', fontSize: 15, lineHeight: 1.8 }}>
+            <p style={{ color: 'var(--color-ink-secondary, #6B5F52)', fontSize: 'var(--text-base)', lineHeight: 1.8 }}>
               {inheritor.greeting}
             </p>
 
@@ -74,7 +75,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                     }}
                   >
                     <div style={{ fontSize: 24, marginBottom: 4 }}>{TOOL_ICONS[toolId]}</div>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{TOOL_NAMES[toolId]}</div>
+                    <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>{TOOL_NAMES[toolId]}</div>
                   </Card>
                 ))}
               </div>
@@ -83,7 +84,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
             {/* 快捷提问 */}
             {inheritor.quick_questions.length > 0 && (
               <div style={{ marginTop: 24 }}>
-                <div style={{ fontSize: 13, color: 'var(--color-ink-secondary, #6B5F52)', marginBottom: 8 }}>
+                <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary, #6B5F52)', marginBottom: 8 }}>
                   试试这些问题：
                 </div>
                 {inheritor.quick_questions.map((q, i) => (
@@ -155,7 +156,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                 ? 'var(--color-vermilion, #B8463A)'
                 : 'var(--color-paper, #F7F4ED)',
               color: msg.role === 'user' ? '#fff' : 'var(--color-ink, #2C241A)',
-              fontSize: 15,
+              fontSize: 'var(--text-base)',
               lineHeight: 1.7,
             }}>
               {/* 图片 */}
@@ -181,7 +182,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                   padding: 12,
                   background: 'rgba(255,255,255,0.6)',
                   borderRadius: 8,
-                  fontSize: 13,
+                  fontSize: 'var(--text-sm)',
                 }}>
                   <div style={{ fontWeight: 600, marginBottom: 6 }}>
                     识别结果：{(msg.toolData.recognition as Record<string, unknown>).category as string}
@@ -216,8 +217,8 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                 <div style={{ marginTop: 12 }}>
                   {msg.toolData.related_items.map((item: any) => (
                     <Card key={item.id} size="small" style={{ marginBottom: 8 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600 }}>{item.name}</div>
-                      <div style={{ fontSize: 12, color: 'var(--color-ink-secondary, #6B5F52)' }}>
+                      <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>{item.name}</div>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)' }}>
                         {item.category} · {item.region} · {item.era}
                       </div>
                     </Card>
@@ -234,15 +235,113 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                 </div>
               )}
 
+              {/* 工具结果：纹样提取 */}
+              {msg.toolData?.tool === 'pattern' && msg.toolData.analysis && (
+                <div style={{
+                  marginTop: 12,
+                  padding: 12,
+                  background: 'rgba(255,255,255,0.6)',
+                  borderRadius: 8,
+                  fontSize: 'var(--text-sm)',
+                }}>
+                  {(() => {
+                    const a = msg.toolData.analysis as Record<string, string>
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {a.motif_type && (
+                          <div><strong>纹样母题：</strong><Tag color="gold">{a.motif_type}</Tag></div>
+                        )}
+                        {a.symmetry && (
+                          <div><strong>对称方式：</strong>{a.symmetry}</div>
+                        )}
+                        {a.composition && (
+                          <div><strong>构图特点：</strong>{a.composition}</div>
+                        )}
+                        {a.color_scheme && (
+                          <div><strong>色彩分析：</strong>{a.color_scheme}</div>
+                        )}
+                        {a.cultural_meaning && (
+                          <div><strong>文化寓意：</strong>{a.cultural_meaning}</div>
+                        )}
+                        {a.craft_technique && (
+                          <div><strong>工艺技法：</strong>{a.craft_technique}</div>
+                        )}
+                        {a.era_style && (
+                          <div><strong>时代风格：</strong>{a.era_style}</div>
+                        )}
+                      </div>
+                    )
+                  })()}
+                </div>
+              )}
+
+              {/* 工具结果：故事讲述 */}
+              {msg.toolData?.tool === 'story' && (msg.toolData as any).story && (
+                <div style={{ marginTop: 12 }}>
+                  <div style={{
+                    fontSize: 'var(--text-base)',
+                    fontWeight: 700,
+                    color: 'var(--color-vermilion, #B8463A)',
+                    marginBottom: 4,
+                  }}>
+                    📖 {(msg.toolData as any).title || '故事'}
+                  </div>
+                  {(msg.toolData as any).tags && (
+                    <div style={{ marginBottom: 8 }}>
+                      {((msg.toolData as any).tags as string[]).map((tag: string, i: number) => (
+                        <Tag key={i} color="orange" style={{ marginBottom: 4 }}>{tag}</Tag>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 工具结果：对比鉴赏 */}
+              {msg.toolData?.tool === 'compare' && (msg.toolData as any).comparison && (
+                <div style={{
+                  marginTop: 12,
+                  padding: 12,
+                  background: 'rgba(255,255,255,0.6)',
+                  borderRadius: 8,
+                  fontSize: 'var(--text-sm)',
+                }}>
+                  <div style={{ fontWeight: 700, marginBottom: 8, color: 'var(--color-vermilion, #B8463A)' }}>
+                    ⚖️ {(msg.toolData as any).item_a} vs {(msg.toolData as any).item_b}
+                  </div>
+                  {(() => {
+                    const comp = (msg.toolData as any).comparison as Record<string, string>
+                    const labels: Record<string, string> = {
+                      technique: '技法', style: '风格', origin: '起源',
+                      material: '材料', cultural_status: '文化地位',
+                    }
+                    return Object.entries(comp).map(([k, v]) => (
+                      <div key={k} style={{ marginBottom: 6 }}>
+                        <strong>{labels[k] || k}：</strong>{v}
+                      </div>
+                    ))
+                  })()}
+                  {(msg.toolData as any).common_ground && (
+                    <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(196,162,101,0.1)', borderRadius: 6 }}>
+                      <strong>🤝 共同之处：</strong>{(msg.toolData as any).common_ground}
+                    </div>
+                  )}
+                  {(msg.toolData as any).verdict && (
+                    <div style={{ marginTop: 6, fontWeight: 600 }}>
+                      💡 {(msg.toolData as any).verdict}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* 工具结果：教学课程 */}
               {msg.curriculumSections && msg.curriculumSections.length > 0 && (
                 <div style={{ marginTop: 12 }}>
                   {msg.curriculumSections.map(sec => (
                     <details key={sec.section_id} style={{ marginBottom: 8 }}>
-                      <summary style={{ fontWeight: 600, cursor: 'pointer', fontSize: 13, color: 'var(--color-vermilion, #B8463A)' }}>
+                      <summary style={{ fontWeight: 600, cursor: 'pointer', fontSize: 'var(--text-sm)', color: 'var(--color-vermilion, #B8463A)' }}>
                         {sec.title}
                       </summary>
-                      <div style={{ padding: '4px 0 8px 8px', fontSize: 13, lineHeight: 1.7 }}>
+                      <div style={{ padding: '4px 0 8px 8px', fontSize: 'var(--text-sm)', lineHeight: 1.7 }}>
                         <ReactMarkdown>{sec.content}</ReactMarkdown>
                       </div>
                     </details>
@@ -254,6 +353,28 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
               {msg.voice_url && (
                 <div style={{ marginTop: 8 }}>
                   <AudioPlayer src={msg.voice_url} />
+                </div>
+              )}
+
+              {/* 重新生成按钮（仅最后一条 AI 消息，非流式进行中） */}
+              {onRegenerate && msg.role === 'assistant' && idx === messages.length - 1 && !streaming && (
+                <div style={{ marginTop: 8, textAlign: 'right' }}>
+                  <Popconfirm
+                    title="确定重新生成？"
+                    description="将替换当前 AI 回复"
+                    onConfirm={onRegenerate}
+                    okText="确定"
+                    cancelText="取消"
+                  >
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<ReloadOutlined />}
+                      style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)' }}
+                    >
+                      重新生成
+                    </Button>
+                  </Popconfirm>
                 </div>
               )}
             </div>
@@ -270,7 +391,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
             padding: '12px 16px',
             borderRadius: 8,
             background: 'var(--color-paper, #F7F4ED)',
-            fontSize: 15,
+            fontSize: 'var(--text-base)',
             lineHeight: 1.7,
           }}>
             <ReactMarkdown>{streamingContent}</ReactMarkdown>

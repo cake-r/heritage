@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Card, Upload, Typography, Spin, Tabs, Tag, Button,
-  Row, Col, Space, message, Empty,
+  Row, Col, Space, message, Empty, Progress,
 } from 'antd'
 import {
   InboxOutlined, ReloadOutlined, PictureOutlined,
@@ -24,6 +24,7 @@ export default function Recognition() {
   const [result, setResult] = useState<RecognitionResult | null>(null)
   const [previewImage, setPreviewImage] = useState<string>('')
   const [error, setError] = useState<string>('')
+  const [uploadProgress, setUploadProgress] = useState(0)
   const navigate = useNavigate()
 
   const handleUpload = async (file: RcFile) => {
@@ -49,13 +50,30 @@ export default function Recognition() {
     setError('')
 
     try {
-      const data = await uploadAndRecognize(rawFile)
+      setUploadProgress(0)
+      const data = await uploadAndRecognize(rawFile, (pct) => {
+        setUploadProgress(pct)
+      })
       setResult(data)
       setStep('result')
+      // 通知伴游：完成识别操作
+      window.dispatchEvent(new CustomEvent('companion:action', { detail: { action: 'just_completed_recognition' } }))
     } catch (err: any) {
-      setError(err.message || '识别失败，请重试')
+      const errMsg = err.message || ''
+      // 区分错误类型给出更友好的提示
+      let displayMsg: string
+      if (errMsg.includes('网络') || errMsg.includes('连接') || errMsg.includes('超时')) {
+        displayMsg = '网络连接失败，请检查网络后重试'
+      } else if (errMsg.includes('图片') || errMsg.includes('图像') || errMsg.includes('格式') || errMsg.includes('大小')) {
+        displayMsg = `图片不符合要求：${errMsg}`
+      } else if (errMsg.includes('非遗') || errMsg.includes('识别') || errMsg.includes('内容')) {
+        displayMsg = `未能识别到非遗内容：${errMsg}`
+      } else {
+        displayMsg = errMsg || '识别失败，请尝试上传更清晰的非遗相关图片'
+      }
+      setError(displayMsg)
       setStep('upload')
-      message.error(err.message || '识别失败')
+      message.error(displayMsg)
     }
 
     return false // 阻止默认上传行为
@@ -80,8 +98,16 @@ export default function Recognition() {
       {step === 'upload' && (
         <Card style={{ borderRadius: 12 }}>
           {error && (
-            <div style={{ marginBottom: 16, padding: 12, background: '#fff2f0', borderRadius: 8, color: '#cf1322' }}>
-              {error}
+            <div style={{
+              marginBottom: 16,
+              padding: 12,
+              background: 'var(--color-bg-active, #FFF3E0)',
+              borderRadius: 8,
+              color: 'var(--color-error, #C5533B)',
+              border: '1px solid var(--color-vermilion, #B8463A)',
+              borderLeft: '3px solid var(--color-vermilion, #B8463A)',
+            }}>
+              ⚠️ {error}
             </div>
           )}
           <Dragger
@@ -92,7 +118,7 @@ export default function Recognition() {
             style={{ padding: 48 }}
           >
             <p className="ant-upload-drag-icon">
-              <InboxOutlined style={{ fontSize: 64, color: '#C41E3A' }} />
+              <InboxOutlined style={{ fontSize: 64, color: 'var(--color-vermilion, #B8463A)' }} />
             </p>
             <p style={{ fontSize: 18, marginTop: 16 }}>点击或拖拽上传非遗手工艺品图片</p>
             <p style={{ color: '#999' }}>支持 JPG / PNG / WebP · 最大 10MB · 图片尺寸 ≥ 200px</p>
@@ -107,12 +133,20 @@ export default function Recognition() {
             <img
               src={previewImage}
               alt="预览"
-              style={{ maxHeight: 200, borderRadius: 8, marginBottom: 32, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+              style={{ maxHeight: 200, borderRadius: 8, marginBottom: 32, boxShadow: 'var(--shadow-md, 0 4px 12px rgba(30,27,24,0.08))' }}
             />
           )}
           <Spin size="large" />
+          {uploadProgress > 0 && uploadProgress < 100 && (
+            <div style={{ maxWidth: 300, margin: '16px auto' }}>
+              <Progress percent={uploadProgress} size="small" strokeColor="var(--color-vermilion, #B8463A)" />
+              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)' }}>
+                上传中 {uploadProgress}%
+              </div>
+            </div>
+          )}
           <p style={{ marginTop: 24, fontSize: 18, fontWeight: 500 }}>AI 正在深度分析中...</p>
-          <div style={{ color: '#999', marginTop: 12 }}>
+          <div style={{ color: 'var(--color-ink-secondary, #6B5F52)', marginTop: 12 }}>
             <p style={{ margin: 4 }}>
               <ExperimentOutlined /> 分析纹样特征与技法细节
             </p>
@@ -178,8 +212,8 @@ function ResultDisplay({
         />
 
         {/* 识别结果摘要 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0', borderTop: '1px solid #f0f0f0' }}>
-          <Tag color="#C41E3A" style={{ fontSize: 16, padding: '4px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0', borderTop: '1px solid var(--color-border-light, #E8E4D8)' }}>
+          <Tag color="var(--color-vermilion, #B8463A)" style={{ fontSize: 16, padding: '4px 16px' }}>
             🏷 {result.category}
           </Tag>
           <Tag color="blue">置信度 {(result.confidence * 100).toFixed(1)}%</Tag>
@@ -231,11 +265,11 @@ function ResultDisplay({
                 key={item.category}
                 style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '10px 0', borderBottom: i < result.top3.length - 1 ? '1px solid #f0f0f0' : 'none',
+                  padding: '10px 0', borderBottom: i < result.top3.length - 1 ? '1px solid var(--color-border-light, #E8E4D8)' : 'none',
                 }}
               >
                 <Space>
-                  <Tag color={i === 0 ? '#C41E3A' : 'default'}>{i + 1}</Tag>
+                  <Tag color={i === 0 ? 'var(--color-vermilion, #B8463A)' as any : 'default'}>{i + 1}</Tag>
                   <Text strong={i === 0}>{item.category}</Text>
                 </Space>
                 <Text type="secondary">{(item.confidence * 100).toFixed(1)}%</Text>
@@ -371,7 +405,7 @@ function HeatmapViewer({ src, features }: { src: string; features: HeatmapFeatur
             }}>
               <span style={{
                 color: isHovered ? '#C41E3A' : '#fff',
-                fontSize: 10,
+                fontSize: 'var(--text-xs)',
                 fontWeight: 'bold',
                 textShadow: isHovered ? 'none' : '0 1px 2px rgba(0,0,0,0.5)',
               }}>
@@ -389,7 +423,7 @@ function HeatmapViewer({ src, features }: { src: string; features: HeatmapFeatur
                 color: '#fff',
                 padding: '8px 14px',
                 borderRadius: 8,
-                fontSize: 13,
+                fontSize: 'var(--text-sm)',
                 whiteSpace: 'nowrap',
                 zIndex: 20,
                 boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
@@ -399,7 +433,7 @@ function HeatmapViewer({ src, features }: { src: string; features: HeatmapFeatur
                 <div style={{ fontWeight: 'bold', color: '#C9A96E', marginBottom: 2 }}>
                   🔍 {f.name}
                 </div>
-                <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, maxWidth: 220, whiteSpace: 'normal' }}>
+                <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'var(--text-xs)', maxWidth: 220, whiteSpace: 'normal' }}>
                   {f.label}
                 </div>
               </div>
@@ -412,7 +446,7 @@ function HeatmapViewer({ src, features }: { src: string; features: HeatmapFeatur
       <div style={{
         position: 'absolute', bottom: 8, right: 12,
         background: 'rgba(0,0,0,0.7)', color: '#fff',
-        padding: '6px 12px', borderRadius: 6, fontSize: 11,
+        padding: '6px 12px', borderRadius: 6, fontSize: 'var(--text-xs)',
         display: 'flex', alignItems: 'center', gap: 6,
       }}>
         <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#C9A96E' }} />

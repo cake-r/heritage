@@ -54,7 +54,7 @@ const modules = [
 // ===== 装饰元素：中式分隔线 =====
 function OrnamentDivider() {
   return (
-    <div style={{ textAlign: 'center', margin: '48px 0 32px' }} aria-hidden="true">
+    <div style={{ textAlign: 'center', margin: '32px 0 24px' }} aria-hidden="true">
       <span style={{ color: 'var(--color-gold)', fontSize: 20, letterSpacing: 12, opacity: 0.6 }}>
         ◆ ◇ ◆
       </span>
@@ -95,6 +95,7 @@ export default function Home() {
   const [itemsCount, setItemsCount] = useState<number>(0)
   const [passportStatus, setPassportStatus] = useState<PassportStatus | null>(null)
   const [dailyItem, setDailyItem] = useState<any>(null)
+  const [publicItems, setPublicItems] = useState<any[]>([])
   const [feedItems, setFeedItems] = useState<RecommendationItem[]>([])
   const [feedStatus, setFeedStatus] = useState<string>('cold_start')
   const [feedLoading, setFeedLoading] = useState(false)
@@ -107,13 +108,18 @@ export default function Home() {
         .then(data => setItemsCount(data.total))
         .catch(() => setItemsCount(50))
     })
-    // 每日发现：随机获取一件藏品
+    // 每日发现 + 公开展示：获取藏品
     import('../services/exhibition').then(({ getItems }) => {
       getItems({ page_size: 20 })
         .then(data => {
           if (data.items?.length > 0) {
-            const randomIdx = Math.floor(Math.random() * Math.min(data.items.length, 20))
-            setDailyItem(data.items[randomIdx])
+            const pool = data.items
+            // 随机选 1 件作为每日发现
+            const randomIdx = Math.floor(Math.random() * Math.min(pool.length, 20))
+            setDailyItem(pool[randomIdx])
+            // 随机取最多 4 件用于公开展示
+            const shuffled = [...pool].sort(() => Math.random() - 0.5)
+            setPublicItems(shuffled.slice(0, 4))
           }
         })
         .catch(() => { /* 静默降级 */ })
@@ -147,8 +153,8 @@ export default function Home() {
         className="hero-section"
         style={{
           borderRadius: 'var(--radius-lg)',
-          padding: isMobile ? '60px 20px 56px' : '88px 40px 64px',
-          marginBottom: 48,
+          padding: isMobile ? '48px 20px 40px' : '60px 32px 48px',
+          marginBottom: 32,
           textAlign: 'center',
           background: theme === 'dark'
             ? 'linear-gradient(165deg, var(--color-deep) 0%, #2A2520 45%, #1E1B18 100%)'
@@ -279,7 +285,7 @@ export default function Home() {
               onClick={() => navigate(isAuthenticated ? '/recognition' : '/login')}
               style={{
                 height: 48,
-                fontSize: 16,
+                fontSize: 'var(--text-base)',
                 borderRadius: 'var(--radius-md)',
                 paddingLeft: 28,
                 paddingRight: 28,
@@ -296,7 +302,7 @@ export default function Home() {
               onClick={() => navigate('/knowledge-graph')}
               style={{
                 height: 48,
-                fontSize: 16,
+                fontSize: 'var(--text-base)',
                 borderRadius: 'var(--radius-md)',
                 paddingLeft: 28,
                 paddingRight: 28,
@@ -313,6 +319,94 @@ export default function Home() {
       </div>
 
       {/* ================================================================ */}
+      {/* 热门遗产（未认证用户）— Hero 下方直接展示非遗内容                        */}
+      {/* ================================================================ */}
+      {!isAuthenticated && publicItems.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          style={{ marginBottom: 24 }}
+        >
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 16,
+            flexWrap: 'wrap',
+            gap: 8,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <FireOutlined style={{ fontSize: 20, color: 'var(--color-vermilion)' }} />
+              <Text strong style={{ fontSize: 'var(--text-lg)', color: 'var(--color-ink)', fontFamily: 'var(--font-display)', letterSpacing: 2 }}>
+                热门非遗藏品
+              </Text>
+            </div>
+            <Button
+              type="link"
+              icon={<RightOutlined />}
+              onClick={() => navigate('/exhibition')}
+              style={{ color: 'var(--color-vermilion)', fontSize: 'var(--text-sm)' }}
+            >
+              浏览全部
+            </Button>
+          </div>
+
+          <Row gutter={[16, 16]}>
+            {/* 随机展示 4 件藏品 */}
+            {publicItems.map((item: any, i: number) => {
+              if (!item) return null
+              return (
+                <Col xs={24} sm={12} lg={6} key={item.id || i}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.08 }}
+                  >
+                    <Card
+                      hoverable
+                      onClick={() => navigate(`/exhibition?id=${item.id}`)}
+                      style={{
+                        borderRadius: 'var(--radius-lg)',
+                        overflow: 'hidden',
+                        border: '1px solid var(--color-border-light)',
+                        height: '100%',
+                      }}
+                      cover={
+                        item.image_url ? (
+                          <div style={{ height: 140, overflow: 'hidden' }}>
+                            <img
+                              src={normalizeImageUrl(item.image_url)}
+                              alt={item.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              loading="lazy"
+                            />
+                          </div>
+                        ) : undefined
+                      }
+                      styles={{ body: { padding: '12px 14px' } }}
+                    >
+                      <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 4 }}>
+                        {item.name}
+                      </Text>
+                      <Space size={4} wrap>
+                        {item.category && (
+                          <Tag style={{ fontSize: 'var(--text-xs)', margin: 0 }}>{item.category}</Tag>
+                        )}
+                        {item.era && (
+                          <Tag style={{ fontSize: 'var(--text-xs)', margin: 0, color: 'var(--color-ink-secondary)' }}>{item.era}</Tag>
+                        )}
+                      </Space>
+                    </Card>
+                  </motion.div>
+                </Col>
+              )
+            })}
+          </Row>
+        </motion.div>
+      )}
+
+      {/* ================================================================ */}
       {/* 个性化推荐流（认证用户）— 替代静态欢迎卡片                              */}
       {/* ================================================================ */}
       {isAuthenticated && user && (
@@ -320,7 +414,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          style={{ marginBottom: 32 }}
+          style={{ marginBottom: 24 }}
         >
           {/* 推荐流标题 */}
           <div style={{
@@ -389,7 +483,7 @@ export default function Home() {
                   border: '1px solid var(--gray-200)',
                   boxShadow: 'var(--shadow-sm)',
                 }}
-                styles={{ body: { padding: '24px 28px' } }}
+                styles={{ body: { padding: '16px 20px' } }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
                   <div>
@@ -442,7 +536,7 @@ export default function Home() {
               border: '1px solid var(--color-border-light)',
               boxShadow: 'var(--shadow-sm)',
             }}
-            styles={{ body: { padding: '20px 28px' } }}
+            styles={{ body: { padding: '16px 20px' } }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -517,7 +611,7 @@ export default function Home() {
                 )}
               </div>
               {/* 右侧内容 */}
-              <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ padding: '16px 20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                   <span style={{
                     fontSize: 'var(--text-xs)',
@@ -539,7 +633,7 @@ export default function Home() {
                 </Text>
                 <div style={{ marginTop: 8 }}>
                   <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
-                    查看详情 <RightOutlined style={{ fontSize: 10 }} />
+                    查看详情 <RightOutlined style={{ fontSize: 'var(--text-xs)' }} />
                   </Text>
                 </div>
               </div>
@@ -556,7 +650,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          style={{ marginBottom: 32 }}
+          style={{ marginBottom: 24 }}
         >
           <Card
             style={{
@@ -565,7 +659,7 @@ export default function Home() {
               boxShadow: 'var(--shadow-sm)',
               background: 'linear-gradient(135deg, rgba(196,162,101,0.04), rgba(184,70,58,0.02))',
             }}
-            styles={{ body: { padding: '20px 28px' } }}
+            styles={{ body: { padding: '16px 20px' } }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -606,7 +700,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.35 }}
-          style={{ marginBottom: 32 }}
+          style={{ marginBottom: 24 }}
         >
           <Card
             style={{
@@ -614,7 +708,7 @@ export default function Home() {
               border: '1px solid var(--color-border-light)',
               boxShadow: 'var(--shadow-sm)',
             }}
-            styles={{ body: { padding: '20px 28px' } }}
+            styles={{ body: { padding: '16px 20px' } }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <FireOutlined style={{ color: 'var(--color-vermilion)', fontSize: 18 }} />
@@ -712,7 +806,7 @@ export default function Home() {
                     boxShadow: 'var(--shadow-sm)',
                     transition: `box-shadow var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)`,
                   }}
-                  styles={{ body: { padding: '32px 20px' } }}
+                  styles={{ body: { padding: '24px 18px' } }}
                   // Card hover effect handled by CSS custom property on parent
                   onMouseEnter={e => {
                     e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'
@@ -764,7 +858,7 @@ export default function Home() {
       <div
         style={{
           textAlign: 'center',
-          padding: '40px 16px',
+          padding: "28px 16px",
           borderTop: '1px solid var(--gray-200)',
         }}
       >

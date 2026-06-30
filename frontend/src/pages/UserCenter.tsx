@@ -200,7 +200,7 @@ function WorksTab() {
             </Popconfirm>,
           ]}
         >
-          <Text strong style={{ fontSize: 13 }}>{w.base_style}风格</Text>
+          <Text strong style={{ fontSize: 'var(--text-sm)' }}>{w.base_style}风格</Text>
           <br />
           <Text type="secondary" style={{ fontSize: 11 }}>{new Date(w.created_at).toLocaleDateString('zh-CN')}</Text>
         </Card>

@@ -31,12 +31,21 @@ export interface RecognitionListItem {
   created_at: string
 }
 
-export async function uploadAndRecognize(file: File): Promise<RecognitionResult> {
+export async function uploadAndRecognize(
+  file: File,
+  onProgress?: (percent: number) => void,
+): Promise<RecognitionResult> {
   const formData = new FormData()
   formData.append('file', file)
   const res = await api.post('/api/recognition/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
     timeout: 120000,
+    onUploadProgress: (progressEvent) => {
+      if (onProgress && progressEvent.total) {
+        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        onProgress(percent)
+      }
+    },
   })
   return res.data
 }

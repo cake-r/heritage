@@ -1,4 +1,4 @@
-/** AI 智能伴游 API */
+/** AI 智能伴游 API — v2 对话式 + 反馈 */
 
 import api from './api'
 
@@ -19,6 +19,16 @@ export interface CompanionContext {
   recommended_modules: string[]
 }
 
+export interface CompanionChatResponse {
+  reply: string
+  suggestions: CompanionSuggestion[]
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 /** 获取伴游建议 */
 export async function getCompanionSuggestions(
   page: string,
@@ -29,6 +39,33 @@ export async function getCompanionSuggestions(
     context_hint: contextHint || null,
   })
   return data
+}
+
+/** 与伴游对话 */
+export async function chatWithCompanion(
+  message: string,
+  page: string,
+  history: ChatMessage[] = []
+): Promise<CompanionChatResponse> {
+  const { data } = await api.post('/api/companion/chat', {
+    message,
+    page,
+    history,
+  })
+  return data
+}
+
+/** 记录建议反馈 */
+export async function sendCompanionFeedback(
+  suggestionId: string,
+  action: 'clicked' | 'dismissed',
+  page: string
+): Promise<void> {
+  await api.post('/api/companion/feedback', {
+    suggestion_id: suggestionId,
+    action,
+    page,
+  })
 }
 
 /** 获取伴游上下文摘要 */

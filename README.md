@@ -5,7 +5,7 @@
 
 ## 技术栈
 - **后端**: FastAPI + SQLAlchemy + SQLite + JWT
-- **前端**: React 18 + TypeScript + Vite + Ant Design + TailwindCSS
+- **前端**: React 19 + TypeScript + Vite + Ant Design + TailwindCSS
 - **AI**: Qwen-VL-Max / DeepSeek-V3 / 通义万相2.1 / CosyVoice 3
 - **部署**: Docker + Nginx + 阿里云ECS
 
