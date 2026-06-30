@@ -17,7 +17,7 @@ interface Props {
   onRegenerate?: () => void
 }
 
-export default function WorkshopChat({ messages, streaming, streamingContent, loading, inheritor, onQuickQuestion }: Props) {
+export default function WorkshopChat({ messages, streaming, streamingContent, loading, inheritor, onQuickQuestion, onRegenerate }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 

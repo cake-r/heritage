@@ -104,7 +104,9 @@ export default function Recognition() {
               background: 'var(--color-bg-active, #FFF3E0)',
               borderRadius: 8,
               color: 'var(--color-error, #C5533B)',
-              border: '1px solid var(--color-vermilion, #B8463A)',
+              borderTop: '1px solid var(--color-vermilion, #B8463A)',
+              borderRight: '1px solid var(--color-vermilion, #B8463A)',
+              borderBottom: '1px solid var(--color-vermilion, #B8463A)',
               borderLeft: '3px solid var(--color-vermilion, #B8463A)',
             }}>
               ⚠️ {error}
