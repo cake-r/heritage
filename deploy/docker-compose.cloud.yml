@@ -6,6 +6,16 @@ version: '3.8'
 services:
   backend:
     environment:
+      - DATABASE_URL=postgresql://postgres:${PG_PASSWORD:-postgres}@postgres:5432/ich_platform
+      - REDIS_URL=redis://redis:6379/0
+      - DEPLOY_ENV=cloud
+      - MOCK_MODE=false
+    restart: always
+
+  worker:
+    environment:
+      - DATABASE_URL=postgresql://postgres:${PG_PASSWORD:-postgres}@postgres:5432/ich_platform
+      - REDIS_URL=redis://redis:6379/0
       - DEPLOY_ENV=cloud
       - MOCK_MODE=false
     restart: always

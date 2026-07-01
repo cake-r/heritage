@@ -69,6 +69,9 @@ def register(req: UserRegisterRequest, db: Session = Depends(get_db)):
     db.refresh(user)
 
     token = create_access_token({"sub": str(user.id)})
+    # 记录今日活跃（连胜追踪）
+    from app.services.cultivation_service import update_streak
+    update_streak(user.id, db)
     return TokenResponse(
         access_token=token,
         user=UserPublic.model_validate(user),
@@ -114,6 +117,9 @@ def login(
 
     login_limiter.reset(client_ip)
     token = create_access_token({"sub": str(user.id)})
+    # 记录今日活跃（连胜追踪）
+    from app.services.cultivation_service import update_streak
+    update_streak(user.id, db)
     return TokenResponse(
         access_token=token,
         user=UserPublic.model_validate(user),

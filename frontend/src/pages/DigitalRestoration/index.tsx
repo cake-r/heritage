@@ -2,27 +2,37 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
   Card, Upload, Typography, Spin, Tag, Button,
-  Row, Col, Space, message, Steps, Progress, Tabs, Descriptions, Empty, Divider,
+  Row, Col, Space, message, Steps, Progress, Tabs, Empty, Divider, Tooltip,
 } from 'antd'
 import {
   InboxOutlined, ReloadOutlined, DownloadOutlined,
-  CheckCircleOutlined, CloseCircleOutlined,
+  CloseCircleOutlined,
   ToolOutlined, BulbOutlined, PictureOutlined, SafetyCertificateOutlined,
-  SwapOutlined,
+  SwapOutlined, TrophyOutlined, StarFilled, EyeOutlined,
 } from '@ant-design/icons'
 import type { TabsProps } from 'antd'
-// RcFile is the type passed by Ant Design's beforeUpload (extends browser File)
-type RcFile = File
 import {
-  uploadAndRestore, getDetail,
-  type RestorationResult,
+  uploadAndRestore, getDetail, getHistory,
+  type RestorationResult, type RestorationListItem,
   type PipelineStep,
 } from '../../services/restoration'
+import { normalizeImageUrl } from '../../utils/imageUrl'
 
 const { Dragger } = Upload
 const { Title, Text, Paragraph } = Typography
 
 type PageStep = 'upload' | 'running' | 'complete' | 'error'
+
+// ==================== AI 修复能力说明 ====================
+
+const AI_CAPABILITIES = [
+  { icon: '🔪', type: '划痕修复', label: '划痕修复', stars: 5, desc: '纸张/布面表面划痕的智能填补与纹理还原' },
+  { icon: '🎨', type: '褪色修复', label: '褪色修复', stars: 4, desc: '恢复因光照氧化而褪色的区域，还原原始色彩层次' },
+  { icon: '🧩', type: '缺损补全', label: '缺损补全', stars: 3, desc: '根据周围纹样推断并补全缺失的图案与结构' },
+  { icon: '💧', type: '污渍去除', label: '污渍去除', stars: 4, desc: '去除水渍、霉斑、尘垢，同时保留底层纹理' },
+  { icon: '📐', type: '褶皱展平', label: '褶皱展平', stars: 3, desc: '数字化展平卷曲与折叠区域，恢复平面形态' },
+  { icon: '🔍', type: '细节增强', label: '细节增强', stars: 5, desc: '提升低分辨率/模糊区域的清晰度与辨识度' },
+]
 
 // ============================================================
 // Sub-components
@@ -157,11 +167,9 @@ function OverlaySlider({ original, restored }: { original: string; restored: str
 
   return (
     <div style={{ position: 'relative', width: '100%', maxWidth: 700, margin: '0 auto' }}>
-      {/* 修复图 (底层) */}
       <div style={{ width: '100%', aspectRatio: '1', overflow: 'hidden', borderRadius: 8 }}>
         <img src={restored} alt="修复后" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
       </div>
-      {/* 原图 (顶层, clip-path 控制显示区域) */}
       <div style={{
         position: 'absolute', top: 0, left: 0,
         width: '100%', height: '100%',
@@ -178,7 +186,6 @@ function OverlaySlider({ original, restored }: { original: string; restored: str
           原始
         </div>
       </div>
-      {/* 修复标签 */}
       <div style={{
         position: 'absolute', top: 8, right: 8,
         background: 'rgba(0,0,0,0.6)', color: '#fff',
@@ -186,7 +193,6 @@ function OverlaySlider({ original, restored }: { original: string; restored: str
       }}>
         修复
       </div>
-      {/* 拖动手柄 */}
       <div style={{
         position: 'absolute', top: 0, bottom: 0,
         left: `${position}%`,
@@ -196,7 +202,6 @@ function OverlaySlider({ original, restored }: { original: string; restored: str
         pointerEvents: 'none',
         zIndex: 2,
       }} />
-      {/* 滑块 */}
       <input
         type="range"
         min={5}
@@ -247,6 +252,11 @@ export default function DigitalRestoration() {
   const [errorMsg, setErrorMsg] = useState<string>('')
   const [searchParams] = useSearchParams()
 
+  // 修复案例画廊 & 排行榜
+  const [galleryItems, setGalleryItems] = useState<RestorationListItem[]>([])
+  const [galleryLoading, setGalleryLoading] = useState(false)
+  const [leaderboard, setLeaderboard] = useState<RestorationListItem[]>([])
+
   // 支持 ?id=xxx 从个人中心跳转查看详情
   useEffect(() => {
     const idParam = searchParams.get('id')
@@ -268,6 +278,32 @@ export default function DigitalRestoration() {
     }
   }, [searchParams])
 
+  // 获取修复历史用于画廊和排行榜
+  useEffect(() => {
+    if (step === 'upload') {
+      setGalleryLoading(true)
+      getHistory(1, 20)
+        .then(data => {
+          const items = data?.items || []
+          // 只展示成功完成的修复
+          const completed = items.filter(
+            (item: RestorationListItem) => item.pipeline_status === 'completed' && item.restored_image_url
+          )
+          setGalleryItems(completed.slice(0, 6))
+
+          // 排行榜：按修复评分排序
+          const scored = completed
+            .filter((item: RestorationListItem) => item.verification_score != null)
+            .sort((a: RestorationListItem, b: RestorationListItem) => (b.verification_score || 0) - (a.verification_score || 0))
+          setLeaderboard(scored.slice(0, 3))
+        })
+        .catch(() => {
+          // 静默失败
+        })
+        .finally(() => setGalleryLoading(false))
+    }
+  }, [step])
+
   // Sequential step reveal animation
   useEffect(() => {
     if (step === 'complete' && result) {
@@ -281,10 +317,25 @@ export default function DigitalRestoration() {
     }
   }, [step, result])
 
+  // 加载修复详情
+  const loadDetail = async (id: number) => {
+    setStep('running')
+    setErrorMsg('')
+    setVisibleSteps(0)
+    try {
+      const data = await getDetail(id)
+      setResult(data)
+      setPreviewImage(data.original_image_url)
+      setStep('complete')
+    } catch (err: any) {
+      setErrorMsg(err.response?.data?.detail || err.message || '加载修复记录失败')
+      setStep('error')
+    }
+  }
+
   const handleUpload = async (file: RcFile) => {
     const rawFile = file as unknown as File
 
-    // 前端校验
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
     const fileType = rawFile.type || ''
     if (!allowedTypes.includes(fileType)) {
@@ -296,7 +347,6 @@ export default function DigitalRestoration() {
       return false
     }
 
-    // 预览
     const previewUrl = URL.createObjectURL(rawFile)
     setPreviewImage(previewUrl)
     setStep('running')
@@ -307,6 +357,7 @@ export default function DigitalRestoration() {
       const data = await uploadAndRestore(rawFile)
       setResult(data)
       setStep('complete')
+      window.dispatchEvent(new CustomEvent('cultivation:check'))
     } catch (err: any) {
       const msg = err.response?.data?.detail || err.message || '修复失败，请重试'
       setErrorMsg(msg)
@@ -391,6 +442,10 @@ export default function DigitalRestoration() {
     },
   ]
 
+  // 排行榜奖牌颜色
+  const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32']
+  const rankIcons = ['🥇', '🥈', '🥉']
+
   return (
     <div style={{ maxWidth: 960, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -402,26 +457,250 @@ export default function DigitalRestoration() {
 
       {/* === 上传区 === */}
       {step === 'upload' && (
-        <Card style={{ borderRadius: 12 }}>
-          <Dragger
-            accept="image/jpeg,image/png,image/webp"
-            maxCount={1}
-            beforeUpload={handleUpload as any}
-            showUploadList={false}
-            style={{ padding: 48 }}
+        <>
+          <Card style={{ borderRadius: 12 }}>
+            <Dragger
+              accept="image/jpeg,image/png,image/webp"
+              maxCount={1}
+              beforeUpload={handleUpload as any}
+              showUploadList={false}
+              style={{ padding: 48 }}
+            >
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined style={{ fontSize: 64, color: 'var(--color-vermilion)' }} />
+              </p>
+              <p style={{ fontSize: 18, marginTop: 16 }}>上传文物图片，AI 自动分析损伤并修复</p>
+              <p style={{ color: '#999' }}>
+                支持 JPG / PNG / WebP · 最大 10MB · 图片尺寸 ≥ 200px
+              </p>
+              <p style={{ color: 'var(--color-ink-secondary)', fontSize: 'var(--text-sm)', marginTop: 16 }}>
+                AI 将自动执行四步修复管道：损伤分析 → 修复方案生成 → AI图像修复 → 修复质量验证
+              </p>
+            </Dragger>
+          </Card>
+
+          {/* === 修复案例画廊 === */}
+          <Card
+            title={<span><PictureOutlined style={{ marginRight: 8 }} />修复案例画廊</span>}
+            style={{ borderRadius: 12, marginTop: 16 }}
           >
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined style={{ fontSize: 64, color: 'var(--color-vermilion)' }} />
-            </p>
-            <p style={{ fontSize: 18, marginTop: 16 }}>上传文物图片，AI 自动分析损伤并修复</p>
-            <p style={{ color: '#999' }}>
-              支持 JPG / PNG / WebP · 最大 10MB · 图片尺寸 ≥ 200px
-            </p>
-            <p style={{ color: 'var(--color-ink-secondary)', fontSize: 'var(--text-sm)', marginTop: 16 }}>
-              AI 将自动执行四步修复管道：损伤分析 → 修复方案生成 → AI图像修复 → 修复质量验证
-            </p>
-          </Dragger>
-        </Card>
+            {galleryLoading ? (
+              <div style={{ textAlign: 'center', padding: 24 }}>
+                <Spin size="small" />
+              </div>
+            ) : galleryItems.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 20 }}>
+                <PictureOutlined style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
+                <div>
+                  <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
+                    还没有修复记录，上传第一张文物图片开始体验 AI 修复
+                  </Text>
+                </div>
+              </div>
+            ) : (
+              <Row gutter={[12, 12]}>
+                {galleryItems.map(item => (
+                  <Col key={item.id} xs={12} sm={8} md={6}>
+                    <Tooltip title="点击查看修复详情">
+                      <Card
+                        hoverable
+                        size="small"
+                        style={{ borderRadius: 8 }}
+                        onClick={() => loadDetail(item.id)}
+                        cover={
+                          <div style={{ position: 'relative', height: 100, overflow: 'hidden' }}>
+                            {/* Before & After 双图并排 */}
+                            <div style={{ display: 'flex', height: '100%' }}>
+                              <div style={{ flex: 1, position: 'relative' }}>
+                                <img
+                                  src={normalizeImageUrl(item.original_image_url)}
+                                  alt="修复前"
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                                <span style={{
+                                  position: 'absolute', top: 2, left: 2,
+                                  background: 'rgba(0,0,0,0.65)', color: '#fff',
+                                  padding: '0 4px', borderRadius: 2, fontSize: 10,
+                                }}>
+                                  原图
+                                </span>
+                              </div>
+                              <div style={{ flex: 1, position: 'relative' }}>
+                                <img
+                                  src={normalizeImageUrl(item.restored_image_url!)}
+                                  alt="修复后"
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                                <span style={{
+                                  position: 'absolute', top: 2, right: 2,
+                                  background: 'rgba(184,70,58,0.8)', color: '#fff',
+                                  padding: '0 4px', borderRadius: 2, fontSize: 10,
+                                }}>
+                                  修复
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Tag color="var(--color-vermilion)" style={{ margin: 0, fontSize: 11 }}>
+                            {item.damage_category || '未知类型'}
+                          </Tag>
+                          {item.verification_score != null && (
+                            <Text type="secondary" style={{ fontSize: 11 }}>
+                              {item.verification_score}分
+                            </Text>
+                          )}
+                        </div>
+                      </Card>
+                    </Tooltip>
+                  </Col>
+                ))}
+              </Row>
+            )}
+          </Card>
+
+          {/* === AI 修复能力 + 排行榜（并排） === */}
+          <Row gutter={16} style={{ marginTop: 16 }}>
+            {/* AI 修复能力说明 */}
+            <Col xs={24} md={14}>
+              <Card
+                title={<span><ToolOutlined style={{ marginRight: 8 }} />AI 修复能力</span>}
+                style={{ borderRadius: 12, height: '100%' }}
+              >
+                <Text type="secondary" style={{ display: 'block', marginBottom: 16, fontSize: 'var(--text-xs)' }}>
+                  以下为 AI 修复管道支持的主要修复类型及效果评级（★ 越多效果越好）
+                </Text>
+                <Row gutter={[16, 12]}>
+                  {AI_CAPABILITIES.map(cap => (
+                    <Col key={cap.type} xs={12} sm={8}>
+                      <div style={{
+                        textAlign: 'center', padding: '12px 8px',
+                        borderRadius: 8, background: 'var(--color-paper)',
+                        border: '1px solid var(--color-border-light)',
+                      }}>
+                        <div style={{ fontSize: 28, marginBottom: 4 }}>{cap.icon}</div>
+                        <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block' }}>
+                          {cap.label}
+                        </Text>
+                        <div style={{ margin: '4px 0' }}>
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <span key={i} style={{
+                              color: i < cap.stars ? '#faad14' : '#e8e4d8',
+                              fontSize: 12,
+                            }}>
+                              {i < cap.stars ? <StarFilled /> : '★'}
+                            </span>
+                          ))}
+                        </div>
+                        <Text type="secondary" style={{ fontSize: 11, lineHeight: 1.5 }}>
+                          {cap.desc}
+                        </Text>
+                      </div>
+                    </Col>
+                  ))}
+                </Row>
+              </Card>
+            </Col>
+
+            {/* 修复效果排行榜 */}
+            <Col xs={24} md={10}>
+              <Card
+                title={<span><TrophyOutlined style={{ marginRight: 8 }} />修复排行</span>}
+                style={{ borderRadius: 12, height: '100%' }}
+              >
+                {leaderboard.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: 32 }}>
+                    <TrophyOutlined style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
+                    <div>
+                      <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
+                        完成修复后将出现在排行中
+                      </Text>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    {leaderboard.map((item, i) => (
+                      <div
+                        key={item.id}
+                        onClick={() => loadDetail(item.id)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          padding: '10px 8px', cursor: 'pointer',
+                          borderRadius: 8,
+                          transition: 'background 0.2s',
+                          borderBottom: i < leaderboard.length - 1 ? '1px solid var(--color-border-light)' : 'none',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-bg-active, #FFF3E0)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        {/* 排名 */}
+                        <span style={{ fontSize: 20, width: 32, textAlign: 'center', flexShrink: 0 }}>
+                          {rankIcons[i]}
+                        </span>
+
+                        {/* 缩略图 */}
+                        <img
+                          src={normalizeImageUrl(item.restored_image_url || item.original_image_url)}
+                          alt=""
+                          style={{
+                            width: 44, height: 44, borderRadius: 6,
+                            objectFit: 'cover', flexShrink: 0,
+                            border: `2px solid ${rankColors[i]}`,
+                          }}
+                        />
+
+                        {/* 信息 */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block' }}>
+                            {item.damage_category || '未知类型'}
+                          </Text>
+                          <Text type="secondary" style={{ fontSize: 11 }}>
+                            {new Date(item.created_at).toLocaleDateString('zh-CN')}
+                          </Text>
+                        </div>
+
+                        {/* 评分 */}
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <Text strong style={{
+                            fontSize: 18,
+                            color: item.verification_score && item.verification_score >= 85
+                              ? '#52c41a'
+                              : item.verification_score && item.verification_score >= 70
+                                ? '#faad14'
+                                : 'var(--color-ink)',
+                          }}>
+                            {item.verification_score || '—'}
+                          </Text>
+                          <Text type="secondary" style={{ fontSize: 10, display: 'block' }}>分</Text>
+                        </div>
+                      </div>
+                    ))}
+
+                    {leaderboard.length > 0 && (
+                      <div style={{ textAlign: 'center', marginTop: 12 }}>
+                        <Button
+                          type="link"
+                          size="small"
+                          onClick={() => {
+                            const win = window.open('/user-center/restoration', '_blank')
+                            if (win) win.focus()
+                          }}
+                        >
+                          <EyeOutlined /> 查看全部修复记录 →
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Card>
+            </Col>
+          </Row>
+
+          {/* 底部留白 */}
+          <div style={{ height: 24 }} />
+        </>
       )}
 
       {/* === 执行中 === */}
@@ -464,7 +743,6 @@ export default function DigitalRestoration() {
       {/* === 完成 === */}
       {step === 'complete' && result && (
         <>
-          {/* 管道进度 */}
           <Card style={{ borderRadius: 12, marginBottom: 24 }} title="🔬 AI 修复管道">
             <Steps
               direction="vertical"
@@ -472,7 +750,6 @@ export default function DigitalRestoration() {
               items={stepItems}
               style={{ maxWidth: 600 }}
             />
-            {/* 展开查看每步详细结果 */}
             {result.pipeline_steps.map((s, i) =>
               i < visibleSteps && s.status === 'completed' ? (
                 <div key={i} style={{ marginLeft: 38, marginBottom: 16, marginTop: -8 }}>
@@ -482,7 +759,6 @@ export default function DigitalRestoration() {
             )}
           </Card>
 
-          {/* 前后对比 */}
           <Card
             style={{ borderRadius: 12, marginBottom: 24 }}
             title="🔄 修复前后对比"

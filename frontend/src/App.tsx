@@ -22,6 +22,14 @@ const Passport = lazy(() => import('./pages/Passport'))
 const Cultivation = lazy(() => import('./pages/Cultivation'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
+// Admin pages — 懒加载
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'))
+const AdminContentReview = lazy(() => import('./pages/admin/ContentReview'))
+const AdminUserManagement = lazy(() => import('./pages/admin/UserManagement'))
+const AdminTaskMonitor = lazy(() => import('./pages/admin/TaskMonitor'))
+const AdminCostDashboard = lazy(() => import('./pages/admin/CostDashboard'))
+const AdminConfigPanel = lazy(() => import('./pages/admin/ConfigPanel'))
+
 function PageLoader() {
   return (
     <div style={{
@@ -82,6 +90,26 @@ function App() {
           } />
           <Route path="/user-center/:tab?" element={
             <Suspense fallback={<PageLoader />}><UserCenter /></Suspense>
+          } />
+
+          {/* 管理后台 */}
+          <Route path="/admin" element={
+            <Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>
+          } />
+          <Route path="/admin/content" element={
+            <Suspense fallback={<PageLoader />}><AdminContentReview /></Suspense>
+          } />
+          <Route path="/admin/users" element={
+            <Suspense fallback={<PageLoader />}><AdminUserManagement /></Suspense>
+          } />
+          <Route path="/admin/tasks" element={
+            <Suspense fallback={<PageLoader />}><AdminTaskMonitor /></Suspense>
+          } />
+          <Route path="/admin/costs" element={
+            <Suspense fallback={<PageLoader />}><AdminCostDashboard /></Suspense>
+          } />
+          <Route path="/admin/config" element={
+            <Suspense fallback={<PageLoader />}><AdminConfigPanel /></Suspense>
           } />
         </Route>
       </Route>

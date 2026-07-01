@@ -7,8 +7,11 @@ import Header from './Header'
 import { useApp } from '../../contexts/AppContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { useCompanion } from '../../contexts/CompanionContext'
+import { useCultivation } from '../../contexts/CultivationContext'
 import CompanionFloatButton from '../companion/CompanionFloatButton'
 import CompanionDrawer from '../companion/CompanionDrawer'
+import AchievementToast from '../cultivation/AchievementToast'
+import RankUpCelebration from '../cultivation/RankUpCelebration'
 
 const OnboardingGuide = lazy(() => import('../onboarding/OnboardingGuide'))
 import { isOnboardingShown } from '../onboarding/OnboardingGuide'
@@ -34,6 +37,7 @@ export default function MainLayout() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
 
   const { checkForSuggestions, notifyAction } = useCompanion()
+  const { refreshStatus, refreshQuests, checkForAutoCompletions } = useCultivation()
 
   // 首次登录引导
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -66,7 +70,7 @@ export default function MainLayout() {
     return () => clearTimeout(timer)
   }, [location.pathname, isAuthenticated, checkForSuggestions])
 
-  // 监听跨页面操作完成事件
+  // 监听跨页面操作完成事件 (companion)
   useEffect(() => {
     const handler = (e: CustomEvent) => {
       if (isAuthenticated && e.detail?.action) {
@@ -76,6 +80,21 @@ export default function MainLayout() {
     window.addEventListener('companion:action', handler as EventListener)
     return () => window.removeEventListener('companion:action', handler as EventListener)
   }, [isAuthenticated, location.pathname, notifyAction])
+
+  // 修习之路初始化：登录后拉取状态 + 监听 cultivation:check 事件
+  useEffect(() => {
+    if (isAuthenticated) {
+      Promise.all([refreshStatus(), refreshQuests()])
+    }
+  }, [isAuthenticated, refreshStatus, refreshQuests])
+
+  useEffect(() => {
+    const handler = () => {
+      if (isAuthenticated) checkForAutoCompletions()
+    }
+    window.addEventListener('cultivation:check', handler)
+    return () => window.removeEventListener('cultivation:check', handler)
+  }, [isAuthenticated, checkForAutoCompletions])
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -138,6 +157,8 @@ export default function MainLayout() {
           {/* AI 智能伴游 (仅认证用户) */}
           {isAuthenticated && (
             <>
+              <AchievementToast />
+              <RankUpCelebration />
               <CompanionFloatButton />
               <CompanionDrawer />
               {showOnboarding && (

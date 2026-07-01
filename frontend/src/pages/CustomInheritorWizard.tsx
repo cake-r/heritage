@@ -123,6 +123,7 @@ export default function CustomInheritorWizard() {
       })
       setCreatedId(result.id)
       message.success('传承人创建成功！')
+      window.dispatchEvent(new CustomEvent('cultivation:check'))
 
       // 自动生成头像
       try {

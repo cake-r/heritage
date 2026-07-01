@@ -21,6 +21,7 @@ from app.models.database import init_db
 from app.schemas.common import ErrorResponse
 from app.utils.exceptions import AppException
 from app.utils.middleware import log_requests
+from app.utils.ai_governance import AICircuitOpenError, AIRateLimitError, get_rate_limit_remaining, is_circuit_open
 
 logger = logging.getLogger("ich_backend")
 
@@ -56,7 +57,16 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 async def lifespan(app: FastAPI):
     """应用启动/关闭生命周期"""
     init_db()
-    yield
+    # 注册任务处理器 + 启动调度器（Mock 模式跳过，避免与测试 DB 清理冲突）
+    if not MOCK_MODE:
+        from app.services.task_handlers import register_all_handlers
+        from app.services.task_scheduler import start_scheduler, stop_scheduler
+        register_all_handlers()
+        start_scheduler()
+    try:
+        yield
+    finally:
+        stop_scheduler()
 
 
 app = FastAPI(
@@ -89,8 +99,14 @@ app.mount("/static", StaticFiles(directory=str(UPLOAD_DIR)), name="static")
 
 @app.get("/api/health")
 def health_check():
-    """健康检查"""
-    return {"status": "ok", "mock_mode": MOCK_MODE}
+    """健康检查 + 治理状态"""
+    from app.utils.write_queue import get_queue_depth
+    return {
+        "status": "ok",
+        "mock_mode": MOCK_MODE,
+        "circuit_open": is_circuit_open(),
+        "write_queue_depth": get_queue_depth(),
+    }
 
 
 # === 全局异常处理 ===
@@ -103,6 +119,30 @@ async def app_exception_handler(request: Request, exc: AppException):
         content=ErrorResponse(
             detail=exc.detail,
             error_code="APP_ERROR" if exc.status_code < 500 else "INTERNAL_ERROR",
+        ).model_dump(),
+    )
+
+
+@app.exception_handler(AICircuitOpenError)
+async def circuit_open_handler(request: Request, exc: AICircuitOpenError):
+    """AI 熔断降级 → 503"""
+    return JSONResponse(
+        status_code=503,
+        content=ErrorResponse(
+            detail=str(exc),
+            error_code="AI_CIRCUIT_OPEN",
+        ).model_dump(),
+    )
+
+
+@app.exception_handler(AIRateLimitError)
+async def rate_limit_handler(request: Request, exc: AIRateLimitError):
+    """AI 用户限流 → 429"""
+    return JSONResponse(
+        status_code=429,
+        content=ErrorResponse(
+            detail=str(exc),
+            error_code="AI_RATE_LIMITED",
         ).model_dump(),
     )
 
@@ -121,7 +161,8 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # === 路由注册 ===
-from app.api import auth, recognition, generation, exhibition, user, chat, knowledge_graph, tools, inheritor, restoration, passport, expansion, recommendation, cultivation, companion
+from app.api import auth, recognition, generation, exhibition, user, chat, knowledge_graph, tools, inheritor, restoration, passport, expansion, recommendation, cultivation, companion, task
+from app.api import admin_users, admin_tasks, admin_costs, admin_config
 app.include_router(auth.router, prefix="/api/auth", tags=["鉴权"])
 app.include_router(recognition.router, prefix="/api/recognition", tags=["识别讲解"])
 app.include_router(generation.router, prefix="/api/generation", tags=["文创生成"])
@@ -137,3 +178,8 @@ app.include_router(expansion.router, prefix="/api/expansion", tags=["知识扩�
 app.include_router(recommendation.router, prefix="/api/recommendations", tags=["个性化推荐"])
 app.include_router(cultivation.router, prefix="/api/cultivation", tags=["修习之路"])
 app.include_router(companion.router, prefix="/api/companion", tags=["智能伴游"])
+app.include_router(task.router, tags=["异步任务"])
+app.include_router(admin_users.router, tags=["管理后台-用户"])
+app.include_router(admin_tasks.router, tags=["管理后台-任务"])
+app.include_router(admin_costs.router, tags=["管理后台-成本"])
+app.include_router(admin_config.router, tags=["管理后台-配置"])

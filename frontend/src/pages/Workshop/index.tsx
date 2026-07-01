@@ -306,6 +306,7 @@ export default function Workshop() {
           setToolStatus('')
           contentRef.current = ''
           curriculumSections = []
+          window.dispatchEvent(new CustomEvent('cultivation:check'))
         },
         onError: (err) => {
           message.error(err)

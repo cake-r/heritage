@@ -97,6 +97,7 @@ function CreationPanel() {
       message.success('生成完成！')
       // 通知伴游：完成创作操作
       window.dispatchEvent(new CustomEvent('companion:action', { detail: { action: 'just_completed_generation' } }))
+      window.dispatchEvent(new CustomEvent('cultivation:check'))
     } catch (err: any) {
       message.error(err.message || '生成失败')
     } finally {

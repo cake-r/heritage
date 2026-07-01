@@ -7,8 +7,6 @@ import App from './App'
 import { AuthProvider } from './contexts/AuthContext'
 import { AppProvider } from './contexts/AppContext'
 import { ThemeProvider } from './contexts/ThemeContext'
-import { CultivationProvider } from './contexts/CultivationContext'
-import { CompanionProvider } from './contexts/CompanionContext'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import './styles/tokens.css'
 import './styles/globals.css'
@@ -74,13 +72,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <ThemeProvider>
           <AppProvider>
             <AuthProvider>
-              <CultivationProvider>
-                <CompanionProvider>
-                  <ErrorBoundary>
-                    <App />
-                  </ErrorBoundary>
-                </CompanionProvider>
-              </CultivationProvider>
+              <ErrorBoundary>
+                <App />
+              </ErrorBoundary>
             </AuthProvider>
           </AppProvider>
         </ThemeProvider>

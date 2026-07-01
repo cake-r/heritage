@@ -1,7 +1,8 @@
-/** XP 获得动画 — "+{amount} XP" 上浮缩放淡出 */
+/** 增强版 XP 获得动画 — 梯度金色文字 + 浮动粒子效果 */
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCultivation } from '../../contexts/CultivationContext'
+import { TREE_ICONS } from './SkillProgressCard'
 
 export default function XpGainAnimation() {
   const { xpAnimation } = useCultivation()
@@ -22,15 +23,28 @@ export default function XpGainAnimation() {
             top: '50%',
             left: '50%',
             transform: 'translateX(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
           }}
         >
+          {/* 技能图标 */}
+          {xpAnimation.skillTree && (
+            <span style={{ fontSize: 24 }}>
+              {TREE_ICONS[xpAnimation.skillTree] || '⭐'}
+            </span>
+          )}
+
+          {/* XP 数字 — 金色渐变 */}
           <span style={{
-            fontSize: 28,
-            fontWeight: 700,
-            color: 'var(--color-gold)',
+            fontSize: 32,
+            fontWeight: 800,
             fontFamily: 'var(--font-display)',
-            textShadow: '0 2px 8px rgba(196, 162, 101, 0.4)',
-            letterSpacing: 2,
+            background: 'linear-gradient(180deg, #FFD700 0%, #C4A265 50%, #B8463A 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            textShadow: '0 0 20px rgba(196,162,101,0.3)',
+            letterSpacing: 1,
           }}>
             +{xpAnimation.amount} XP
           </span>

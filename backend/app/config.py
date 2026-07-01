@@ -9,6 +9,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 数据库
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/data/database.sqlite")
 
+# 数据库方言检测
+def _is_sqlite(url: str | None = None) -> bool:
+    """检测是否为 SQLite 数据库"""
+    return "sqlite" in (url or DATABASE_URL)
+
+def _is_postgres(url: str | None = None) -> bool:
+    """检测是否为 PostgreSQL 数据库"""
+    return "postgresql" in (url or DATABASE_URL)
+
+USE_SQLITE = _is_sqlite()
+USE_POSTGRES = _is_postgres()
+
 # JWT
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
@@ -38,6 +50,10 @@ MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
 # 部署
 DEPLOY_ENV = os.getenv("DEPLOY_ENV", "local")
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
+
+# Redis (Sub-Phase 2)
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+REDIS_ENABLED = bool(os.getenv("REDIS_URL", ""))  # 仅显式设置时启用
 
 # 确保目录存在
 for d in [IMAGE_DIR, VOICE_DIR, EXPORT_DIR, HEATMAP_DIR, GENERATED_DIR]:

@@ -341,3 +341,46 @@ def compute_all_earned_stamps(user_id: int, db: Session, compute_read_stamps: bo
             })
 
     return result
+
+
+def recalculate_stamps(user_id: int, db: Session) -> dict:
+    """
+    补偿接口：根据用户所有行为记录重新计算并补发遗漏印章。
+    幂等 — 已存在的印章不会重复创建。
+    返回 {newly_earned: int, total: int}
+    """
+    all_configs = load_stamps_config()
+    contexts = _get_all_check_contexts(user_id, db)
+
+    newly_earned = 0
+    for module_name, checker in _MODULE_CHECKERS.items():
+        ctx = contexts.get(module_name, {})
+        try:
+            earned_types = checker(user_id, ctx, db)
+            for stamp_type in earned_types:
+                existing = db.query(PassportStamp).filter(
+                    PassportStamp.user_id == user_id,
+                    PassportStamp.stamp_type == stamp_type,
+                ).first()
+                if not existing:
+                    config = get_stamp_config(stamp_type)
+                    if config:
+                        stamp = PassportStamp(
+                            user_id=user_id,
+                            stamp_type=stamp_type,
+                            module=config["module"],
+                            progress=1,
+                            earned_at=datetime.utcnow(),
+                        )
+                        db.add(stamp)
+                        newly_earned += 1
+        except Exception as e:
+            logger.warning(f"重算 {module_name} 印章时出错: {e}")
+
+    db.commit()
+
+    total = db.query(PassportStamp).filter(
+        PassportStamp.user_id == user_id
+    ).count()
+
+    return {"newly_earned": newly_earned, "total": total}

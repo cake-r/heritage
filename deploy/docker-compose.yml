@@ -1,6 +1,41 @@
 version: '3.8'
 
 services:
+  # === 数据库 ===
+  postgres:
+    image: postgres:16-alpine
+    container_name: ich-postgres
+    environment:
+      POSTGRES_DB: ich_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # === Redis ===
+  redis:
+    image: redis:7-alpine
+    container_name: ich-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # === API 服务 ===
   backend:
     build:
       context: ../backend
@@ -9,7 +44,11 @@ services:
     ports:
       - "8000:8000"
     environment:
+      # 开发模式 (SQLite): 保持下方 DATABASE_URL
+      # 生产模式 (PostgreSQL): 注释 SQLite 行, 取消注释 PG + Redis 行
       - DATABASE_URL=sqlite:///./data/database.sqlite
+      # - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ich_platform
+      # - REDIS_URL=redis://redis:6379/0
       - DEPLOY_ENV=local
       - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
     env_file:
@@ -17,7 +56,33 @@ services:
     volumes:
       - ../backend/data:/app/data
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
+  # === 异步任务 Worker (仅 PG+Redis 模式使用) ===
+  worker:
+    build:
+      context: ../backend
+      dockerfile: deploy/Dockerfile.worker
+    container_name: ich-worker
+    environment:
+      # 生产模式: 取消注释下方两行
+      # - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ich_platform
+      # - REDIS_URL=redis://redis:6379/0
+      - DEPLOY_ENV=local
+    env_file:
+      - ../backend/.env
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # === 前端 Nginx ===
   frontend:
     build:
       context: ../frontend
@@ -28,3 +93,7 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  pg_data:
+  redis_data:

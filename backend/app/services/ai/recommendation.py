@@ -2,7 +2,6 @@
 
 import json
 import logging
-import threading
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
@@ -162,50 +161,101 @@ def _cold_start_feed(page: int, size: int, db: Session) -> dict:
 
 
 def _personalized_feed(user_id: int, profile: UserInterestProfile, page: int, size: int, db: Session) -> dict:
-    """个性化推荐: 加权匹配评分 + 协同过滤"""
+    """个性化推荐: 两阶段 (召回→排序) + 探索/利用机制"""
+    import random
+    from app.models.favorite import Favorite
+
     cat_weights = json.loads(profile.category_weights_json or "{}")
     tech_weights = json.loads(profile.technique_weights_json or "{}")
     region_weights = json.loads(profile.region_weights_json or "{}")
 
-    # 获取所有候选项: heritage_items + approved user_uploads
-    candidates = []
+    # 探索比例 — 随交互次数递减
+    explore_ratio = max(0.05, 0.25 - profile.interaction_count * 0.01)
 
-    heritage = db.query(HeritageItem).all()
+    # === Stage 1: 召回 (扩大候选池至 ~200) ===
+    candidates: list[dict] = []
+
+    # 1a. 品类召回: 用户 top-5 品类下的所有条目
+    top_categories = sorted(cat_weights.keys(), key=lambda k: cat_weights[k], reverse=True)[:5]
+    if top_categories:
+        heritage = db.query(HeritageItem).filter(
+            HeritageItem.category.in_(top_categories)
+        ).all()
+    else:
+        heritage = db.query(HeritageItem).all()
+
     for h in heritage:
         score = _compute_item_score(h.category, h.region, h.techniques_json, cat_weights, tech_weights, region_weights)
         images = json.loads(h.images_json or "[]")
+        favorites = db.query(Favorite).filter(Favorite.item_id == h.id, Favorite.item_type == "heritage").count()
         candidates.append({
-            "id": h.id,
-            "item_type": "heritage",
-            "title": h.name,
-            "image_url": images[0] if images else "",
-            "category": h.category or "",
-            "region": h.region,
-            "score": score,
+            "id": h.id, "item_type": "heritage", "title": h.name,
+            "image_url": images[0] if images else "", "category": h.category or "",
+            "region": h.region, "score": score, "popularity": favorites,
             "target_route": f"/exhibition?id={h.id}",
         })
 
+    # 1b. 地域召回
+    top_regions = sorted(region_weights.keys(), key=lambda k: region_weights[k], reverse=True)[:3]
+    if top_regions:
+        region_items = db.query(HeritageItem).filter(
+            HeritageItem.region.in_(top_regions)
+        ).all()
+        existing_ids = {c["id"] for c in candidates if c["item_type"] == "heritage"}
+        for h in region_items:
+            if h.id not in existing_ids:
+                score = _compute_item_score(h.category, h.region, h.techniques_json, cat_weights, tech_weights, region_weights) * 0.8
+                images = json.loads(h.images_json or "[]")
+                candidates.append({
+                    "id": h.id, "item_type": "heritage", "title": h.name,
+                    "image_url": images[0] if images else "", "category": h.category or "",
+                    "region": h.region, "score": score, "popularity": 0,
+                    "target_route": f"/exhibition?id={h.id}",
+                })
+
+    # 1c. 社区上传
     uploads = db.query(UserUpload).filter(UserUpload.is_approved == True).all()
     for u in uploads:
         score = _compute_item_score(u.category, u.region, u.techniques_json, cat_weights, tech_weights, region_weights)
         images = json.loads(u.images_json or "[]")
         candidates.append({
-            "id": u.id,
-            "item_type": "user_upload",
-            "title": u.title,
-            "image_url": images[0] if images else "",
-            "category": u.category or "",
-            "region": u.region,
-            "score": score,
+            "id": u.id, "item_type": "user_upload", "title": u.title,
+            "image_url": images[0] if images else "", "category": u.category or "",
+            "region": u.region, "score": score, "popularity": 0,
             "target_route": f"/exhibition?id={u.id}",
         })
 
-    # 按分数降序排列
-    candidates.sort(key=lambda x: x["score"], reverse=True)
+    # === Stage 2: 排序 (加权打分) ===
+    max_pop = max((c.get("popularity", 0) or 1) for c in candidates) if candidates else 1
+    for c in candidates:
+        c["_final_score"] = (
+            0.40 * c["score"] +                       # 品类匹配
+            0.20 * (c.get("popularity", 0) / max_pop) +  # 热度归一化
+            0.25 * _freshness_score(c) +               # 新鲜度
+            0.15 * _semantic_boost(c, cat_weights)     # 语义增强
+        )
 
-    # 分页
-    offset = (page - 1) * size
-    page_items = candidates[offset:offset + size]
+    # === 探索/利用 ===
+    candidates.sort(key=lambda x: x["_final_score"], reverse=True)
+
+    exploit_count = int(size * (1 - explore_ratio))
+    explore_count = size - exploit_count
+
+    page_items = candidates[:exploit_count]
+
+    # 探索: 从用户未交互的品类中随机采样
+    explored_categories = set(cat_weights.keys())
+    unexplored = [c for c in candidates[exploit_count:] if c["category"] not in explored_categories]
+    if unexplored and explore_count > 0:
+        random.shuffle(unexplored)
+        page_items += unexplored[:explore_count]
+
+    # 补充不足的
+    if len(page_items) < size:
+        remaining = [c for c in candidates if c not in page_items]
+        page_items += remaining[:size - len(page_items)]
+
+    page_items = page_items[:size]
 
     # 为 top 推荐生成 LLM 理由（仅 top 3 调用 LLM 降本）
     for i, item in enumerate(page_items):
@@ -213,11 +263,38 @@ def _personalized_feed(user_id: int, profile: UserInterestProfile, page: int, si
             try:
                 item["reason"] = _generate_reason(user_id, item, cat_weights, tech_weights)
             except Exception:
-                item["reason"] = f"与你喜欢的 {_top_key(cat_weights)} 相关"
+                item["reason"] = _default_reason(item, cat_weights)
         else:
-            item["reason"] = f"与你喜欢的 {_top_key(cat_weights)} 相关"
+            item["reason"] = _default_reason(item, cat_weights)
+
+        # 清理内部字段
+        item.pop("_final_score", None)
+        item.pop("popularity", None)
 
     return {"items": page_items, "page": page, "size": size, "profile_status": "active"}
+
+
+def _freshness_score(item: dict) -> float:
+    """新鲜度评分 — 简单返回固定值 (后续可接 created_at)"""
+    return 0.7  # 默认新鲜度
+
+
+def _semantic_boost(item: dict, cat_weights: dict) -> float:
+    """语义增强 — 品类深度匹配加权"""
+    cat = item.get("category", "")
+    if cat in cat_weights:
+        return min(1.0, cat_weights[cat] / 5.0)
+    return 0.0
+
+
+def _default_reason(item: dict, cat_weights: dict) -> str:
+    """基于品类生成默认推荐理由"""
+    top_cat = _top_key(cat_weights)
+    if item.get("category") in cat_weights:
+        return f"与你喜欢的 {item['category']} 相关"
+    elif top_cat:
+        return f"探索更多 {item.get('category', '非遗')} 文化"
+    return "发现非遗之美"
 
 
 def _compute_item_score(category: str, region: str, techniques_json: str,
@@ -401,8 +478,9 @@ def _module_knowledge_graph(cat_weights, tech_weights, region_weights, db) -> di
 # === Fire-and-forget 辅助 ===
 
 def trigger_profile_update(user_id: int, action_type: str, action_data: dict):
-    """Fire-and-forget 画像更新 — 在独立线程中运行"""
+    """串行写入队列 画像更新 — 避免多线程竞争 SQLite 写锁"""
     from app.models.database import SessionLocal
+    from app.utils.write_queue import enqueue_write
 
     def _update():
         db = SessionLocal()
@@ -414,4 +492,4 @@ def trigger_profile_update(user_id: int, action_type: str, action_data: dict):
         finally:
             db.close()
 
-    threading.Thread(target=_update, daemon=True).start()
+    enqueue_write(_update, name="profile_update")

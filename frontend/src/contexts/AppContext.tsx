@@ -1,29 +1,9 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+/** 全局应用状态 — 已迁移至 Zustand store，此文件为向后兼容重导出 */
 
-interface AppState {
-  mockMode: boolean
-  sidebarCollapsed: boolean
-  setMockMode: (v: boolean) => void
-  toggleSidebar: () => void
-}
+export { useAppStore, useApp } from '../stores/appStore'
 
-const AppContext = createContext<AppState | null>(null)
-
+// Zustand 无需 Provider；保留空壳以兼容旧 main.tsx 中的 JSX 嵌套
+import type { ReactNode } from 'react'
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [mockMode, setMockMode] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-
-  const toggleSidebar = () => setSidebarCollapsed(v => !v)
-
-  return (
-    <AppContext.Provider value={{ mockMode, sidebarCollapsed, setMockMode, toggleSidebar }}>
-      {children}
-    </AppContext.Provider>
-  )
-}
-
-export function useApp() {
-  const ctx = useContext(AppContext)
-  if (!ctx) throw new Error('useApp must be used within AppProvider')
-  return ctx
+  return children as any
 }

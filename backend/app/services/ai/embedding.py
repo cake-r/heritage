@@ -187,6 +187,151 @@ def semantic_search(
     return [info for _, info in scored[:top_k]]
 
 
+# === 公开 API (供 rag.py 调用) ===
+
+def get_embedding(text: str) -> Optional[list[float]]:
+    """生成文本嵌入向量 (公开接口)"""
+    return call_embedding_api(text)
+
+
+def cosine_similarity(a: list[float], b: list[float]) -> Optional[float]:
+    """计算余弦相似度 (公开接口)"""
+    return _cosine_similarity(a, b)
+
+
+# === 分块嵌入生成 ===
+
+def ensure_chunk_embedding(chunk, db: Session) -> Optional[list[float]]:
+    """确保单个 HeritageChunk 有嵌入，没有则生成并持久化"""
+    # 已有嵌入则返回
+    existing = getattr(chunk, "embedding_json", None)
+    if existing:
+        try:
+            import json as _json
+            vec = _json.loads(existing)
+            if isinstance(vec, list) and len(vec) == EMBEDDING_DIM:
+                return vec
+        except Exception:
+            pass
+
+    text = chunk.chunk_text or ""
+    if not text.strip():
+        return None
+
+    vec = call_embedding_api(text)
+    if vec is None:
+        return None
+
+    # 持久化
+    try:
+        import json as _json
+        from app.models.heritage_chunk import HeritageChunk
+        db.query(HeritageChunk).filter(HeritageChunk.id == chunk.id).update(
+            {"embedding_json": _json.dumps(vec)}
+        )
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.warning(f"chunk 嵌入持久化失败 chunk_id={chunk.id}: {e}")
+
+    return vec
+
+
+def chunk_heritage_item(item, db: Session) -> int:
+    """将单个 heritage_item 拆分为多个 HeritageChunk 并生成嵌入
+
+    返回创建的 chunk 数量。
+    """
+    import json as _json
+    from app.models.heritage_chunk import HeritageChunk
+
+    created = 0
+
+    # (1) description chunk
+    if item.description and item.description.strip():
+        chunk = HeritageChunk(
+            heritage_item_id=item.id,
+            chunk_type="description",
+            chunk_text=item.description,
+        )
+        db.add(chunk)
+        db.flush()
+        vec = ensure_chunk_embedding(chunk, db)
+        if vec:
+            chunk.embedding_json = _json.dumps(vec)
+        created += 1
+
+    # (2) cultural_meaning chunk
+    if item.cultural_meaning and item.cultural_meaning.strip():
+        chunk = HeritageChunk(
+            heritage_item_id=item.id,
+            chunk_type="cultural_meaning",
+            chunk_text=item.cultural_meaning,
+        )
+        db.add(chunk)
+        db.flush()
+        vec = ensure_chunk_embedding(chunk, db)
+        if vec:
+            chunk.embedding_json = _json.dumps(vec)
+        created += 1
+
+    # (3) technique chunks (每个技法一条)
+    if item.techniques_json:
+        try:
+            techs = _json.loads(item.techniques_json)
+            if isinstance(techs, list):
+                for tech in techs:
+                    if isinstance(tech, dict):
+                        name = tech.get("name", "")
+                        desc = tech.get("desc", "")
+                        text = f"{name}: {desc}" if desc else name
+                        if text.strip():
+                            chunk = HeritageChunk(
+                                heritage_item_id=item.id,
+                                chunk_type="technique",
+                                chunk_text=text,
+                                metadata_json=_json.dumps({"technique_name": name}),
+                            )
+                            db.add(chunk)
+                            db.flush()
+                            vec = ensure_chunk_embedding(chunk, db)
+                            if vec:
+                                chunk.embedding_json = _json.dumps(vec)
+                            created += 1
+        except Exception:
+            pass
+
+    # (4) inheritor_desc chunks (每个传承人一条)
+    if item.inheritors_json:
+        try:
+            inheritors = _json.loads(item.inheritors_json)
+            if isinstance(inheritors, list):
+                for inh in inheritors:
+                    if isinstance(inh, dict):
+                        name = inh.get("name", "")
+                        desc = inh.get("desc", "")
+                        title = inh.get("title", "")
+                        text = f"{name} ({title}): {desc}" if desc else f"{name} ({title})"
+                        if text.strip():
+                            chunk = HeritageChunk(
+                                heritage_item_id=item.id,
+                                chunk_type="inheritor_desc",
+                                chunk_text=text,
+                                metadata_json=_json.dumps({"inheritor_name": name}),
+                            )
+                            db.add(chunk)
+                            db.flush()
+                            vec = ensure_chunk_embedding(chunk, db)
+                            if vec:
+                                chunk.embedding_json = _json.dumps(vec)
+                            created += 1
+        except Exception:
+            pass
+
+    db.commit()
+    return created
+
+
 def _keyword_search(
     query: str,
     db: Session,

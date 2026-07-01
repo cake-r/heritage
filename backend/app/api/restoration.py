@@ -105,6 +105,40 @@ def upload_and_restore(
     return _build_response(record, pipeline_steps_raw, restored_image_url)
 
 
+@router.post("/upload-async")
+def upload_and_restore_async(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+):
+    """上传文物图片 → 提交异步修复任务 → 立即返回 task_id（前端轮询 GET /api/tasks/{task_id}）"""
+    from app.services.task_scheduler import submit_task
+
+    # 校验 + 保存文件
+    _validate_file(file)
+    ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
+    filename = f"restore_{uuid.uuid4().hex}{ext}"
+    IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+    image_path = IMAGE_DIR / filename
+
+    with open(image_path, "wb") as f:
+        f.write(file.file.read())
+
+    image_url = f"/static/images/{filename}"
+
+    # 提交异步任务
+    task_id = submit_task(
+        task_type="restoration",
+        user_id=current_user.id,
+        payload={"image_url": str(image_path), "image_path": str(image_path)},
+    )
+
+    return {
+        "task_id": task_id,
+        "message": "修复任务已提交，请轮询 GET /api/tasks/{task_id} 获取进度",
+        "original_image_url": image_url,
+    }
+
+
 @router.get("/history", response_model=PaginatedResponse[RestorationListItem])
 def get_history(
     page: int = Query(1, ge=1),
@@ -308,10 +342,10 @@ def _rebuild_steps(record: RestorationRecord) -> list[dict]:
 
 
 def _trigger_stamp_check(user_id: int, module: str, score: int, db_session: Session):
-    """Fire-and-forget 印章检查"""
-    import threading
+    """串行写入队列 印章检查（避免多线程竞争 SQLite 写锁）"""
     from app.models.database import SessionLocal
     from app.services.passport_service import check_and_earn_stamps
+    from app.utils.write_queue import enqueue_write
 
     def _earn():
         db = SessionLocal()
@@ -328,4 +362,4 @@ def _trigger_stamp_check(user_id: int, module: str, score: int, db_session: Sess
         finally:
             db.close()
 
-    threading.Thread(target=_earn, daemon=True).start()
+    enqueue_write(_earn, name="stamp_check_restoration")

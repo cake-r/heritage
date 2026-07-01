@@ -23,6 +23,10 @@ class CultivationStatus(BaseModel):
     rank_index: int          # 0-4
     xp_to_next: int          # 距离下一段位所需 XP
     skill_trees: list[SkillTreeProgress]  # 6 条
+    streak_days: int = 0
+    longest_streak: int = 0
+    last_active_date: Optional[str] = None
+    streak_bonus_active: bool = False
 
 
 class DailyQuest(BaseModel):
@@ -36,6 +40,9 @@ class DailyQuest(BaseModel):
     xp_reward: int
     status: str              # pending | completed | claimed
     icon: str = "📋"
+    condition_type: str = ""
+    condition_threshold: float = 1.0
+    condition_progress: float = 0.0
 
 
 class WeeklyChallenge(BaseModel):
@@ -57,3 +64,36 @@ class QuestCompleteResponse(BaseModel):
     new_rank: Optional[str] = None      # 升级后的段位，未升级则为 None
     new_rank_index: Optional[int] = None
     stamp_earned: Optional[dict] = None  # 获得的新印章信息
+
+
+class StreakInfo(BaseModel):
+    """连胜状态"""
+    streak_days: int
+    longest_streak: int
+    last_active_date: Optional[str] = None
+    streak_bonus_active: bool
+
+
+class QuestCompletedItem(BaseModel):
+    """自动完成的任务项"""
+    quest_id: int
+    title: str
+    xp_gained: int
+    skill_tree: str
+    icon: str = "📋"
+
+
+class QuestProgressUpdate(BaseModel):
+    """任务进度更新"""
+    id: int
+    condition_progress: float
+    condition_threshold: float
+    status: str
+
+
+class QuestCheckResponse(BaseModel):
+    """任务自动检查响应"""
+    quests_completed: list[QuestCompletedItem] = []
+    total_xp_gained: int = 0
+    new_rank: Optional[str] = None
+    quests_updated: list[QuestProgressUpdate] = []

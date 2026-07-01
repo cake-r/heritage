@@ -278,8 +278,8 @@ def _resolve_inheritor_tools(session_persona: str, db: Session) -> dict:
 
 
 def _update_session_timestamp(session_id: int):
-    """Fire-and-forget 更新会话时间戳（独立线程 + 独立Session，杜绝跨线程ORM污染）"""
-    from app.utils.fire_and_forget import run_in_thread
+    """串行写入队列 更新会话时间戳（避免多线程竞争 SQLite 写锁）"""
+    from app.utils.write_queue import enqueue_write
     from app.models.database import SessionLocal
     from datetime import datetime as dt
 
@@ -292,18 +292,19 @@ def _update_session_timestamp(session_id: int):
             db_local.commit()
         except Exception:
             db_local.rollback()
-            raise  # re-raise for logging in run_in_thread
+            raise
         finally:
             db_local.close()
 
-    run_in_thread(_run, name="update_session_ts")
+    enqueue_write(_run, name="update_session_ts")
 
 
 def _trigger_stamp_check(user_id: int, module: str, db_session: Session):
-    """Fire-and-forget 印章检查（含重试）"""
+    """串行写入队列 印章检查（含重试）"""
     from app.utils.fire_and_forget import run_in_thread
     from app.models.database import SessionLocal
     from app.services.passport_service import check_and_earn_stamps
+    from app.utils.write_queue import enqueue_write
 
     def _earn():
         db = SessionLocal()
@@ -322,11 +323,11 @@ def _trigger_stamp_check(user_id: int, module: str, db_session: Session):
             check_and_earn_stamps(user_id, module, context, db)
         except Exception:
             db.rollback()
-            raise  # re-raise for logging + retry in run_in_thread
+            raise
         finally:
             db.close()
 
-    run_in_thread(_earn, name="stamp_check", retry=True)
+    enqueue_write(_earn, name="stamp_check_chat")
 
 
 # === SSE 流式对话 ===

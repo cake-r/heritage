@@ -6,7 +6,6 @@
 import json
 import logging
 import random
-import threading
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from sqlalchemy.orm import Session
@@ -19,6 +18,7 @@ from app.models.chat import ChatSession, ChatMessage
 from app.models.favorite import Favorite
 from app.models.restoration import RestorationRecord
 from app.models.exhibition import HeritageItem
+from app.models.custom_inheritor import CustomInheritor
 from app.models.user import User
 from app.services.ai.base import mock_mode
 
@@ -323,6 +323,9 @@ def _generate_quests(user_id: int, today: date, db: Session) -> list[dict]:
             skill_tree=t["skill_tree"],
             xp_reward=t["xp_reward"],
             status="pending",
+            condition_type=t.get("condition_type", ""),
+            condition_threshold=float(t.get("condition_threshold", 1)),
+            condition_progress=0.0,
             date=today,
         )
         db.add(quest)
@@ -348,13 +351,16 @@ def _quest_to_dict(q: UserQuest) -> dict:
         "xp_reward": q.xp_reward,
         "status": q.status,
         "icon": "📋",
+        "condition_type": q.condition_type or "",
+        "condition_threshold": float(q.condition_threshold or 1),
+        "condition_progress": float(q.condition_progress or 0),
     }
 
 
 # === 任务完成 ===
 
 def complete_quest(user_id: int, quest_id: int, db: Session) -> dict:
-    """完成每日任务"""
+    """完成每日任务（手动完成，仅限不可追踪的任务）"""
     quest = db.query(UserQuest).filter(
         UserQuest.id == quest_id,
         UserQuest.user_id == user_id,
@@ -369,19 +375,31 @@ def complete_quest(user_id: int, quest_id: int, db: Session) -> dict:
     if quest.status == "claimed":
         raise ValueError("奖励已领取")
 
+    # 防作弊：可追踪任务必须条件达成（MOCK_MODE 跳过）
+    if quest.condition_type and quest.condition_type.strip():
+        if not mock_mode():
+            is_met, progress = verify_quest_condition(user_id, quest, db)
+            quest.condition_progress = progress
+            if not is_met:
+                raise ValueError("条件尚未达成，请先完成相关操作后再来领取")
+
     quest.status = "completed"
     quest.completed_at = datetime.utcnow()
 
     # 奖励 XP
-    cultivation = db.query(UserCultivation).filter(
-        UserCultivation.user_id == user_id
-    ).first()
+    cultivation = _get_or_create_cultivation(user_id, db)
 
-    if not cultivation:
-        cultivation = UserCultivation(user_id=user_id, xp=0)
-        db.add(cultivation)
+    # 连胜加成
+    streak_days = cultivation.streak_days or 0
+    bonus_pct = 0
+    if streak_days >= 7:
+        bonus_pct = 0.25
+    elif streak_days >= 3:
+        bonus_pct = 0.10
+    bonus_xp = int(quest.xp_reward * bonus_pct)
+    total_xp = quest.xp_reward + bonus_xp
 
-    cultivation.xp += quest.xp_reward
+    cultivation.xp += total_xp
     old_rank = cultivation.rank
     new_rank, new_rank_idx, xp_to_next = determine_rank(cultivation.xp)
     cultivation.rank = new_rank
@@ -394,7 +412,7 @@ def complete_quest(user_id: int, quest_id: int, db: Session) -> dict:
     db.refresh(quest)
 
     result = {
-        "xp_gained": quest.xp_reward,
+        "xp_gained": total_xp,
         "total_xp": cultivation.xp,
         "new_rank": new_rank if new_rank != old_rank else None,
         "new_rank_index": new_rank_idx if new_rank != old_rank else None,
@@ -470,6 +488,10 @@ def get_cultivation_status(user_id: int, db: Session) -> dict:
         db.add(cultivation)
         db.commit()
 
+    # 更新连胜（如果今天还没记录）
+    if cultivation.last_active_date != date.today():
+        update_streak(user_id, db)
+
     # Recalculate XP and rank (use the higher of stored vs computed)
     total_xp = compute_xp(user_id, db)
     # Use max of stored and computed — stored could be higher from fire-and-forget awards
@@ -491,14 +513,19 @@ def get_cultivation_status(user_id: int, db: Session) -> dict:
         "rank_index": rank_idx,
         "xp_to_next": xp_to_next,
         "skill_trees": skill_trees,
+        "streak_days": cultivation.streak_days or 0,
+        "longest_streak": cultivation.longest_streak or 0,
+        "last_active_date": cultivation.last_active_date.isoformat() if cultivation.last_active_date else None,
+        "streak_bonus_active": (cultivation.streak_days or 0) >= 3,
     }
 
 
 # === XP 奖励 (fire-and-forget) ===
 
 def award_xp(user_id: int, skill_tree: str, amount: int, db_session: Session = None):
-    """Fire-and-forget XP 奖励 — 在独立线程中运行"""
+    """串行写入队列 XP 奖励 — 避免多线程竞争 SQLite 写锁"""
     from app.models.database import SessionLocal
+    from app.utils.write_queue import enqueue_write
 
     def _award():
         db = SessionLocal()
@@ -525,4 +552,378 @@ def award_xp(user_id: int, skill_tree: str, amount: int, db_session: Session = N
         finally:
             db.close()
 
-    threading.Thread(target=_award, daemon=True).start()
+    enqueue_write(_award, name="xp_award")
+
+
+# === 连胜追踪 ===
+
+
+def update_streak(user_id: int, db: Session) -> dict:
+    """更新用户连续活跃天数，返回连胜状态"""
+    cultivation = db.query(UserCultivation).filter(
+        UserCultivation.user_id == user_id
+    ).first()
+
+    if not cultivation:
+        cultivation = UserCultivation(user_id=user_id, xp=0)
+        db.add(cultivation)
+
+    today = date.today()
+    last = cultivation.last_active_date
+
+    if last is None:
+        # 首次活跃
+        cultivation.streak_days = 1
+    elif last == today:
+        # 今日已记录
+        pass
+    elif last == today - timedelta(days=1):
+        # 连续签到
+        cultivation.streak_days += 1
+    else:
+        # 断签
+        cultivation.streak_days = 1
+
+    cultivation.last_active_date = today
+    cultivation.longest_streak = max((cultivation.longest_streak or 0), cultivation.streak_days)
+    cultivation.updated_at = datetime.utcnow()
+    db.commit()
+
+    return {
+        "streak_days": cultivation.streak_days,
+        "longest_streak": cultivation.longest_streak,
+        "last_active_date": today.isoformat(),
+        "streak_bonus_active": cultivation.streak_days >= 3,
+    }
+
+
+# === 条件校验引擎 ===
+
+
+def _get_or_create_cultivation(user_id: int, db: Session) -> UserCultivation:
+    """获取或创建用户的修习记录"""
+    cultivation = db.query(UserCultivation).filter(
+        UserCultivation.user_id == user_id
+    ).first()
+    if not cultivation:
+        cultivation = UserCultivation(user_id=user_id, xp=0)
+        db.add(cultivation)
+        db.flush()
+    return cultivation
+
+
+def verify_quest_condition(user_id: int, quest: UserQuest, db: Session) -> tuple:
+    """
+    校验任务条件是否达成。返回 (is_met: bool, progress: float)
+    对于不可追踪的条件类型，始终返回 (False, 0.0)
+    """
+    ct = quest.condition_type
+    threshold = quest.condition_threshold or 1
+
+    if not ct:
+        return (False, 0.0)
+
+    today = date.today()
+
+    try:
+        # --- 识别相关 ---
+        if ct == "recognition_count":
+            count = db.query(RecognitionRecord).filter(
+                RecognitionRecord.user_id == user_id,
+                func.date(RecognitionRecord.created_at) == today,
+            ).count()
+            return (count >= threshold, float(count))
+
+        elif ct == "distinct_categories":
+            count = db.query(func.count(func.distinct(RecognitionRecord.category))).filter(
+                RecognitionRecord.user_id == user_id,
+            ).scalar() or 0
+            return (count >= threshold, float(count))
+
+        elif ct == "high_confidence":
+            max_conf = db.query(func.max(RecognitionRecord.confidence)).filter(
+                RecognitionRecord.user_id == user_id,
+            ).scalar() or 0.0
+            return (max_conf >= threshold, float(max_conf))
+
+        # --- 创作相关 ---
+        elif ct == "generation_count":
+            count = db.query(GeneratedWork).filter(
+                GeneratedWork.user_id == user_id,
+                func.date(GeneratedWork.created_at) == today,
+            ).count()
+            return (count >= threshold, float(count))
+
+        elif ct == "img2img_count":
+            count = db.query(GeneratedWork).filter(
+                GeneratedWork.user_id == user_id,
+                GeneratedWork.mode == "img2img",
+            ).count()
+            return (count >= threshold, float(count))
+
+        elif ct == "publish_work":
+            count = db.query(GeneratedWork).filter(
+                GeneratedWork.user_id == user_id,
+                GeneratedWork.is_public == True,
+            ).count()
+            return (count >= threshold, float(count))
+
+        elif ct == "batch_generation":
+            max_images = db.query(func.max(
+                func.length(GeneratedWork.images_json)
+            )).filter(
+                GeneratedWork.user_id == user_id,
+            ).scalar() or 0
+            # images_json is a JSON array string; rough count by comma
+            count = db.query(GeneratedWork).filter(
+                GeneratedWork.user_id == user_id,
+            ).count()
+            return (count >= threshold, float(count))
+
+        elif ct == "negative_prompt":
+            count = db.query(GeneratedWork).filter(
+                GeneratedWork.user_id == user_id,
+                GeneratedWork.negative_prompt.isnot(None),
+                GeneratedWork.negative_prompt != "",
+                func.date(GeneratedWork.created_at) == today,
+            ).count()
+            return (count >= threshold, float(count))
+
+        # --- 对话相关 ---
+        elif ct == "chat_rounds":
+            count = db.query(ChatMessage).join(ChatSession).filter(
+                ChatSession.user_id == user_id,
+                ChatMessage.role == "user",
+                func.date(ChatMessage.created_at) == today,
+            ).count()
+            return (count >= threshold, float(count))
+
+        elif ct == "new_session":
+            count = db.query(ChatSession).filter(
+                ChatSession.user_id == user_id,
+                func.date(ChatSession.created_at) == today,
+            ).count()
+            return (count >= threshold, float(count))
+
+        elif ct in ("tool_inspect", "tool_connect", "tool_create"):
+            tool_prefix = f"/{ct.replace('tool_', '')}"
+            count = db.query(ChatMessage).join(ChatSession).filter(
+                ChatSession.user_id == user_id,
+                ChatMessage.role == "user",
+                ChatMessage.content.like(f"{tool_prefix}%"),
+            ).count()
+            return (count >= threshold, float(count))
+
+        # --- 修复相关 ---
+        elif ct == "restoration_count":
+            count = db.query(RestorationRecord).filter(
+                RestorationRecord.user_id == user_id,
+            ).count()
+            return (count >= threshold, float(count))
+
+        # --- 收藏/浏览相关 ---
+        elif ct == "favorite_count":
+            count = db.query(Favorite).filter(
+                Favorite.user_id == user_id,
+            ).count()
+            return (count >= threshold, float(count))
+
+        elif ct == "region_explore":
+            # 浏览某地域的非遗
+            heritage_favs = db.query(Favorite.item_id).filter(
+                Favorite.user_id == user_id,
+                Favorite.item_type == "heritage",
+            ).subquery()
+            count = db.query(func.count(func.distinct(HeritageItem.region))).filter(
+                HeritageItem.id.in_(heritage_favs),
+                HeritageItem.region.isnot(None),
+            ).scalar() or 0
+            return (count >= threshold, float(count))
+
+        elif ct == "distinct_regions":
+            heritage_favs = db.query(Favorite.item_id).filter(
+                Favorite.user_id == user_id,
+                Favorite.item_type == "heritage",
+            ).subquery()
+            count = db.query(func.count(func.distinct(HeritageItem.region))).filter(
+                HeritageItem.id.in_(heritage_favs),
+                HeritageItem.region.isnot(None),
+            ).scalar() or 0
+            return (count >= threshold, float(count))
+
+        # --- 自定义传承人 ---
+        elif ct == "create_inheritor":
+            count = db.query(CustomInheritor).filter(
+                CustomInheritor.user_id == user_id,
+            ).count()
+            return (count >= threshold, float(count))
+
+        # --- 不可追踪 ---
+        else:
+            # voice_playback, heatmap_view, graph_explore, technique_view,
+            # sunburst_drill, timeline_view, choropleth_view, verification_view
+            return (False, 0.0)
+
+    except Exception:
+        logger.exception(f"条件校验异常 user={user_id} quest={quest.id} type={ct}")
+        return (False, 0.0)
+
+
+# === 自动结算 ===
+
+
+def check_and_auto_complete_quests(user_id: int, db: Session) -> dict:
+    """
+    检查所有 pending 的可追踪任务，自动完成已达成条件的。
+    返回已完成列表 + 进度更新列表。
+    """
+    today = date.today()
+
+    pending = db.query(UserQuest).filter(
+        UserQuest.user_id == user_id,
+        UserQuest.date == today,
+        UserQuest.status == "pending",
+        UserQuest.condition_type.isnot(None),
+        UserQuest.condition_type != "",
+    ).all()
+
+    cultivation = _get_or_create_cultivation(user_id, db)
+    streak_days = cultivation.streak_days or 0
+    old_rank = cultivation.rank
+
+    quests_completed = []
+    quests_updated = []
+    total_xp_gained = 0
+
+    for quest in pending:
+        is_met, progress = verify_quest_condition(user_id, quest, db)
+
+        # 更新进度（无论是否达成）
+        if progress != (quest.condition_progress or 0):
+            quest.condition_progress = progress
+            quests_updated.append({
+                "id": quest.id,
+                "condition_progress": progress,
+                "condition_threshold": quest.condition_threshold or 1,
+                "status": "pending",
+            })
+
+        if not is_met:
+            continue
+
+        # 条件达成 → 自动完成
+        quest.status = "completed"
+        quest.completed_at = datetime.utcnow()
+        quest.condition_progress = progress
+
+        # 连胜 XP 加成
+        bonus_pct = 0
+        if streak_days >= 7:
+            bonus_pct = 0.25
+        elif streak_days >= 3:
+            bonus_pct = 0.10
+
+        xp_amount = quest.xp_reward
+        bonus_xp = int(xp_amount * bonus_pct)
+        total_xp = xp_amount + bonus_xp
+
+        cultivation.xp += total_xp
+        total_xp_gained += total_xp
+
+        quests_completed.append({
+            "quest_id": quest.id,
+            "title": quest.title,
+            "xp_gained": total_xp,
+            "skill_tree": quest.skill_tree,
+            "icon": "📋",
+        })
+
+    # 更新段位
+    new_rank, new_rank_idx, _ = determine_rank(cultivation.xp)
+    cultivation.rank = new_rank
+    cultivation.updated_at = datetime.utcnow()
+
+    db.commit()
+
+    return {
+        "quests_completed": quests_completed,
+        "total_xp_gained": total_xp_gained,
+        "new_rank": new_rank if new_rank != old_rank else None,
+        "quests_updated": quests_updated,
+    }
+
+
+# === XP 重算补偿 ===
+
+def recalculate_xp(user_id: int, db: Session) -> dict:
+    """
+    根据用户全部行为记录重新计算应有的 XP + 段位 + 技能树。
+    用于补偿修复因 fire-and-forget 失败导致的 XP 不一致。
+    幂等操作 — 多次调用结果一致。
+    """
+    cultivation = _get_or_create_cultivation(user_id, db)
+
+    # 基础 XP：每个已完成任务 + 手动完成任务的 XP 总和
+    completed_xp = db.query(func.coalesce(func.sum(UserQuest.xp_reward), 0)).filter(
+        UserQuest.user_id == user_id,
+        UserQuest.status.in_(["completed", "claimed"]),
+    ).scalar() or 0
+
+    # 连胜加成：为每个 >= 3 连续天完成的任务加额外 XP
+    # 简化：直接取连胜加成百分比应用
+    streak_days = cultivation.streak_days or 0
+    bonus_pct = 0.25 if streak_days >= 7 else (0.10 if streak_days >= 3 else 0)
+    bonus_xp = int(completed_xp * bonus_pct)
+
+    # 行为基础 XP (识别/创作/聊天/修复等核心操作)
+    recognition_count = db.query(RecognitionRecord).filter(
+        RecognitionRecord.user_id == user_id,
+    ).count()
+    generation_count = db.query(GeneratedWork).filter(
+        GeneratedWork.user_id == user_id,
+    ).count()
+    restoration_count = db.query(RestorationRecord).filter(
+        RestorationRecord.user_id == user_id,
+    ).count()
+    chat_count = db.query(ChatSession).filter(
+        ChatSession.user_id == user_id,
+    ).count()
+    favorite_count = db.query(Favorite).filter(
+        Favorite.user_id == user_id,
+    ).count()
+
+    action_xp = (
+        recognition_count * 5 +
+        generation_count * 10 +
+        restoration_count * 15 +
+        chat_count * 3 +
+        favorite_count * 2
+    )
+
+    total_xp = completed_xp + bonus_xp + action_xp
+    old_xp = cultivation.xp or 0
+
+    # 更新
+    cultivation.xp = total_xp
+    new_rank, new_rank_idx, xp_to_next = determine_rank(total_xp)
+    old_rank = cultivation.rank
+    cultivation.rank = new_rank
+    cultivation.skill_tree_json = json.dumps(
+        get_skill_tree_progress(user_id, db), ensure_ascii=False
+    )
+    cultivation.updated_at = datetime.utcnow()
+    db.commit()
+
+    return {
+        "old_xp": old_xp,
+        "new_xp": total_xp,
+        "xp_diff": total_xp - old_xp,
+        "breakdown": {
+            "completed_quests_xp": completed_xp,
+            "streak_bonus_xp": bonus_xp,
+            "action_xp": action_xp,
+        },
+        "old_rank": old_rank,
+        "new_rank": new_rank,
+        "rank_changed": old_rank != new_rank,
+    }

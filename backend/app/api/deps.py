@@ -47,3 +47,32 @@ def get_optional_user(
         return get_current_user(credentials, db)
     except AuthException:
         return None
+
+
+async def get_optional_user_ws(token: str | None) -> User | None:
+    """WebSocket 认证 — 从查询参数 token 解析用户"""
+    if not token:
+        return None
+    payload = decode_access_token(token)
+    if not payload:
+        return None
+    user_id = payload.get("sub")
+    if not user_id:
+        return None
+    db = SessionLocal()
+    try:
+        return db.query(User).filter(User.id == int(user_id)).first()
+    except Exception:
+        return None
+    finally:
+        db.close()
+
+
+def get_current_admin(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """管理员认证 — 检查用户角色 (Sub-Phase 5 使用)"""
+    role = getattr(current_user, "role", "user")
+    if role != "admin":
+        raise AuthException("需要管理员权限", status_code=403)
+    return current_user

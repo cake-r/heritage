@@ -273,17 +273,20 @@ def _build_response(
 
 
 def _trigger_stamp_check(user_id: int, module: str, rec_result: dict, db_session: Session):
-    """Fire-and-forget 印章检查"""
-    import threading
+    """串行写入队列 印章检查（避免多线程竞争 SQLite 写锁）"""
     from app.models.database import SessionLocal
     from app.services.passport_service import check_and_earn_stamps
+    from app.utils.write_queue import enqueue_write
+
+    category = rec_result.get("category", "")
+    confidence = rec_result.get("confidence", 0.0)
 
     def _earn():
         db = SessionLocal()
         try:
             context = {
-                "category": rec_result.get("category", ""),
-                "confidence": rec_result.get("confidence", 0.0),
+                "category": category,
+                "confidence": confidence,
                 "user_total_count": db.query(RecognitionRecord).filter(
                     RecognitionRecord.user_id == user_id
                 ).count(),
@@ -294,4 +297,4 @@ def _trigger_stamp_check(user_id: int, module: str, rec_result: dict, db_session
         finally:
             db.close()
 
-    threading.Thread(target=_earn, daemon=True).start()
+    enqueue_write(_earn, name="stamp_check_recognition")

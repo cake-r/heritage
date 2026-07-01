@@ -18,6 +18,10 @@ export interface CultivationStatus {
   rank_index: number
   xp_to_next: number
   skill_trees: SkillTreeProgress[]
+  streak_days: number
+  longest_streak: number
+  last_active_date: string | null
+  streak_bonus_active: boolean
 }
 
 export interface DailyQuest {
@@ -30,6 +34,9 @@ export interface DailyQuest {
   xp_reward: number
   status: 'pending' | 'completed' | 'claimed'
   icon: string
+  condition_type: string
+  condition_threshold: number
+  condition_progress: number
 }
 
 export interface WeeklyChallenge {
@@ -51,6 +58,35 @@ export interface QuestCompleteResponse {
   stamp_earned: Record<string, unknown> | null
 }
 
+export interface StreakInfo {
+  streak_days: number
+  longest_streak: number
+  last_active_date: string | null
+  streak_bonus_active: boolean
+}
+
+export interface QuestCompletedItem {
+  quest_id: number
+  title: string
+  xp_gained: number
+  skill_tree: string
+  icon: string
+}
+
+export interface QuestProgressUpdate {
+  id: number
+  condition_progress: number
+  condition_threshold: number
+  status: string
+}
+
+export interface QuestCheckResponse {
+  quests_completed: QuestCompletedItem[]
+  total_xp_gained: number
+  new_rank: string | null
+  quests_updated: QuestProgressUpdate[]
+}
+
 /** 获取修习状态 */
 export async function getCultivationStatus(): Promise<CultivationStatus> {
   const { data } = await api.get('/api/cultivation/status')
@@ -63,14 +99,26 @@ export async function getDailyQuests(): Promise<DailyQuest[]> {
   return data
 }
 
-/** 完成任务 */
+/** 手动完成任务（仅不可追踪任务） */
 export async function completeQuest(questId: number): Promise<QuestCompleteResponse> {
   const { data } = await api.post(`/api/cultivation/quests/${questId}/complete`)
+  return data
+}
+
+/** 触发任务自动结算 */
+export async function checkQuests(): Promise<QuestCheckResponse> {
+  const { data } = await api.post('/api/cultivation/quests/check')
   return data
 }
 
 /** 获取每周挑战 */
 export async function getWeeklyChallenge(): Promise<WeeklyChallenge> {
   const { data } = await api.get('/api/cultivation/weekly-challenge')
+  return data
+}
+
+/** 获取连胜状态 */
+export async function getStreak(): Promise<StreakInfo> {
+  const { data } = await api.get('/api/cultivation/streak')
   return data
 }

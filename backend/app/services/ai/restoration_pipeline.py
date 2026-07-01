@@ -53,8 +53,16 @@ def run_restoration_pipeline(image_path: str) -> dict:
         })
         return {"pipeline_steps": pipeline_steps, "restored_image_url": None}
 
-    # === Step 2: 修复方案生成 ===
-    logger.info(f"[Step 2/4] 修复方案生成 for: {damage_result.get('category')}")
+    # === Step 1.5: 纹样轮廓提取 (新增) ===
+    contour_result = None
+    try:
+        contour_result = _run_contour_extraction(image_path)
+        logger.info(f"[Step 1.5/5] 轮廓提取完成")
+    except Exception as e:
+        logger.warning(f"Step 1.5 轮廓提取失败 (非致命): {e}")
+
+    # === Step 2: 修复方案生成 (RAG 增强) ===
+    logger.info(f"[Step 2/5] 修复方案生成 for: {damage_result.get('category')}")
     try:
         prompt_result = _run_prompt_generation(damage_result)
         pipeline_steps.append({
@@ -72,10 +80,10 @@ def run_restoration_pipeline(image_path: str) -> dict:
         })
         return {"pipeline_steps": pipeline_steps, "restored_image_url": None}
 
-    # === Step 3: AI图像修复 ===
-    logger.info(f"[Step 3/4] 图像修复: {image_path}")
+    # === Step 3: AI图像修复 (轮廓约束增强) ===
+    logger.info(f"[Step 3/5] 图像修复: {image_path}")
     try:
-        gen_result = _run_image_restoration(image_path, prompt_result["prompt"])
+        gen_result = _run_image_restoration(image_path, prompt_result["prompt"], contour_result)
         pipeline_steps.append({
             "step": 3,
             "name": "AI图像修复",
@@ -92,12 +100,14 @@ def run_restoration_pipeline(image_path: str) -> dict:
         })
         return {"pipeline_steps": pipeline_steps, "restored_image_url": None}
 
-    # === Step 4: 修复验证 ===
+    # === Step 4: 修复验证 (增强维度) ===
     if restored_image_url:
         restored_local_path = _url_to_local_path(restored_image_url)
-        logger.info(f"[Step 4/4] 修复验证: {image_path} vs {restored_local_path}")
+        logger.info(f"[Step 4/5] 修复验证: {image_path} vs {restored_local_path}")
         try:
-            verify_result = _run_verification(image_path, restored_local_path, damage_result["category"])
+            verify_result = _run_verification_enhanced(
+                image_path, restored_local_path, damage_result["category"], contour_result
+            )
             pipeline_steps.append({
                 "step": 4,
                 "name": "修复验证",
@@ -475,6 +485,296 @@ def _mock_verification(category: str) -> dict:
         "verdict": "修复效果基本合格。主体结构恢复完整，细节区域的纹理重建基本准确。整体风格协调，可作为预览参考使用。建议进一步人工精修以达到展览级别。",
         "artifacts": ["局部纹理略模糊", "边缘过渡不够自然"],
     }
+
+
+# ============================================================
+# Step 1.5: Contour Extraction (OpenCV)
+# ============================================================
+
+def _run_contour_extraction(image_path: str) -> dict | None:
+    """提取文物纹样轮廓线，作为修复约束"""
+    try:
+        import cv2
+        import numpy as np
+
+        img = cv2.imread(image_path)
+        if img is None:
+            return None
+
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # Canny 边缘检测
+        edges = cv2.Canny(gray, 50, 150)
+        # 查找轮廓
+        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # 保留有效轮廓 (> 50 像素)
+        valid_contours = [c for c in contours if cv2.contourArea(c) > 50]
+        contour_count = len(valid_contours)
+
+        # 生成轮廓描述文本 (注入 prompt)
+        h, w = img.shape[:2]
+        contour_desc = (
+            f"该文物尺寸 {w}x{h} 像素，"
+            f"检测到 {contour_count} 条主要纹样轮廓线。"
+            f"修复时请保持轮廓结构不变，仅填充缺失纹理和颜色。"
+        )
+
+        return {
+            "contour_count": contour_count,
+            "image_size": [w, h],
+            "contour_description": contour_desc,
+        }
+    except ImportError:
+        logger.debug("OpenCV 未安装，跳过轮廓提取")
+        return None
+    except Exception as e:
+        logger.debug(f"轮廓提取异常 (非致命): {e}")
+        return None
+
+
+# ============================================================
+# Step 3: Image Restoration (updated signature)
+# ============================================================
+
+def _run_image_restoration(image_path: str, prompt: str, contour_result: dict | None = None) -> dict:
+    """调用 Wanx I2I 进行图像修复，可选注入轮廓约束"""
+    # 如果有轮廓信息，增强 prompt
+    if contour_result and contour_result.get("contour_description"):
+        enhanced_prompt = (
+            f"{prompt}\n\n【结构约束】{contour_result['contour_description']}"
+        )
+    else:
+        enhanced_prompt = prompt
+
+    # 调用原始实现 (保持向后兼容)
+    return _run_image_restoration_original(image_path, enhanced_prompt)
+
+
+def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
+    """原始的 Wanx I2I 调用 (从原 _run_image_restoration 移过来)"""
+    if mock_mode():
+        return _mock_image_restoration()
+
+    api_key = os.getenv("DASHSCOPE_API_KEY", "")
+    if not api_key:
+        raise AIServiceError("DASHSCOPE_API_KEY not configured", service="Wanx-I2I", retryable=False)
+
+    try:
+        import dashscope
+        from dashscope import ImageSynthesis
+
+        with open(image_path, "rb") as f:
+            image_b64 = base64.b64encode(f.read()).decode()
+
+        negative_prompt = "blurry, distorted, deformed, low quality, watermarks, text, ugly, unnatural colors"
+
+        response = ImageSynthesis.call(
+            model="wan2.5-i2i-preview",
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            ref_image=f"data:image/jpeg;base64,{image_b64}",
+            n=1,
+            api_key=api_key,
+        )
+
+        if response.status_code != 200:
+            raise AIServiceError(
+                f"API error: {response.code} - {response.message}",
+                service="Wanx-I2I"
+            )
+
+        # 下载生成的图片
+        images = []
+        for img_result in response.output.results:
+            img_url = img_result.get("url", "")
+            if img_url:
+                local_path = _download_generated_image(img_url, f"restored_{os.path.basename(image_path)}")
+                images.append(f"/static/generated/{os.path.basename(local_path)}")
+
+        return {"images": images, "prompt_used": prompt}
+
+    except ImportError:
+        raise AIServiceError("dashscope SDK not installed", service="Wanx-I2I", retryable=False)
+
+
+# ============================================================
+# Step 4: Enhanced Verification (new dimensions)
+# ============================================================
+
+def _run_verification_enhanced(
+    original_path: str,
+    restored_path: str,
+    category: str,
+    contour_result: dict | None = None,
+) -> dict:
+    """增强验证 — 添加 pattern_similarity 和 enhanced_style_consistency 维度"""
+    if mock_mode():
+        return _mock_verification_enhanced(category)
+
+    api_key = os.getenv("DASHSCOPE_API_KEY", "")
+    if not api_key:
+        raise AIServiceError("DASHSCOPE_API_KEY not configured", service="Qwen-VL", retryable=False)
+
+    try:
+        import dashscope
+        from dashscope import MultiModalConversation
+
+        with open(original_path, "rb") as f:
+            orig_b64 = base64.b64encode(f.read()).decode()
+        with open(restored_path, "rb") as f:
+            rest_b64 = base64.b64encode(f.read()).decode()
+
+        contour_hint = ""
+        if contour_result:
+            contour_hint = (
+                f"轮廓信息: 原图有 {contour_result.get('contour_count', '?')} 条纹样轮廓线。"
+                f"检查修复后轮廓是否保持完整。"
+            )
+
+        prompt = _ENHANCED_VERIFICATION_PROMPT.format(
+            category=category,
+            contour_hint=contour_hint,
+        )
+
+        messages = [{
+            "role": "user",
+            "content": [
+                {"image": f"data:image/jpeg;base64,{orig_b64}"},
+                {"image": f"data:image/jpeg;base64,{rest_b64}"},
+                {"text": prompt},
+            ]
+        }]
+
+        response = MultiModalConversation.call(
+            model="qwen-vl-max",
+            messages=messages,
+            api_key=api_key,
+        )
+
+        if response.status_code != 200:
+            raise AIServiceError(f"API error: {response.code}", service="Qwen-VL")
+
+        raw_text = response.output.choices[0].message.content[0]["text"]
+        return _parse_verification_enhanced(raw_text)
+
+    except ImportError:
+        raise AIServiceError("dashscope SDK not installed", service="Qwen-VL", retryable=False)
+
+
+_ENHANCED_VERIFICATION_PROMPT = """You are a cultural relic restoration expert. Compare the ORIGINAL damaged artifact image with the AI-RESTORED image and evaluate the restoration quality along 5 dimensions.
+
+Category: {category}
+{contour_hint}
+
+Return strictly in JSON format:
+{{
+  "overall_score": <1-100>,
+  "dimensions": {{
+    "detail_fidelity": <1-100, how well fine details are preserved/reconstructed>,
+    "style_consistency": <1-100, consistency of artistic style with the original>,
+    "restoration_completeness": <1-100, how thoroughly damage was repaired>,
+    "pattern_similarity": <1-100, how closely restored patterns match original contour/structure>,
+    "texture_naturalness": <1-100, whether the repaired texture looks natural vs AI-generated>
+  }},
+  "verdict": "<30-200 char summary in Chinese>",
+  "artifacts": ["<specific issue 1>", "<specific issue 2>"] or []
+}}
+
+Evaluation criteria:
+- pattern_similarity: Compare the structural outlines and pattern contours. Has the restoration preserved the original shape language?
+- texture_naturalness: Does the repaired surface look like authentic material (porcelain, silk, paper, leather, wood, etc.) or does it have an artificial "AI smoothness"?
+
+CRITICAL: Be genuinely critical. Don't give high scores just because it's AI-generated."""
+
+
+def _parse_verification_enhanced(raw_text: str) -> dict:
+    """解析增强验证 JSON 响应"""
+    text = raw_text.strip()
+    if text.startswith("```"):
+        lines = text.split("\n")
+        text = "\n".join(lines[1:-1]) if lines[-1].strip() == "```" else text
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        return {
+            "overall_score": 75,
+            "dimensions": {
+                "detail_fidelity": 75, "style_consistency": 75,
+                "restoration_completeness": 75, "pattern_similarity": 70,
+                "texture_naturalness": 70,
+            },
+            "verdict": raw_text[:300],
+            "artifacts": [],
+        }
+
+    dims = data.get("dimensions", {})
+    return {
+        "overall_score": data.get("overall_score", 75),
+        "dimensions": {
+            "detail_fidelity": dims.get("detail_fidelity", 75),
+            "style_consistency": dims.get("style_consistency", 75),
+            "restoration_completeness": dims.get("restoration_completeness", 75),
+            "pattern_similarity": dims.get("pattern_similarity", 70),
+            "texture_naturalness": dims.get("texture_naturalness", 70),
+        },
+        "verdict": data.get("verdict", ""),
+        "artifacts": data.get("artifacts", []),
+    }
+
+
+def _mock_verification_enhanced(category: str) -> dict:
+    """Mock 增强验证"""
+    base = _mock_verification(category)
+    base["dimensions"]["pattern_similarity"] = 85
+    base["dimensions"]["texture_naturalness"] = 80
+    return base
+
+
+# ============================================================
+# Local Restoration (用户框选区域修复)
+# ============================================================
+
+def run_local_restoration(image_path: str, region: dict) -> dict:
+    """
+    局部修复: 仅修复用户指定的矩形区域。
+
+    Args:
+        image_path: 原始图片路径
+        region: {{x, y, width, height}} (像素坐标)
+
+    Returns:
+        与 run_restoration_pipeline 相同格式的结果
+    """
+    import cv2
+    import numpy as np
+    from pathlib import Path
+
+    x, y, w, h = int(region["x"]), int(region["y"]), int(region["width"]), int(region["height"])
+
+    # 裁剪区域
+    img = cv2.imread(image_path)
+    if img is None:
+        raise AIServiceError("无法读取图片", service="LocalRestoration", retryable=False)
+
+    crop = img[y:y + h, x:x + w]
+    crop_path = str(Path(image_path).parent / f"crop_{Path(image_path).stem}.jpg")
+    cv2.imwrite(crop_path, crop)
+
+    # 对裁剪区域运行完整管道
+    result = run_restoration_pipeline(crop_path)
+
+    # 如果修复成功，将结果混合回原图
+    if result.get("restored_image_url"):
+        restored_crop_path = _url_to_local_path(result["restored_image_url"])
+        restored_crop = cv2.imread(restored_crop_path)
+        if restored_crop is not None:
+            restored_crop = cv2.resize(restored_crop, (w, h))
+            img[y:y + h, x:x + w] = restored_crop
+            blended_path = str(Path(image_path).parent / f"blended_{Path(image_path).stem}.jpg")
+            cv2.imwrite(blended_path, img)
+            result["restored_image_url"] = f"/static/generated/{Path(blended_path).name}"
+
+    return result
 
 
 # ============================================================

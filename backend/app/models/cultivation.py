@@ -1,6 +1,6 @@
 """修习之路 — 游戏化学习旅程模型"""
 
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Date, UniqueConstraint
+from sqlalchemy import Column, Integer, Float, String, DateTime, Text, ForeignKey, Date, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -17,6 +17,10 @@ class UserCultivation(Base):
     xp = Column(Integer, default=0)
     rank = Column(String(20), default="初窥门径")  # 初窥门径|略有小成|融会贯通|炉火纯青|一代宗师
     skill_tree_json = Column(Text, default="{}")  # {"鉴宝":{"level":1,"current":3,"threshold":5},...}
+    streak_days = Column(Integer, default=0)
+    last_active_date = Column(Date, nullable=True)
+    longest_streak = Column(Integer, default=0)
+    streak_freezes = Column(Integer, default=0)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = relationship("User", backref="cultivation")
@@ -36,6 +40,9 @@ class UserQuest(Base):
     skill_tree = Column(String(20), default="")
     xp_reward = Column(Integer, default=20)
     status = Column(String(20), default="pending")  # pending|completed|claimed
+    condition_type = Column(String(30), nullable=True)
+    condition_threshold = Column(Float, nullable=True)
+    condition_progress = Column(Float, default=0.0)
     date = Column(Date, nullable=False)
     completed_at = Column(DateTime, nullable=True)
 

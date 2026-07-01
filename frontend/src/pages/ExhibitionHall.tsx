@@ -144,6 +144,7 @@ export default function ExhibitionHall() {
         await addFavorite(itemType, item.id)
         setFavIds(prev => new Set(prev).add(favKey))
         message.success('已收藏')
+        window.dispatchEvent(new CustomEvent('cultivation:check'))
       }
     } catch (err: any) {
       message.error(err.message || '操作失败')

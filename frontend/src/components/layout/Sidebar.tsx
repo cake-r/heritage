@@ -11,6 +11,7 @@ import {
   ToolOutlined,
   IdcardOutlined,
   TrophyOutlined,
+  SettingOutlined,
 } from '@ant-design/icons'
 
 interface Props {
@@ -21,22 +22,37 @@ interface Props {
   onNavigate?: () => void
 }
 
-const menuItems = [
-  { key: '/', icon: <HomeOutlined />, label: '首页' },
-  { key: '/recognition', icon: <CameraOutlined />, label: '智能识别' },
-  { key: '/creative-studio', icon: <PictureOutlined />, label: '文创生成' },
-  { key: '/workshop', icon: <MessageOutlined />, label: '技艺工坊' },
-  { key: '/restoration', icon: <ToolOutlined />, label: '文物修复' },
-  { key: '/exhibition', icon: <BankOutlined />, label: '数字展厅' },
-  { key: '/knowledge-graph', icon: <NodeIndexOutlined />, label: '文化图谱' },
-  { key: '/passport', icon: <IdcardOutlined />, label: '数字护照' },
-  { key: '/cultivation', icon: <TrophyOutlined />, label: '修习之路' },
-  { key: '/user-center', icon: <UserOutlined />, label: '个人中心' },
-]
+function getMenuItems(): Array<{ key: string; icon: React.ReactNode; label: string }> {
+  const items = [
+    { key: '/', icon: <HomeOutlined />, label: '首页' },
+    { key: '/recognition', icon: <CameraOutlined />, label: '智能识别' },
+    { key: '/creative-studio', icon: <PictureOutlined />, label: '文创生成' },
+    { key: '/workshop', icon: <MessageOutlined />, label: '技艺工坊' },
+    { key: '/restoration', icon: <ToolOutlined />, label: '文物修复' },
+    { key: '/exhibition', icon: <BankOutlined />, label: '数字展厅' },
+    { key: '/knowledge-graph', icon: <NodeIndexOutlined />, label: '文化图谱' },
+    { key: '/passport', icon: <IdcardOutlined />, label: '数字护照' },
+    { key: '/cultivation', icon: <TrophyOutlined />, label: '修习之路' },
+    { key: '/user-center', icon: <UserOutlined />, label: '个人中心' },
+  ]
+
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    if (user.role === 'admin') {
+      items.push({ key: '/admin', icon: <SettingOutlined />, label: '管理后台' })
+    }
+  } catch {
+    // ignore
+  }
+
+  return items
+}
 
 export default function Sidebar({ collapsed, mobile, open, onClose, onNavigate }: Props) {
   const navigate = useNavigate()
   const location = useLocation()
+
+  const menuItems = getMenuItems()
 
   const selectedKey = '/' + (location.pathname.split('/')[1] || '')
 
