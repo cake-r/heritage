@@ -24,53 +24,58 @@ const GeneCard: React.FC<Props> = ({ gene, selected, onClick }) => {
       size="small"
       onClick={onClick}
       style={{
-        width: 160,
+        width: 180,
         border: selected ? `2px solid ${meaningColor}` : '1px solid #e8e0d5',
-        borderRadius: 8,
+        borderRadius: 10,
         cursor: 'pointer',
         transition: 'all 0.2s',
-        boxShadow: selected ? `0 0 12px ${meaningColor}40` : undefined,
+        boxShadow: selected ? `0 0 14px ${meaningColor}40` : undefined,
       }}
-      bodyStyle={{ padding: '12px' }}
+      bodyStyle={{ padding: '14px' }}
     >
       {/* SVG 预览 */}
       <div
         style={{
           width: '100%',
-          height: 80,
+          height: 100,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           background: '#FAF7F2',
-          borderRadius: 6,
-          marginBottom: 8,
+          borderRadius: 8,
+          marginBottom: 10,
           overflow: 'hidden',
         }}
       >
         <svg
           viewBox={gene.svg_viewbox || '0 0 100 100'}
-          width="64"
-          height="64"
+          width="80"
+          height="80"
+          style={{ overflow: 'visible' }}
           dangerouslySetInnerHTML={{ __html: gene.svg_content }}
         />
       </div>
 
       {/* 纹样名称 */}
-      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6, textAlign: 'center' }}>
+      <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
         {gene.name}
       </div>
 
       {/* 标签 */}
       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
         <Tooltip title={`形制: ${gene.shape_category}`}>
-          <Tag color="blue" style={{ fontSize: 11, margin: 0 }}>{gene.shape_category}</Tag>
+          <Tag color="blue" style={{ fontSize: 12, margin: 0, padding: '0 8px', lineHeight: '20px' }}>
+            {gene.shape_category}
+          </Tag>
         </Tooltip>
         <Tooltip title={`寓意: ${gene.meaning}`}>
-          <Tag color="volcano" style={{ fontSize: 11, margin: 0 }}>{gene.meaning}</Tag>
+          <Tag color="volcano" style={{ fontSize: 12, margin: 0, padding: '0 8px', lineHeight: '20px' }}>
+            {gene.meaning}
+          </Tag>
         </Tooltip>
         {gene.era && (
           <Tooltip title={`年代: ${gene.era}`}>
-            <Tag style={{ fontSize: 11, margin: 0 }}>{gene.era}</Tag>
+            <Tag style={{ fontSize: 12, margin: 0, padding: '0 8px', lineHeight: '20px' }}>{gene.era}</Tag>
           </Tooltip>
         )}
       </div>

@@ -85,31 +85,31 @@ interface Props {
 const CarrierTemplateSelector: React.FC<Props> = ({ selected, onSelect }) => {
   return (
     <div>
-      <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>
+      <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 8 }}>
         载体模板
       </Text>
       <Row gutter={[8, 8]}>
         {CARRIER_TEMPLATES.map((tpl) => (
-          <Col span={24} key={tpl.key}>
+          <Col xs={24} sm={12} key={tpl.key}>
             <Card
               hoverable
               size="small"
               onClick={() => onSelect(tpl.key)}
               style={{
                 border: selected === tpl.key ? '2px solid var(--color-vermilion, #B8463A)' : '1px solid #e8e0d5',
-                borderRadius: 6,
+                borderRadius: 8,
                 cursor: 'pointer',
                 background: selected === tpl.key ? '#FFF5F5' : '#fff',
               }}
-              bodyStyle={{ padding: '8px 12px' }}
+              bodyStyle={{ padding: '10px 14px' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 18, color: 'var(--color-vermilion, #B8463A)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 22, color: 'var(--color-vermilion, #B8463A)' }}>
                   {tpl.icon}
                 </span>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 500 }}>{tpl.name}</div>
-                  <Text type="secondary" style={{ fontSize: 11 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>{tpl.name}</div>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
                     {tpl.description}
                   </Text>
                 </div>

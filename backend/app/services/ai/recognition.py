@@ -133,7 +133,14 @@ Important rules:
 - confidence: reflect how certain you are. 0.85+ for clear matches, 0.5-0.85 for plausible but uncertain, below 0.5 only for pure guesses.
 - top3 confidences MUST sum to 1.0.
 - features: list 3-5 observable craft techniques or visual characteristics (can be general like "手工制作痕迹", "传统纹样装饰" for uncertain images).
-- pattern_names: list up to 5 traditional Chinese decorative patterns/motifs visible in the image. Common patterns include: 云纹, 回纹, 饕餮纹, 缠枝纹, 莲花纹, 蝙蝠纹, 如意纹, 牡丹纹, 龙凤纹, 卷草纹, 水波纹, 铜钱纹, 方胜纹, 寿字纹, 万字纹, 盘长纹, 冰裂纹, 火焰纹, 龟背纹, 宝相花纹, 团花纹, 博古纹, 梅花纹, 竹纹, 锁子纹, 八卦纹, 菱格纹. Return empty array only if absolutely no patterns visible.
+- pattern_names: list up to 5 traditional Chinese decorative patterns/motifs visible in the image from this catalog:
+  几何纹(18): 回纹 方胜纹 龟背纹 冰裂纹 锁子纹 铜钱纹 八卦纹 菱格纹 条纹边饰 联珠纹 球路纹 八达晕纹 方棋纹 矩纹 绳纹 鳞纹 弦纹 席纹
+  动物纹(16): 饕餮纹 龙纹 凤纹 蝙蝠纹 鱼纹 蝴蝶纹 鹤纹 鹿纹 麒麟纹 狮纹 鸳鸯纹 喜鹊纹 孔雀纹 蝉纹 虎纹 象纹
+  植物纹(16): 缠枝纹 莲花纹 牡丹纹 卷草纹 梅花纹 竹纹 菊花纹 兰花纹 石榴纹 松纹 灵芝纹 葫芦纹 葡萄纹 桃花纹 蕉叶纹 忍冬纹
+  云水纹(12): 祥云纹 水波纹 火焰纹 雷纹 涡纹 江崖纹 海涛纹 流云纹 朵云纹 星纹 霞纹 卷云纹
+  吉祥文字纹(10): 寿字纹 万字纹 如意纹 盘长纹 双喜纹 福字纹 禄字纹 太极纹 璎珞纹 八吉纹
+  综合纹(13): 宝相花纹 团花纹 博古纹 暗八仙纹 皮球花纹 四季花纹 落花流水纹 五福捧寿纹 瓜瓞绵绵纹 岁寒三友纹 福寿双全纹 喜上眉梢纹 连生贵子纹
+  Return empty array only if absolutely no patterns visible.
 
 ICH categories (pick the closest one, return ONLY the category name without prefix):
 刺绣: 苏绣, 湘绣, 蜀绣, 粤绣, 京绣, 杭绣, 顾绣, 苗绣

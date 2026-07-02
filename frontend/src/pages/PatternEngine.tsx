@@ -134,7 +134,7 @@ export default function PatternEngine() {
   const loadAllGenes = async () => {
     try {
       const { listGenes } = await import('../services/patternEngine')
-      const result = await listGenes({ page_size: 50 })
+      const result = await listGenes({ page_size: 100 })
       setAllGenes(result.items)
     } catch (err) {
       message.error('加载基因库失败')
@@ -145,11 +145,11 @@ export default function PatternEngine() {
   const genesForWorkbench = matchedGenes.length > 0 ? matchedGenes : allGenes
 
   return (
-    <div style={{ maxWidth: 1300, margin: '0 auto' }}>
+    <div style={{ maxWidth: 1400, margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <Title level={3} style={{ margin: 0 }}>
-          <ExperimentOutlined style={{ marginRight: 8, color: 'var(--color-vermilion, #B8463A)' }} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <Title level={3} style={{ margin: 0, fontSize: 22 }}>
+          <ExperimentOutlined style={{ marginRight: 10, color: 'var(--color-vermilion, #B8463A)', fontSize: 24 }} />
           纹样基因重组引擎
         </Title>
         {step === 'workbench' && (
@@ -179,22 +179,22 @@ export default function PatternEngine() {
               accept=".jpg,.jpeg,.png,.webp"
               showUploadList={false}
               beforeUpload={handleUpload as any}
-              style={{ padding: '40px 20px' }}
+              style={{ padding: '48px 20px' }}
             >
               <p className="ant-upload-drag-icon">
-                <InboxOutlined style={{ fontSize: 48, color: 'var(--color-vermilion, #B8463A)' }} />
+                <InboxOutlined style={{ fontSize: 52, color: 'var(--color-vermilion, #B8463A)' }} />
               </p>
-              <p className="ant-upload-text" style={{ fontSize: 16 }}>
+              <p className="ant-upload-text" style={{ fontSize: 17 }}>
                 点击或拖拽上传非遗图片
               </p>
-              <p className="ant-upload-hint">
+              <p className="ant-upload-hint" style={{ fontSize: 14 }}>
                 支持 JPG / PNG / WebP，最大 10MB
               </p>
             </Dragger>
 
             {/* 快速体验 */}
             <div style={{ marginTop: 24 }}>
-              <Text type="secondary" style={{ display: 'block', marginBottom: 12, textAlign: 'center' }}>
+              <Text style={{ display: 'block', marginBottom: 12, textAlign: 'center', fontSize: 14, color: '#888' }}>
                 或选择快速体验样本
               </Text>
               <Row gutter={12} justify="center">
@@ -203,11 +203,11 @@ export default function PatternEngine() {
                     <Card
                       hoverable size="small"
                       onClick={() => handleSample(s)}
-                      style={{ borderRadius: 8, textAlign: 'center', width: 140 }}
-                      bodyStyle={{ padding: '12px 16px' }}
+                      style={{ borderRadius: 10, textAlign: 'center', width: 150 }}
+                      bodyStyle={{ padding: '14px 18px' }}
                     >
-                      <div style={{ fontSize: 28, marginBottom: 4 }}>{s.icon}</div>
-                      <div style={{ fontSize: 13 }}>{s.label}</div>
+                      <div style={{ fontSize: 32, marginBottom: 6 }}>{s.icon}</div>
+                      <div style={{ fontSize: 14, fontWeight: 500 }}>{s.label}</div>
                     </Card>
                   </Col>
                 ))}
@@ -216,7 +216,7 @@ export default function PatternEngine() {
 
             {/* 从识别结果页跳转提示 */}
             <div style={{ marginTop: 20, textAlign: 'center' }}>
-              <Text type="secondary" style={{ fontSize: 12 }}>
+              <Text type="secondary" style={{ fontSize: 13 }}>
                 也可以从「识物品鉴」结果页点击「纹样基因重组」跳转至此
               </Text>
             </div>
@@ -231,18 +231,18 @@ export default function PatternEngine() {
             <img
               src={normalizeImageUrl(previewImage)}
               alt="预览"
-              style={{ maxWidth: 300, maxHeight: 300, borderRadius: 12, marginBottom: 24, objectFit: 'cover' }}
+              style={{ maxWidth: 320, maxHeight: 320, borderRadius: 12, marginBottom: 24, objectFit: 'cover' }}
             />
           )}
           <Spin size="large" />
           <div style={{ marginTop: 16 }}>
-            <Text type="secondary">
+            <Text type="secondary" style={{ fontSize: 15 }}>
               AI 正在识别图片中的传统纹样...
             </Text>
           </div>
           {uploadProgress > 0 && uploadProgress < 100 && (
             <div style={{ marginTop: 8 }}>
-              <Text type="secondary" style={{ fontSize: 12 }}>
+              <Text type="secondary" style={{ fontSize: 13 }}>
                 上传进度: {uploadProgress}%
               </Text>
             </div>
@@ -260,13 +260,15 @@ export default function PatternEngine() {
           carrierKey={carrierKey}
           onCarrierChange={setCarrierKey}
           onStartWorkbench={() => {
-            if (matchedGenes.length === 0) {
+            if (matchedGenes.length === 0 && allGenes.length === 0) {
               loadAllGenes().then(() => setStep('workbench'))
             } else {
               setStep('workbench')
             }
           }}
-          onLoadAll={loadAllGenes}
+          onLoadAll={() => {
+            loadAllGenes().then(() => setStep('workbench'))
+          }}
           onRetry={() => setStep('upload')}
         />
       )}
@@ -310,15 +312,15 @@ function GenesStep({
           />
         )}
         {recognitionResult && (
-          <Card size="small" style={{ marginBottom: 16, borderRadius: 8 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+          <Card size="small" style={{ marginBottom: 16, borderRadius: 10 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
               识别结果
             </div>
-            <div style={{ fontSize: 12, color: '#888' }}>
+            <div style={{ fontSize: 13, color: '#666' }}>
               品类: {recognitionResult.category} ({(recognitionResult.confidence * 100).toFixed(0)}%)
             </div>
             {recognitionResult.features.length > 0 && (
-              <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
+              <div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>
                 工艺: {recognitionResult.features.join('、')}
               </div>
             )}
@@ -334,12 +336,7 @@ function GenesStep({
             onClick={onStartWorkbench}>
             进入工作台创作
           </Button>
-          {matchedGenes.length === 0 && (
-            <Button block onClick={onLoadAll}>
-              加载全部纹样基因库
-            </Button>
-          )}
-          <Button block onClick={onRetry} icon={<ReloadOutlined />}>
+          <Button block icon={<ReloadOutlined />} onClick={onRetry}>
             重新上传图片
           </Button>
         </div>
@@ -347,17 +344,17 @@ function GenesStep({
 
       {/* Right: Gene Cards */}
       <Col xs={24} md={16}>
-        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 14 }}>
           识别到的纹样基因
           {matchedGenes.length > 0 && (
-            <Text type="secondary" style={{ fontSize: 12, marginLeft: 8 }}>
+            <Text type="secondary" style={{ fontSize: 13, marginLeft: 8 }}>
               ({matchedGenes.length} 个匹配)
             </Text>
           )}
         </div>
 
         {matchedGenes.length > 0 ? (
-          <Row gutter={[12, 12]}>
+          <Row gutter={[14, 14]}>
             {matchedGenes.map(gene => (
               <Col key={gene.gene_id}>
                 <GeneCard gene={gene} />
@@ -368,19 +365,26 @@ function GenesStep({
           <Empty
             description={
               unmatchedNames.length > 0
-                ? `未匹配到纹样: ${unmatchedNames.join('、')}。请手动加载基因库`
+                ? `未匹配到纹样: ${unmatchedNames.join('、')}`
                 : '未检测到传统纹样，请尝试其他图片或手动加载基因库'
             }
-            style={{ padding: '40px 0' }}
+            style={{ padding: '48px 0' }}
           />
         )}
 
         {unmatchedNames.length > 0 && (
-          <div style={{ marginTop: 16, padding: 12, background: '#FFFBE6', borderRadius: 8, border: '1px solid #FFE58F' }}>
-            <Text type="warning" style={{ fontSize: 12 }}>
+          <div style={{ marginTop: 16, padding: 14, background: '#FFFBE6', borderRadius: 10, border: '1px solid #FFE58F' }}>
+            <Text style={{ fontSize: 13, color: '#AD6800' }}>
               AI 返回但未匹配到的纹样: {unmatchedNames.join('、')}
-              （可手动从基因库中选择补充）
             </Text>
+          </div>
+        )}
+
+        {matchedGenes.length === 0 && (
+          <div style={{ marginTop: 16, textAlign: 'center' }}>
+            <Button type="link" onClick={onLoadAll} style={{ fontSize: 14 }}>
+              加载全部纹样基因库 ({unmatchedNames.length > 0 ? '含' + unmatchedNames.length + '个未匹配的供参考' : '浏览所有纹样'})
+            </Button>
           </div>
         )}
       </Col>

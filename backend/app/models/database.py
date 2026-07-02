@@ -103,6 +103,9 @@ def init_db():
     # 自动种子纹样基因库
     _seed_pattern_genes_if_empty()
 
+    # 增量迁移: 已有数据的库也需要新增纹样
+    _migrate_pattern_genes()
+
 
 def _seed_heritage_if_empty():
     """如果 heritage_items 表为空, 自动从 JSON 导入种子数据
@@ -186,6 +189,57 @@ def _seed_pattern_genes_if_empty():
     except Exception as e:
         db.rollback()
         print(f"[init_db] 纹样基因库导入失败: {e}")
+    finally:
+        db.close()
+
+
+def _migrate_pattern_genes():
+    """增量迁移: 将 pattern_genes.json 中新增的纹样插入已有数据库
+
+    与 _seed_pattern_genes_if_empty() 不同, 此函数仅插入缺失的 gene_id,
+    不影响已存在的纹样数据。适用于已有部署升级场景。
+    """
+    import json
+    from pathlib import Path
+
+    json_path = BASE_DIR / "data" / "knowledge" / "pattern_genes.json"
+    if not json_path.exists():
+        return
+
+    db = SessionLocal()
+    try:
+        from app.models.pattern_gene import PatternGene
+
+        with open(json_path, "r", encoding="utf-8") as f:
+            genes = json.load(f)
+
+        existing_ids = {g[0] for g in db.query(PatternGene.gene_id).all()}
+        new_count = 0
+
+        for g in genes:
+            if g["gene_id"] not in existing_ids:
+                pg = PatternGene(
+                    gene_id=g["gene_id"],
+                    name=g["name"],
+                    shape_category=g["shape_category"],
+                    meaning=g.get("meaning"),
+                    era=g.get("era"),
+                    region=g.get("region"),
+                    description=g.get("description"),
+                    svg_viewbox=g.get("svg_viewbox", "0 0 100 100"),
+                    svg_content=g.get("svg_content", ""),
+                    default_color=g.get("default_color", "#B8463A"),
+                    tags_json=json.dumps(g.get("tags", []), ensure_ascii=False),
+                )
+                db.add(pg)
+                new_count += 1
+
+        if new_count > 0:
+            db.commit()
+            print(f"[init_db] 纹样基因库增量迁移: 新增 {new_count} 个纹样")
+    except Exception as e:
+        db.rollback()
+        print(f"[init_db] 纹样基因库增量迁移失败: {e}")
     finally:
         db.close()
 

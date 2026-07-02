@@ -10,7 +10,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<rect x='10' y='10' width='80' height='80' rx='0' fill='none' stroke='#B8463A' stroke-width='3'/><rect x='20' y='20' width='60' height='60' fill='none' stroke='#B8463A' stroke-width='3'/><rect x='30' y='30' width='40' height='40' fill='none' stroke='#B8463A' stroke-width='3'/><rect x='40' y='40' width='20' height='20' fill='none' stroke='#B8463A' stroke-width='3'/><line x1='10' y1='50' x2='20' y2='50' stroke='#B8463A' stroke-width='3'/><line x1='80' y1='50' x2='90' y2='50' stroke='#B8463A' stroke-width='3'/><line x1='50' y1='10' x2='50' y2='20' stroke='#B8463A' stroke-width='3'/><line x1='50' y1='80' x2='50' y2='90' stroke='#B8463A' stroke-width='3'/>",
     "default_color": "#B8463A",
-    "tags": ["回字", "雷纹", "几何", "边框", "青铜器"]
+    "tags": [
+      "回字",
+      "雷纹",
+      "几何",
+      "边框",
+      "青铜器"
+    ]
   },
   {
     "gene_id": "fangsheng_001",
@@ -23,7 +29,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<polygon points='50,5 85,40 50,75 15,40' fill='none' stroke='#C4A265' stroke-width='3'/><polygon points='50,25 85,60 50,95 15,60' fill='none' stroke='#B8463A' stroke-width='3'/>",
     "default_color": "#C4A265",
-    "tags": ["菱形", "压角", "同心", "织锦", "双合"]
+    "tags": [
+      "菱形",
+      "压角",
+      "同心",
+      "织锦",
+      "双合"
+    ]
   },
   {
     "gene_id": "tortoise_001",
@@ -36,7 +48,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<polygon points='50,5 87,25 87,60 50,80 13,60 13,25' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><polygon points='50,20 74,35 74,55 50,70 26,55 26,35' fill='none' stroke='#5B8C5A' stroke-width='2'/><line x1='50' y1='5' x2='50' y2='20' stroke='#5B8C5A' stroke-width='2'/><line x1='87' y1='25' x2='74' y2='35' stroke='#5B8C5A' stroke-width='2'/><line x1='87' y1='60' x2='74' y2='55' stroke='#5B8C5A' stroke-width='2'/><line x1='50' y1='80' x2='50' y2='70' stroke='#5B8C5A' stroke-width='2'/><line x1='13' y1='60' x2='26' y2='55' stroke='#5B8C5A' stroke-width='2'/><line x1='13' y1='25' x2='26' y2='35' stroke='#5B8C5A' stroke-width='2'/>",
     "default_color": "#5B8C5A",
-    "tags": ["六边形", "龟甲", "长寿", "四方连续", "玄武"]
+    "tags": [
+      "六边形",
+      "龟甲",
+      "长寿",
+      "四方连续",
+      "玄武"
+    ]
   },
   {
     "gene_id": "icecrack_001",
@@ -49,7 +67,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M10,10 L40,15 L35,50 L15,45 Z' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M40,15 L70,5 L80,35 L50,45 L35,50' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M70,5 L95,20 L85,55 L80,35' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M15,45 L35,50 L25,80 L5,75 Z' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M35,50 L50,45 L65,70 L45,85 L25,80' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M50,45 L80,35 L85,55 L65,70' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M5,75 L25,80 L20,98' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M25,80 L45,85 L50,98' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M45,85 L65,70 L80,90 L60,98' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M80,35 L85,55 L98,60' fill='none' stroke='#7BA3D6' stroke-width='2'/>",
     "default_color": "#7BA3D6",
-    "tags": ["冰裂", "哥窑", "瓷器", "不规则", "开片"]
+    "tags": [
+      "冰裂",
+      "哥窑",
+      "瓷器",
+      "不规则",
+      "开片"
+    ]
   },
   {
     "gene_id": "chainmail_001",
@@ -62,7 +86,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<circle cx='25' cy='20' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='50' cy='20' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='75' cy='20' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='37' cy='42' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='62' cy='42' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='25' cy='64' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='50' cy='64' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='75' cy='64' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='37' cy='86' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='62' cy='86' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/>",
     "default_color": "#8B7355",
-    "tags": ["环扣", "甲胄", "连环", "坚固", "网状"]
+    "tags": [
+      "环扣",
+      "甲胄",
+      "连环",
+      "坚固",
+      "网状"
+    ]
   },
   {
     "gene_id": "coin_001",
@@ -75,7 +105,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<circle cx='50' cy='50' r='38' fill='none' stroke='#C4A265' stroke-width='4'/><rect x='38' y='38' width='24' height='24' fill='none' stroke='#C4A265' stroke-width='3'/><circle cx='50' cy='50' r='28' fill='none' stroke='#C4A265' stroke-width='1.5' stroke-dasharray='3,3'/>",
     "default_color": "#C4A265",
-    "tags": ["天圆地方", "财富", "外圆内方", "年画", "古钱"]
+    "tags": [
+      "天圆地方",
+      "财富",
+      "外圆内方",
+      "年画",
+      "古钱"
+    ]
   },
   {
     "gene_id": "bagua_001",
@@ -88,7 +124,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<circle cx='50' cy='50' r='40' fill='none' stroke='#1E1B18' stroke-width='2.5'/><circle cx='50' cy='50' r='25' fill='none' stroke='#1E1B18' stroke-width='1.5'/><circle cx='50' cy='50' r='4' fill='#1E1B18'/><circle cx='50' cy='50' r='2' fill='#F5F0E8'/><path d='M50,10 A40,40 0 0,1 50,90' fill='#1E1B18'/><circle cx='35' cy='30' r='3' fill='#F5F0E8'/><circle cx='65' cy='70' r='3' fill='#1E1B18'/>",
     "default_color": "#1E1B18",
-    "tags": ["八卦", "太极", "易经", "道教", "阴阳"]
+    "tags": [
+      "八卦",
+      "太极",
+      "易经",
+      "道教",
+      "阴阳"
+    ]
   },
   {
     "gene_id": "taotie_001",
@@ -101,7 +143,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<circle cx='30' cy='35' r='8' fill='#B8463A'/><circle cx='70' cy='35' r='8' fill='#B8463A'/><circle cx='30' cy='35' r='4' fill='#F5F0E8'/><circle cx='70' cy='35' r='4' fill='#F5F0E8'/><path d='M15,25 Q25,10 50,15 Q75,10 85,25' fill='none' stroke='#B8463A' stroke-width='3'/><path d='M20,55 L50,65 L80,55' fill='none' stroke='#B8463A' stroke-width='3'/><path d='M50,65 L50,85' stroke='#B8463A' stroke-width='3'/><path d='M33,50 Q50,45 67,50' fill='none' stroke='#B8463A' stroke-width='2'/><path d='M15,70 Q30,75 50,70 Q70,75 85,70' fill='none' stroke='#B8463A' stroke-width='2.5'/>",
     "default_color": "#B8463A",
-    "tags": ["兽面", "青铜器", "对称", "威严", "祭祀"]
+    "tags": [
+      "兽面",
+      "青铜器",
+      "对称",
+      "威严",
+      "祭祀"
+    ]
   },
   {
     "gene_id": "dragon_001",
@@ -114,7 +162,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M20,50 Q35,15 50,30 Q65,15 80,50' fill='none' stroke='#B8463A' stroke-width='3.5'/><circle cx='80' cy='50' r='5' fill='#B8463A'/><circle cx='85' cy='48' r='1.5' fill='#F5F0E8'/><path d='M22,58 Q30,70 20,80' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M28,55 Q35,65 38,75' fill='none' stroke='#B8463A' stroke-width='2'/><path d='M15,55 Q10,60 12,68' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M18,50 Q8,45 10,35' fill='none' stroke='#C4A265' stroke-width='2'/>",
     "default_color": "#B8463A",
-    "tags": ["龙", "皇权", "夔龙", "鳞虫", "四灵"]
+    "tags": [
+      "龙",
+      "皇权",
+      "夔龙",
+      "鳞虫",
+      "四灵"
+    ]
   },
   {
     "gene_id": "phoenix_001",
@@ -127,7 +181,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M50,85 Q55,60 65,50 Q70,45 68,40' fill='none' stroke='#B8463A' stroke-width='3'/><circle cx='68' cy='38' r='4' fill='#B8463A'/><circle cx='69' cy='36' r='1.2' fill='#F5F0E8'/><path d='M68,35 Q62,30 55,32' fill='none' stroke='#C4A265' stroke-width='2.5'/><path d='M50,85 Q30,70 25,55 Q20,40 30,35' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M25,55 Q15,50 12,58' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M23,50 Q10,42 15,35' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M30,35 Q35,25 40,28' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M65,50 Q80,45 85,55' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M85,55 Q92,60 88,70' fill='none' stroke='#C4A265' stroke-width='2'/>",
     "default_color": "#B8463A",
-    "tags": ["凤", "百鸟之王", "龙凤呈祥", "尾羽", "吉祥"]
+    "tags": [
+      "凤",
+      "百鸟之王",
+      "龙凤呈祥",
+      "尾羽",
+      "吉祥"
+    ]
   },
   {
     "gene_id": "bat_001",
@@ -140,7 +200,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M50,65 Q50,50 35,40 Q25,32 20,38 Q18,45 28,48 Q25,42 30,38' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M50,65 Q50,50 65,40 Q75,32 80,38 Q82,45 72,48 Q75,42 70,38' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M50,65 Q50,55 45,48 Q42,44 45,40' fill='none' stroke='#B8463A' stroke-width='2'/><path d='M50,65 Q50,55 55,48 Q58,44 55,40' fill='none' stroke='#B8463A' stroke-width='2'/><circle cx='50' cy='68' r='3' fill='#B8463A'/><path d='M15,40 Q10,35 12,28 Q15,25 18,30' fill='none' stroke='#C4A265' stroke-width='1.5'/><path d='M85,40 Q90,35 88,28 Q85,25 82,30' fill='none' stroke='#C4A265' stroke-width='1.5'/>",
     "default_color": "#B8463A",
-    "tags": ["蝠", "福", "五福", "谐音", "民间"]
+    "tags": [
+      "蝠",
+      "福",
+      "五福",
+      "谐音",
+      "民间"
+    ]
   },
   {
     "gene_id": "fish_001",
@@ -153,7 +219,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M30,50 Q20,30 45,35 Q60,38 75,30 Q80,40 70,50 Q80,60 75,70 Q60,62 45,65 Q20,70 30,50 Z' fill='none' stroke='#B8463A' stroke-width='3'/><circle cx='40' cy='46' r='3' fill='#B8463A'/><circle cx='41' cy='45' r='1.2' fill='#F5F0E8'/><path d='M75,30 Q82,22 85,28' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M75,70 Q82,78 85,72' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M22,35 Q15,30 12,38' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M22,65 Q15,70 12,62' fill='none' stroke='#C4A265' stroke-width='2'/>",
     "default_color": "#B8463A",
-    "tags": ["鱼", "年年有余", "双鱼", "金鱼", "谐音"]
+    "tags": [
+      "鱼",
+      "年年有余",
+      "双鱼",
+      "金鱼",
+      "谐音"
+    ]
   },
   {
     "gene_id": "butterfly_001",
@@ -166,7 +238,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<ellipse cx='35' cy='40' rx='18' ry='12' fill='none' stroke='#D4A0C0' stroke-width='2.5' transform='rotate(-20,35,40)'/><ellipse cx='65' cy='40' rx='18' ry='12' fill='none' stroke='#D4A0C0' stroke-width='2.5' transform='rotate(20,65,40)'/><ellipse cx='35' cy='60' rx='10' ry='15' fill='none' stroke='#C080A0' stroke-width='2.5' transform='rotate(10,35,60)'/><ellipse cx='65' cy='60' rx='10' ry='15' fill='none' stroke='#C080A0' stroke-width='2.5' transform='rotate(-10,65,60)'/><line x1='50' y1='30' x2='50' y2='78' stroke='#8B6B7A' stroke-width='2.5'/><path d='M47,25 Q50,15 53,25' fill='none' stroke='#D4A0C0' stroke-width='1.5'/><path d='M46,22 Q50,10 54,22' fill='none' stroke='#D4A0C0' stroke-width='1.5'/>",
     "default_color": "#D4A0C0",
-    "tags": ["蝴蝶", "蝶恋花", "爱情", "梁祝", "自然"]
+    "tags": [
+      "蝴蝶",
+      "蝶恋花",
+      "爱情",
+      "梁祝",
+      "自然"
+    ]
   },
   {
     "gene_id": "vine_001",
@@ -179,7 +257,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M5,50 Q25,20 50,50 Q75,80 95,50' fill='none' stroke='#5B8C5A' stroke-width='3'/><path d='M25,35 Q30,25 38,28' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='38' cy='28' r='5' fill='none' stroke='#B8463A' stroke-width='2'/><path d='M50,50 Q55,65 48,72' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='48' cy='72' r='4' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M75,65 Q80,55 85,58' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='85' cy='58' r='5' fill='none' stroke='#B8463A' stroke-width='2'/><path d='M10,42 Q8,35 3,38' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='5' cy='38' r='3' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><path d='M90,45 Q95,38 98,42' fill='none' stroke='#5B8C5A' stroke-width='2'/>",
     "default_color": "#5B8C5A",
-    "tags": ["藤蔓", "缠枝", "生生不息", "卷草", "连续"]
+    "tags": [
+      "藤蔓",
+      "缠枝",
+      "生生不息",
+      "卷草",
+      "连续"
+    ]
   },
   {
     "gene_id": "lotus_001",
@@ -192,7 +276,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<ellipse cx='50' cy='30' rx='12' ry='20' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><ellipse cx='35' cy='35' rx='10' ry='18' fill='none' stroke='#E8A0B0' stroke-width='2.5' transform='rotate(-30,35,35)'/><ellipse cx='65' cy='35' rx='10' ry='18' fill='none' stroke='#E8A0B0' stroke-width='2.5' transform='rotate(30,65,35)'/><ellipse cx='28' cy='45' rx='8' ry='14' fill='none' stroke='#D08090' stroke-width='2.5' transform='rotate(-55,28,45)'/><ellipse cx='72' cy='45' rx='8' ry='14' fill='none' stroke='#D08090' stroke-width='2.5' transform='rotate(55,72,45)'/><ellipse cx='50' cy='55' rx='15' ry='4' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='50' cy='55' r='3' fill='#C4A265'/><circle cx='50' cy='55' r='1.5' fill='#F5F0E8'/>",
     "default_color": "#E8A0B0",
-    "tags": ["莲花", "佛教", "纯洁", "君子", "荷花"]
+    "tags": [
+      "莲花",
+      "佛教",
+      "纯洁",
+      "君子",
+      "荷花"
+    ]
   },
   {
     "gene_id": "peony_001",
@@ -205,7 +295,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<circle cx='50' cy='50' r='35' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M50,18 Q55,30 60,35 Q55,40 50,45 Q45,40 40,35 Q45,30 50,18 Z' fill='none' stroke='#D4606A' stroke-width='2'/><path d='M25,35 Q30,25 40,30 Q35,38 30,45 Q22,40 25,35 Z' fill='none' stroke='#D4606A' stroke-width='2'/><path d='M75,35 Q70,25 60,30 Q65,38 70,45 Q78,40 75,35 Z' fill='none' stroke='#D4606A' stroke-width='2'/><path d='M30,65 Q40,55 50,60 Q60,55 70,65 Q55,70 50,68 Q45,70 30,65 Z' fill='none' stroke='#C4A265' stroke-width='1.5'/><path d='M50,60 L50,82' stroke='#5B8C5A' stroke-width='2'/><circle cx='47' cy='50' r='4' fill='#C4A265'/><circle cx='47' cy='49' r='1.5' fill='#F5F0E8'/>",
     "default_color": "#B8463A",
-    "tags": ["牡丹", "花王", "富贵", "国色天香", "唐代"]
+    "tags": [
+      "牡丹",
+      "花王",
+      "富贵",
+      "国色天香",
+      "唐代"
+    ]
   },
   {
     "gene_id": "scrollgrass_001",
@@ -218,7 +314,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M5,65 Q25,35 35,55 Q45,75 65,45 Q85,15 95,40' fill='none' stroke='#5B8C5A' stroke-width='3'/><ellipse cx='35' cy='45' rx='6' ry='10' fill='none' stroke='#5B8C5A' stroke-width='2' transform='rotate(-30,35,45)'/><ellipse cx='65' cy='55' rx='5' ry='9' fill='none' stroke='#5B8C5A' stroke-width='2' transform='rotate(40,65,55)'/><ellipse cx='20' cy='55' rx='4' ry='7' fill='none' stroke='#7BA86A' stroke-width='2' transform='rotate(-50,20,55)'/><ellipse cx='80' cy='35' rx='5' ry='8' fill='none' stroke='#7BA86A' stroke-width='2' transform='rotate(20,80,35)'/><circle cx='45' cy='60' r='3' fill='#C4A265'/>",
     "default_color": "#5B8C5A",
-    "tags": ["唐草", "忍冬", "S形", "西域", "繁荣"]
+    "tags": [
+      "唐草",
+      "忍冬",
+      "S形",
+      "西域",
+      "繁荣"
+    ]
   },
   {
     "gene_id": "plumblossom_001",
@@ -231,7 +333,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<circle cx='50' cy='50' r='5' fill='#C4A265'/><circle cx='50' cy='28' r='8' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><circle cx='72' cy='42' r='8' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><circle cx='63' cy='66' r='8' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><circle cx='37' cy='66' r='8' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><circle cx='28' cy='42' r='8' fill='none' stroke='#E8A0B0' stroke-width='2.5'/>",
     "default_color": "#E8A0B0",
-    "tags": ["梅花", "五福", "四君子", "岁寒三友", "文人"]
+    "tags": [
+      "梅花",
+      "五福",
+      "四君子",
+      "岁寒三友",
+      "文人"
+    ]
   },
   {
     "gene_id": "bamboo_001",
@@ -244,7 +352,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<rect x='46' y='10' width='8' height='80' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><line x1='36' y1='25' x2='64' y2='25' stroke='#5B8C5A' stroke-width='2'/><line x1='34' y1='45' x2='66' y2='45' stroke='#5B8C5A' stroke-width='2'/><line x1='38' y1='65' x2='62' y2='65' stroke='#5B8C5A' stroke-width='2'/><path d='M58,25 Q72,15 80,20' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><path d='M60,27 Q78,22 84,28' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><path d='M56,45 Q70,38 76,42' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><path d='M58,47 Q74,42 80,48' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><path d='M55,65 Q68,60 72,65' fill='none' stroke='#5B8C5A' stroke-width='1.5'/>",
     "default_color": "#5B8C5A",
-    "tags": ["竹", "气节", "四君子", "节节高", "平安"]
+    "tags": [
+      "竹",
+      "气节",
+      "四君子",
+      "节节高",
+      "平安"
+    ]
   },
   {
     "gene_id": "cloud_001",
@@ -257,7 +371,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M15,60 Q15,40 30,35 Q25,30 20,25 Q15,20 20,15 Q30,12 35,25 Q38,30 35,38 Q30,45 15,60 Z' fill='none' stroke='#B8463A' stroke-width='3'/><path d='M55,65 Q55,40 70,35 Q65,30 60,25 Q58,18 65,15 Q75,12 78,25 Q80,35 70,42 Q60,48 55,65 Z' fill='none' stroke='#B8463A' stroke-width='3'/><path d='M78,25 Q85,20 90,22' fill='none' stroke='#C4A265' stroke-width='2.5'/><path d='M35,25 Q42,18 48,20' fill='none' stroke='#C4A265' stroke-width='2.5'/>",
     "default_color": "#B8463A",
-    "tags": ["云气", "吉祥", "天象", "螺旋", "高升"]
+    "tags": [
+      "云气",
+      "吉祥",
+      "天象",
+      "螺旋",
+      "高升"
+    ]
   },
   {
     "gene_id": "wave_001",
@@ -270,7 +390,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M5,35 Q20,25 35,35 Q50,45 65,35 Q80,25 95,35' fill='none' stroke='#4A90C4' stroke-width='3'/><path d='M5,50 Q20,40 35,50 Q50,60 65,50 Q80,40 95,50' fill='none' stroke='#3A7AB4' stroke-width='3'/><path d='M5,65 Q20,55 35,65 Q50,75 65,65 Q80,55 95,65' fill='none' stroke='#2A6AA4' stroke-width='3'/><path d='M5,80 Q20,70 35,80 Q50,90 65,80 Q80,70 95,80' fill='none' stroke='#1A5A94' stroke-width='2.5'/>",
     "default_color": "#4A90C4",
-    "tags": ["波浪", "水", "海水江崖", "财富", "流动"]
+    "tags": [
+      "波浪",
+      "水",
+      "海水江崖",
+      "财富",
+      "流动"
+    ]
   },
   {
     "gene_id": "flame_001",
@@ -283,7 +409,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M50,85 Q40,65 30,50 Q25,40 30,30 Q32,25 38,30 Q40,38 35,45 Q30,50 30,55 Q25,45 20,35 Q18,28 22,22 Q28,18 32,25 Q34,30 28,40 Q22,50 20,60' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M50,85 Q60,65 70,50 Q75,40 70,30 Q68,25 62,30 Q60,38 65,45 Q70,50 70,55 Q75,45 80,35 Q82,28 78,22 Q72,18 68,25 Q66,30 72,40 Q78,50 80,60' fill='none' stroke='#C4A265' stroke-width='2.5'/><path d='M50,85 Q45,75 48,68' fill='none' stroke='#E8A030' stroke-width='2'/><path d='M50,85 Q55,75 52,68' fill='none' stroke='#E8A030' stroke-width='2'/>",
     "default_color": "#B8463A",
-    "tags": ["火焰", "佛教", "光明", "背光", "石窟"]
+    "tags": [
+      "火焰",
+      "佛教",
+      "光明",
+      "背光",
+      "石窟"
+    ]
   },
   {
     "gene_id": "shou_001",
@@ -296,7 +428,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<circle cx='50' cy='50' r='35' fill='none' stroke='#B8463A' stroke-width='3'/><path d='M50,18 L50,82' stroke='#B8463A' stroke-width='3'/><path d='M25,35 L75,35' stroke='#B8463A' stroke-width='3'/><path d='M20,55 L80,55' stroke='#B8463A' stroke-width='3'/><path d='M25,72 L60,72' stroke='#B8463A' stroke-width='3'/><path d='M25,28 L40,28 M60,28 L75,28' stroke='#B8463A' stroke-width='3'/><path d='M60,48 L75,48' stroke='#B8463A' stroke-width='3'/>",
     "default_color": "#B8463A",
-    "tags": ["寿", "长寿", "团寿", "文字纹", "健康"]
+    "tags": [
+      "寿",
+      "长寿",
+      "团寿",
+      "文字纹",
+      "健康"
+    ]
   },
   {
     "gene_id": "swastika_001",
@@ -309,7 +447,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M50,15 L30,15 L30,35 L65,35 L65,55 L50,55 L50,35 L35,35 L35,20 L65,20 L65,65 L40,65 L40,85 L85,85 L85,50 L70,50 L70,80 L45,80 L45,70 L80,70 L80,20 L55,20 L55,45 L65,45 L65,40 L50,40 Z' fill='none' stroke='#C4A265' stroke-width='2.5'/>",
     "default_color": "#C4A265",
-    "tags": ["卍", "佛教", "武则天", "万德", "连绵"]
+    "tags": [
+      "卍",
+      "佛教",
+      "武则天",
+      "万德",
+      "连绵"
+    ]
   },
   {
     "gene_id": "ruyi_001",
@@ -322,7 +466,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M50,20 Q35,20 30,35 Q28,48 40,52 Q48,48 45,38 Q42,30 50,35' fill='none' stroke='#C4A265' stroke-width='3'/><path d='M50,35 Q58,30 55,38 Q52,48 60,52 Q72,48 70,35 Q65,20 50,20' fill='none' stroke='#C4A265' stroke-width='3'/><path d='M50,35 L50,55 Q50,70 40,78' fill='none' stroke='#C4A265' stroke-width='3'/><path d='M50,55 Q60,70 50,85' fill='none' stroke='#B8463A' stroke-width='2.5'/><circle cx='50' cy='88' r='3' fill='#B8463A'/>",
     "default_color": "#C4A265",
-    "tags": ["如意", "灵芝", "云头", "事事如意", "祥瑞"]
+    "tags": [
+      "如意",
+      "灵芝",
+      "云头",
+      "事事如意",
+      "祥瑞"
+    ]
   },
   {
     "gene_id": "endlessknot_001",
@@ -335,7 +485,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<path d='M50,15 L50,35 L30,35 L30,55 L50,55 L50,65 L50,85' stroke='#B8463A' stroke-width='2.5' fill='none'/><path d='M70,15 L70,35 L50,35 L50,55 L70,55 L70,65 L70,85' stroke='#B8463A' stroke-width='2.5' fill='none'/><path d='M15,35 L35,35 L35,65 L15,65' stroke='#C4A265' stroke-width='2.5' fill='none'/><path d='M85,35 L65,35 L65,65 L85,65' stroke='#C4A265' stroke-width='2.5' fill='none'/><circle cx='50' cy='15' r='3' fill='#B8463A'/><circle cx='70' cy='15' r='3' fill='#B8463A'/><circle cx='50' cy='85' r='3' fill='#B8463A'/><circle cx='70' cy='85' r='3' fill='#B8463A'/>",
     "default_color": "#B8463A",
-    "tags": ["中国结", "盘长", "连绵", "永恒", "八宝"]
+    "tags": [
+      "中国结",
+      "盘长",
+      "连绵",
+      "永恒",
+      "八宝"
+    ]
   },
   {
     "gene_id": "baoxiang_001",
@@ -348,7 +504,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<circle cx='50' cy='50' r='38' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='50' cy='50' r='25' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='50' cy='50' r='12' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='50' cy='50' r='4' fill='#B8463A'/><ellipse cx='50' cy='15' rx='5' ry='14' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><ellipse cx='85' cy='50' rx='14' ry='5' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><ellipse cx='50' cy='85' rx='5' ry='14' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><ellipse cx='15' cy='50' rx='14' ry='5' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><ellipse cx='75' cy='25' rx='5' ry='12' fill='none' stroke='#D4A0C0' stroke-width='2' transform='rotate(45,75,25)'/><ellipse cx='75' cy='75' rx='5' ry='12' fill='none' stroke='#D4A0C0' stroke-width='2' transform='rotate(-45,75,75)'/><ellipse cx='25' cy='75' rx='5' ry='12' fill='none' stroke='#D4A0C0' stroke-width='2' transform='rotate(45,25,75)'/><ellipse cx='25' cy='25' rx='5' ry='12' fill='none' stroke='#D4A0C0' stroke-width='2' transform='rotate(-45,25,25)'/>",
     "default_color": "#E8A0B0",
-    "tags": ["宝相花", "复合花卉", "放射对称", "唐代", "敦煌"]
+    "tags": [
+      "宝相花",
+      "复合花卉",
+      "放射对称",
+      "唐代",
+      "敦煌"
+    ]
   },
   {
     "gene_id": "roundfloral_001",
@@ -361,7 +523,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<circle cx='50' cy='50' r='42' fill='none' stroke='#B8463A' stroke-width='2.5'/><circle cx='50' cy='50' r='10' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='50' cy='50' r='3' fill='#B8463A'/><circle cx='50' cy='28' r='6' fill='none' stroke='#D4606A' stroke-width='2'/><circle cx='72' cy='50' r='6' fill='none' stroke='#D4606A' stroke-width='2'/><circle cx='50' cy='72' r='6' fill='none' stroke='#D4606A' stroke-width='2'/><circle cx='28' cy='50' r='6' fill='none' stroke='#D4606A' stroke-width='2'/><circle cx='66' cy='34' r='5' fill='none' stroke='#E8A0B0' stroke-width='1.5'/><circle cx='66' cy='66' r='5' fill='none' stroke='#E8A0B0' stroke-width='1.5'/><circle cx='34' cy='66' r='5' fill='none' stroke='#E8A0B0' stroke-width='1.5'/><circle cx='34' cy='34' r='5' fill='none' stroke='#E8A0B0' stroke-width='1.5'/>",
     "default_color": "#B8463A",
-    "tags": ["团花", "圆形", "团圆", "圆满", "连续"]
+    "tags": [
+      "团花",
+      "圆形",
+      "团圆",
+      "圆满",
+      "连续"
+    ]
   },
   {
     "gene_id": "bogu_001",
@@ -374,7 +542,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<rect x='15' y='20' width='30' height='50' rx='3' fill='none' stroke='#8B7355' stroke-width='2.5'/><path d='M15,30 L45,30' stroke='#8B7355' stroke-width='2'/><path d='M10,20 Q15,10 30,12' fill='none' stroke='#8B7355' stroke-width='2'/><path d='M45,35 L55,25 L70,35 L60,45 Z' fill='none' stroke='#C4A265' stroke-width='2.5'/><circle cx='55' cy='32' r='3' fill='#C4A265'/><rect x='25' y='75' width='40' height='12' rx='6' fill='none' stroke='#8B7355' stroke-width='2'/><path d='M70,55 L85,50 L90,65 L75,68 Z' fill='none' stroke='#5B8C5A' stroke-width='2'/><path d='M75,60 L78,55' stroke='#5B8C5A' stroke-width='2'/>",
     "default_color": "#8B7355",
-    "tags": ["博古", "器物", "文人", "雅趣", "古玩"]
+    "tags": [
+      "博古",
+      "器物",
+      "文人",
+      "雅趣",
+      "古玩"
+    ]
   },
   {
     "gene_id": "diamond_001",
@@ -387,7 +561,13 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<polygon points='50,5 75,30 50,55 25,30' fill='none' stroke='#B8463A' stroke-width='2'/><polygon points='50,45 75,70 50,95 25,70' fill='none' stroke='#B8463A' stroke-width='2'/><polygon points='25,30 50,55 25,80 0,55' fill='none' stroke='#B8463A' stroke-width='2'/><polygon points='75,30 100,55 75,80 50,55' fill='none' stroke='#B8463A' stroke-width='2'/>",
     "default_color": "#B8463A",
-    "tags": ["菱形", "几何", "四方连续", "网格", "基础纹"]
+    "tags": [
+      "菱形",
+      "几何",
+      "四方连续",
+      "网格",
+      "基础纹"
+    ]
   },
   {
     "gene_id": "stripe_001",
@@ -400,6 +580,1038 @@
     "svg_viewbox": "0 0 100 100",
     "svg_content": "<line x1='5' y1='15' x2='95' y2='15' stroke='#B8463A' stroke-width='3'/><line x1='5' y1='25' x2='95' y2='25' stroke='#C4A265' stroke-width='2'/><line x1='5' y1='35' x2='95' y2='35' stroke='#1E1B18' stroke-width='4'/><line x1='5' y1='50' x2='95' y2='50' stroke='#B8463A' stroke-width='1.5'/><line x1='5' y1='55' x2='95' y2='55' stroke='#C4A265' stroke-width='1.5'/><line x1='5' y1='60' x2='95' y2='60' stroke='#1E1B18' stroke-width='1.5'/><line x1='5' y1='70' x2='95' y2='70' stroke='#B8463A' stroke-width='3'/><line x1='5' y1='80' x2='95' y2='80' stroke='#C4A265' stroke-width='2'/><line x1='5' y1='90' x2='95' y2='90' stroke='#1E1B18' stroke-width='4'/>",
     "default_color": "#B8463A",
-    "tags": ["边饰", "线条", "边框", "基础纹", "装饰带"]
+    "tags": [
+      "边饰",
+      "线条",
+      "边框",
+      "基础纹",
+      "装饰带"
+    ]
+  },
+  {
+    "gene_id": "ballpath_001",
+    "name": "球路纹",
+    "shape_category": "几何纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "中原",
+    "description": "球路纹以大小不等的圆环相互交叠穿插形成复杂的几何路径，常见于宋代织锦和瓷器装饰，圆环交错如珠玉串联，寓意圆满与通达。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='25' cy='25' r='18' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='50' cy='25' r='18' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='75' cy='25' r='18' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='37' cy='50' r='18' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='63' cy='50' r='18' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='25' cy='75' r='18' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='50' cy='75' r='18' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='75' cy='75' r='18' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='25' cy='25' r='7' fill='#8B7355' opacity='0.3'/><circle cx='75' cy='25' r='7' fill='#8B7355' opacity='0.3'/><circle cx='37' cy='50' r='7' fill='#8B7355' opacity='0.3'/><circle cx='25' cy='75' r='7' fill='#8B7355' opacity='0.3'/><circle cx='75' cy='75' r='7' fill='#8B7355' opacity='0.3'/>",
+    "default_color": "#8B7355",
+    "tags": [
+      "球路",
+      "交环",
+      "圆形",
+      "织锦",
+      "几何"
+    ]
+  },
+  {
+    "gene_id": "bowstring_001",
+    "name": "弦纹",
+    "shape_category": "几何纹",
+    "meaning": "吉祥",
+    "era": "商周",
+    "region": "中原",
+    "description": "弦纹由多条平行的水平凸线组成，是最简洁的青铜器和陶瓷装饰纹样。如琴弦般规整排列的线条具有宁静有序的美感，常作为器物颈部、肩部的分隔装饰带。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<line x1='5' y1='15' x2='95' y2='15' stroke='#1E1B18' stroke-width='3'/><line x1='5' y1='28' x2='95' y2='28' stroke='#1E1B18' stroke-width='5'/><line x1='5' y1='42' x2='95' y2='42' stroke='#1E1B18' stroke-width='3'/><line x1='5' y1='58' x2='95' y2='58' stroke='#1E1B18' stroke-width='5'/><line x1='5' y1='72' x2='95' y2='72' stroke='#1E1B18' stroke-width='3'/><line x1='5' y1='85' x2='95' y2='85' stroke='#1E1B18' stroke-width='5'/><rect x='25' y='33' width='50' height='4' fill='#C4A265'/><rect x='35' y='63' width='30' height='4' fill='#C4A265'/>",
+    "default_color": "#1E1B18",
+    "tags": [
+      "弦纹",
+      "平行线",
+      "青铜器",
+      "简洁",
+      "边饰"
+    ]
+  },
+  {
+    "gene_id": "chessboard_001",
+    "name": "方棋纹",
+    "shape_category": "几何纹",
+    "meaning": "吉祥",
+    "era": "商周",
+    "region": "中原",
+    "description": "方棋纹以方格棋盘式排列为基本单元，是最简洁的几何纹样之一。规整的方格阵列富有秩序美感，广泛用于织物、砖石铺地和器物底纹装饰。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<rect x='5' y='5' width='22' height='22' fill='#5B8C5A' opacity='0.6' stroke='#5B8C5A' stroke-width='1.5'/><rect x='27' y='5' width='22' height='22' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><rect x='49' y='5' width='22' height='22' fill='#5B8C5A' opacity='0.6' stroke='#5B8C5A' stroke-width='1.5'/><rect x='71' y='5' width='22' height='22' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><rect x='5' y='27' width='22' height='22' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><rect x='27' y='27' width='22' height='22' fill='#5B8C5A' opacity='0.6' stroke='#5B8C5A' stroke-width='1.5'/><rect x='49' y='27' width='22' height='22' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><rect x='71' y='27' width='22' height='22' fill='#5B8C5A' opacity='0.6' stroke='#5B8C5A' stroke-width='1.5'/><rect x='5' y='49' width='22' height='22' fill='#5B8C5A' opacity='0.6' stroke='#5B8C5A' stroke-width='1.5'/><rect x='27' y='49' width='22' height='22' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><rect x='49' y='49' width='22' height='22' fill='#5B8C5A' opacity='0.6' stroke='#5B8C5A' stroke-width='1.5'/><rect x='71' y='49' width='22' height='22' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><rect x='5' y='71' width='22' height='22' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><rect x='27' y='71' width='22' height='22' fill='#5B8C5A' opacity='0.6' stroke='#5B8C5A' stroke-width='1.5'/><rect x='49' y='71' width='22' height='22' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><rect x='71' y='71' width='22' height='22' fill='#5B8C5A' opacity='0.6' stroke='#5B8C5A' stroke-width='1.5'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "方棋",
+      "棋盘",
+      "方格",
+      "四方连续",
+      "基础"
+    ]
+  },
+  {
+    "gene_id": "eightstar_001",
+    "name": "八达晕纹",
+    "shape_category": "几何纹",
+    "meaning": "吉祥",
+    "era": "宋代",
+    "region": "中原",
+    "description": "八达晕纹以八角星形为核心向八个方向放射延伸，几何结构精密复杂，是宋代织锦中最具代表性的几何纹样之一，寓意四通八达、吉祥亨通。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<polygon points='50,8 62,38 95,38 70,58 80,88 50,70 20,88 30,58 5,38 38,38' fill='none' stroke='#B8463A' stroke-width='3'/><polygon points='50,20 56,42 78,42 60,55 65,78 50,65 35,78 40,55 22,42 44,42' fill='none' stroke='#B8463A' stroke-width='1.5'/><circle cx='50' cy='50' r='8' fill='#B8463A'/><line x1='50' y1='5' x2='50' y2='42' stroke='#C4A265' stroke-width='1'/><line x1='50' y1='58' x2='50' y2='95' stroke='#C4A265' stroke-width='1'/><line x1='5' y1='50' x2='42' y2='50' stroke='#C4A265' stroke-width='1'/><line x1='58' y1='50' x2='95' y2='50' stroke='#C4A265' stroke-width='1'/><line x1='18' y1='18' x2='40' y2='40' stroke='#C4A265' stroke-width='1'/><line x1='60' y1='60' x2='82' y2='82' stroke='#C4A265' stroke-width='1'/><line x1='82' y1='18' x2='60' y2='40' stroke='#C4A265' stroke-width='1'/><line x1='40' y1='60' x2='18' y2='82' stroke='#C4A265' stroke-width='1'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "八达晕",
+      "星形",
+      "放射",
+      "几何",
+      "织锦"
+    ]
+  },
+  {
+    "gene_id": "fret_001",
+    "name": "矩纹",
+    "shape_category": "几何纹",
+    "meaning": "祈福",
+    "era": "商周",
+    "region": "中原",
+    "description": "矩纹又称方雷纹，由矩形螺旋线向内外盘绕组成，与回纹同源但转折更为方正刚硬，常见于青铜器边饰和古代建筑窗棂，象征规矩与秩序。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M5,5 L95,5 L95,95 L5,95 Z' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M15,15 L70,15 L70,85 L15,85 Z' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M25,25 L50,25 L50,75 L25,75 Z' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M70,15 L80,15 L80,25' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M15,85 L25,85 L25,75' fill='none' stroke='#B8463A' stroke-width='2.5'/><line x1='85' y1='5' x2='85' y2='15' stroke='#B8463A' stroke-width='2.5'/><line x1='95' y1='15' x2='85' y2='15' stroke='#B8463A' stroke-width='2.5'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "矩形",
+      "螺旋",
+      "方雷",
+      "青铜器",
+      "边框"
+    ]
+  },
+  {
+    "gene_id": "matweave_001",
+    "name": "席纹",
+    "shape_category": "几何纹",
+    "meaning": "吉祥",
+    "era": "商周",
+    "region": "中原",
+    "description": "席纹仿照竹席编织纹理，以纵横交错的线条构成十字编织状图案。质朴自然的编织纹理广泛用于陶器印纹和织物装饰，体现日常生活的审美化。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<line x1='5' y1='10' x2='95' y2='10' stroke='#8B7355' stroke-width='1.5'/><line x1='5' y1='22' x2='95' y2='22' stroke='#8B7355' stroke-width='1.5'/><line x1='5' y1='34' x2='95' y2='34' stroke='#8B7355' stroke-width='1.5'/><line x1='5' y1='46' x2='95' y2='46' stroke='#8B7355' stroke-width='1.5'/><line x1='5' y1='58' x2='95' y2='58' stroke='#8B7355' stroke-width='1.5'/><line x1='5' y1='70' x2='95' y2='70' stroke='#8B7355' stroke-width='1.5'/><line x1='5' y1='82' x2='95' y2='82' stroke='#8B7355' stroke-width='1.5'/><line x1='5' y1='94' x2='95' y2='94' stroke='#8B7355' stroke-width='1.5'/><rect x='10' y='5' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='10' y='25' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='10' y='45' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='10' y='65' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='10' y='85' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='35' y='5' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='35' y='25' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='35' y='45' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='35' y='65' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='35' y='85' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='60' y='5' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='60' y='25' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='60' y='45' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='60' y='65' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='60' y='85' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='85' y='5' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='85' y='25' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='85' y='45' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='85' y='65' width='4' height='15' fill='#8B7355' opacity='0.5'/><rect x='85' y='85' width='4' height='15' fill='#8B7355' opacity='0.5'/>",
+    "default_color": "#8B7355",
+    "tags": [
+      "席纹",
+      "编织",
+      "竹席",
+      "四方连续",
+      "织物"
+    ]
+  },
+  {
+    "gene_id": "pearl_001",
+    "name": "联珠纹",
+    "shape_category": "几何纹",
+    "meaning": "祈福",
+    "era": "唐代",
+    "region": "西域",
+    "description": "联珠纹由连续排列的圆形珠子组成装饰带，源自波斯萨珊王朝，经丝绸之路传入中原，盛行于唐代织锦和金银器，象征财富与中外文化交流。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='10' cy='50' r='6' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='10' cy='50' r='3' fill='#C4A265'/><circle cx='28' cy='50' r='6' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='28' cy='50' r='3' fill='#C4A265'/><circle cx='46' cy='50' r='6' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='46' cy='50' r='3' fill='#C4A265'/><circle cx='64' cy='50' r='6' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='64' cy='50' r='3' fill='#C4A265'/><circle cx='82' cy='50' r='6' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='82' cy='50' r='3' fill='#C4A265'/><circle cx='19' cy='30' r='5' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='19' cy='30' r='2.5' fill='#C4A265'/><circle cx='37' cy='30' r='5' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='37' cy='30' r='2.5' fill='#C4A265'/><circle cx='55' cy='30' r='5' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='55' cy='30' r='2.5' fill='#C4A265'/><circle cx='73' cy='30' r='5' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='73' cy='30' r='2.5' fill='#C4A265'/><circle cx='19' cy='70' r='5' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='19' cy='70' r='2.5' fill='#C4A265'/><circle cx='37' cy='70' r='5' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='37' cy='70' r='2.5' fill='#C4A265'/><circle cx='55' cy='70' r='5' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='55' cy='70' r='2.5' fill='#C4A265'/><circle cx='73' cy='70' r='5' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='73' cy='70' r='2.5' fill='#C4A265'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "连珠",
+      "波斯",
+      "萨珊",
+      "圆圈",
+      "边饰"
+    ]
+  },
+  {
+    "gene_id": "rope_001",
+    "name": "绳纹",
+    "shape_category": "几何纹",
+    "meaning": "吉祥",
+    "era": "商周",
+    "region": "中原",
+    "description": "绳纹模仿两股绳索绞合而成的纹理，是最古老的装饰纹样之一。在陶器和青铜器上常见绳纹装饰带，具有质朴的原始美感，也寓意联结与团结。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M5,30 Q20,20 35,30 Q50,40 65,30 Q80,20 95,30' fill='none' stroke='#8B7355' stroke-width='4'/><path d='M5,40 Q20,30 35,40 Q50,50 65,40 Q80,30 95,40' fill='none' stroke='#8B7355' stroke-width='4'/><path d='M5,50 Q20,40 35,50 Q50,60 65,50 Q80,40 95,50' fill='none' stroke='#8B7355' stroke-width='4'/><path d='M5,60 Q20,50 35,60 Q50,70 65,60 Q80,50 95,60' fill='none' stroke='#8B7355' stroke-width='4'/><path d='M5,70 Q20,60 35,70 Q50,80 65,70 Q80,60 95,70' fill='none' stroke='#8B7355' stroke-width='4'/><line x1='5' y1='30' x2='5' y2='70' stroke='#8B7355' stroke-width='2'/><line x1='35' y1='30' x2='35' y2='70' stroke='#8B7355' stroke-width='2'/><line x1='65' y1='30' x2='65' y2='70' stroke='#8B7355' stroke-width='2'/><line x1='95' y1='30' x2='95' y2='70' stroke='#8B7355' stroke-width='2'/>",
+    "default_color": "#8B7355",
+    "tags": [
+      "绳纹",
+      "绞丝",
+      "绳索",
+      "青铜器",
+      "边饰"
+    ]
+  },
+  {
+    "gene_id": "scale_001",
+    "name": "鳞纹",
+    "shape_category": "几何纹",
+    "meaning": "祈福",
+    "era": "商周",
+    "region": "中原",
+    "description": "鳞纹由重叠的半圆弧线层层排列组成，模仿鱼鳞或龙鳞的形态，常见于青铜器腹部装饰。层叠的弧线富有节奏韵律，象征丰饶与生生不息。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M5,15 Q25,5 45,15' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M30,15 Q50,5 70,15' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M55,15 Q75,5 95,15' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M5,33 Q25,23 45,33' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M30,33 Q50,23 70,33' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M55,33 Q75,23 95,33' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M5,51 Q25,41 45,51' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M30,51 Q50,41 70,51' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M55,51 Q75,41 95,51' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M5,69 Q25,59 45,69' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M30,69 Q50,59 70,69' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M55,69 Q75,59 95,69' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M5,87 Q25,77 45,87' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M30,87 Q50,77 70,87' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M55,87 Q75,77 95,87' fill='none' stroke='#B8463A' stroke-width='2.5'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "鳞片",
+      "重叠",
+      "鱼鳞",
+      "青铜器",
+      "连续"
+    ]
+  },
+  {
+    "gene_id": "cicada_001",
+    "name": "蝉纹",
+    "shape_category": "动物纹",
+    "meaning": "祈福",
+    "era": "商周",
+    "region": "中原",
+    "description": "蝉纹是商周青铜器上常见的动物纹饰，蝉头大身宽呈三角形轮廓。古人以蝉蜕象征重生与永生，汉代玉琀多为蝉形，寓意灵魂不灭、精神高洁。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<ellipse cx='50' cy='25' rx='12' ry='8' fill='none' stroke='#1E1B18' stroke-width='2.5'/><circle cx='42' cy='25' r='2.5' fill='#1E1B18'/><circle cx='58' cy='25' r='2.5' fill='#1E1B18'/><polygon points='50,33 30,80 70,80' fill='none' stroke='#1E1B18' stroke-width='2.5'/><line x1='50' y1='25' x2='50' y2='80' stroke='#1E1B18' stroke-width='1.5'/><path d='M25,45 Q20,40 18,48' fill='none' stroke='#1E1B18' stroke-width='1.5'/><path d='M75,45 Q80,40 82,48' fill='none' stroke='#1E1B18' stroke-width='1.5'/><line x1='35' y1='55' x2='65' y2='55' stroke='#1E1B18' stroke-width='1'/><line x1='32' y1='65' x2='68' y2='65' stroke='#1E1B18' stroke-width='1'/><line x1='20' y1='75' x2='80' y2='75' stroke='#1E1B18' stroke-width='1'/>",
+    "default_color": "#1E1B18",
+    "tags": [
+      "蝉",
+      "蜕变",
+      "重生",
+      "青铜器",
+      "夏"
+    ]
+  },
+  {
+    "gene_id": "crane_001",
+    "name": "鹤纹",
+    "shape_category": "动物纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "江南",
+    "description": "鹤纹以仙鹤为题材，鹤为羽族之长，一品文官补服图案，象征长寿、高洁与官居一品。松鹤延年、鹤鹿同春为常见组合，广泛用于织绣、瓷器装饰。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<ellipse cx='50' cy='55' rx='18' ry='10' fill='none' stroke='#D4A0C0' stroke-width='2.5'/><circle cx='50' cy='30' r='7' fill='none' stroke='#D4A0C0' stroke-width='2.5'/><circle cx='48' cy='28' r='1.5' fill='#D4A0C0'/><polygon points='50,23 55,18 60,23' fill='#B8463A' stroke='#B8463A' stroke-width='1'/><line x1='50' y1='65' x2='50' y2='90' stroke='#D4A0C0' stroke-width='2'/><line x1='50' y1='90' x2='42' y2='98' stroke='#D4A0C0' stroke-width='1.5'/><line x1='50' y1='90' x2='58' y2='98' stroke='#D4A0C0' stroke-width='1.5'/><path d='M32,50 Q25,40 28,32' fill='none' stroke='#D4A0C0' stroke-width='2'/><line x1='42' y1='50' x2='38' y2='45' stroke='#D4A0C0' stroke-width='1'/><path d='M50,60 Q65,55 72,58' fill='none' stroke='#D4A0C0' stroke-width='2'/>",
+    "default_color": "#D4A0C0",
+    "tags": [
+      "仙鹤",
+      "长寿",
+      "一品",
+      "官服",
+      "道教"
+    ]
+  },
+  {
+    "gene_id": "deer_001",
+    "name": "鹿纹",
+    "shape_category": "动物纹",
+    "meaning": "祈福",
+    "era": "汉代",
+    "region": "中原",
+    "description": "鹿纹以梅花鹿为题材，'鹿'与'禄'谐音，象征福禄与仕途顺利。汉代画像石上常见鹿纹，唐代以后鹿与松柏组合意为'百禄'，广泛用于织锦和漆器。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<ellipse cx='55' cy='55' rx='22' ry='12' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='35' cy='40' r='8' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='33' cy='38' r='1.8' fill='#8B7355'/><line x1='65' y1='70' x2='65' y2='92' stroke='#8B7355' stroke-width='2'/><line x1='55' y1='70' x2='55' y2='92' stroke='#8B7355' stroke-width='2'/><line x1='65' y1='92' x2='62' y2='96' stroke='#8B7355' stroke-width='1'/><line x1='55' y1='92' x2='58' y2='96' stroke='#8B7355' stroke-width='1'/><path d='M35,32 Q30,18 38,15 Q42,12 40,18' fill='none' stroke='#8B7355' stroke-width='2'/><path d='M38,18 Q32,10 36,8' fill='none' stroke='#8B7355' stroke-width='1.5'/><circle cx='38' cy='18' r='2' fill='none' stroke='#C4A265' stroke-width='1'/>",
+    "default_color": "#8B7355",
+    "tags": [
+      "鹿",
+      "禄",
+      "福禄",
+      "温顺",
+      "补服"
+    ]
+  },
+  {
+    "gene_id": "duck_001",
+    "name": "鸳鸯纹",
+    "shape_category": "动物纹",
+    "meaning": "祈福",
+    "era": "唐代",
+    "region": "江南",
+    "description": "鸳鸯纹以雌雄鸳鸯成对出现，鸳鸯一生不离不弃，被视为忠贞爱情的象征。唐代起广泛用于婚庆用品、刺绣和瓷器，'鸳鸯戏水'、'鸳鸯交颈'为经典构图。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<ellipse cx='30' cy='45' rx='15' ry='10' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><circle cx='18' cy='35' r='6' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><circle cx='16' cy='33' r='1.5' fill='#E8A0B0'/><path d='M38,40 Q45,35 42,45' fill='none' stroke='#E8A0B0' stroke-width='2'/><ellipse cx='62' cy='55' rx='15' ry='10' fill='none' stroke='#D08090' stroke-width='2.5'/><circle cx='74' cy='47' r='6' fill='none' stroke='#D08090' stroke-width='2.5'/><circle cx='76' cy='45' r='1.5' fill='#D08090'/><path d='M54,50 Q47,45 50,55' fill='none' stroke='#D08090' stroke-width='2'/><path d='M5,60 Q20,50 40,60' fill='none' stroke='#4A90C4' stroke-width='1.5'/><path d='M55,65 Q70,58 90,65' fill='none' stroke='#4A90C4' stroke-width='1.5'/>",
+    "default_color": "#E8A0B0",
+    "tags": [
+      "鸳鸯",
+      "爱情",
+      "双栖",
+      "婚姻",
+      "水鸟"
+    ]
+  },
+  {
+    "gene_id": "elephant_001",
+    "name": "象纹",
+    "shape_category": "动物纹",
+    "meaning": "祈福",
+    "era": "商周",
+    "region": "中原",
+    "description": "象纹以大象为题材，'象'与'祥'谐音，太平有象为传统吉祥主题。商周青铜器上已有象尊等象形器物，明清时期象驮宝瓶寓意'太平有象'、国泰民安。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<ellipse cx='50' cy='50' rx='22' ry='16' fill='none' stroke='#8B7355' stroke-width='3'/><circle cx='35' cy='35' r='10' fill='none' stroke='#8B7355' stroke-width='2.5'/><circle cx='33' cy='33' r='2' fill='#8B7355'/><path d='M28,30 Q20,25 18,30' fill='none' stroke='#8B7355' stroke-width='2'/><ellipse cx='68' cy='40' rx='8' ry='12' fill='none' stroke='#8B7355' stroke-width='2.5'/><line x1='50' y1='66' x2='50' y2='90' stroke='#8B7355' stroke-width='3'/><line x1='38' y1='66' x2='38' y2='90' stroke='#8B7355' stroke-width='3'/><line x1='62' y1='66' x2='62' y2='90' stroke='#8B7355' stroke-width='3'/><path d='M45,30 Q50,20 55,30' fill='none' stroke='#8B7355' stroke-width='1.5'/><rect x='30' y='22' width='6' height='5' rx='2' fill='none' stroke='#C4A265' stroke-width='1.5'/>",
+    "default_color": "#8B7355",
+    "tags": [
+      "象",
+      "太平",
+      "力量",
+      "青铜器",
+      "温顺"
+    ]
+  },
+  {
+    "gene_id": "lion_001",
+    "name": "狮纹",
+    "shape_category": "动物纹",
+    "meaning": "等级",
+    "era": "唐代",
+    "region": "西域",
+    "description": "狮纹随佛教传入中国，经艺术化后成为威严守护的象征。石狮守门、绣狮补服（二品武官），狮子滚绣球寓意'好事连连'，广泛用于建筑、织绣和陶瓷。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='42' r='16' fill='none' stroke='#C4A265' stroke-width='3'/><circle cx='45' cy='37' r='2' fill='#C4A265'/><circle cx='55' cy='37' r='2' fill='#C4A265'/><path d='M45,48 Q50,52 55,48' fill='none' stroke='#C4A265' stroke-width='1.5'/><ellipse cx='50' cy='58' rx='12' ry='8' fill='none' stroke='#C4A265' stroke-width='2.5'/><path d='M34,35 Q25,25 30,18' fill='none' stroke='#C4A265' stroke-width='2.5'/><path d='M33,30 Q22,28 26,20' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='15' cy='45' r='10' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M18,40 Q22,35 28,38' fill='none' stroke='#C4A265' stroke-width='1.5'/><path d='M18,45 Q22,42 25,42' fill='none' stroke='#C4A265' stroke-width='1.5'/><path d='M18,50 Q22,47 25,48' fill='none' stroke='#C4A265' stroke-width='1.5'/><line x1='50' y1='66' x2='50' y2='88' stroke='#C4A265' stroke-width='2'/><line x1='42' y1='66' x2='42' y2='88' stroke='#C4A265' stroke-width='2'/><line x1='58' y1='66' x2='58' y2='88' stroke='#C4A265' stroke-width='2'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "狮",
+      "佛教",
+      "守护",
+      "威严",
+      "绣球"
+    ]
+  },
+  {
+    "gene_id": "magpie_001",
+    "name": "喜鹊纹",
+    "shape_category": "动物纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "中原",
+    "description": "喜鹊纹以报喜之鸟为主题，取'喜'的吉祥寓意。'喜上眉梢'（喜鹊站梅花枝头）是最受欢迎的吉祥图案之一，象征喜事临门、欢欣鼓舞。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<ellipse cx='50' cy='48' rx='14' ry='9' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><circle cx='40' cy='35' r='6' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><circle cx='38' cy='33' r='1.5' fill='#5B8C5A'/><polygon points='34,30 28,25 32,32' fill='#5B8C5A'/><path d='M55,40 Q62,32 65,35' fill='none' stroke='#5B8C5A' stroke-width='2'/><path d='M58,55 Q60,65 55,72' fill='none' stroke='#5B8C5A' stroke-width='2'/><line x1='55' y1='72' x2='50' y2='82' stroke='#5B8C5A' stroke-width='1.5'/><line x1='55' y1='72' x2='60' y2='82' stroke='#5B8C5A' stroke-width='1.5'/><path d='M20,50 Q30,45 40,50' fill='none' stroke='#8B7355' stroke-width='2'/><circle cx='18' cy='45' r='4' fill='none' stroke='#E8A0B0' stroke-width='1.5'/><circle cx='10' cy='38' r='3' fill='none' stroke='#E8A0B0' stroke-width='1.5'/><circle cx='14' cy='52' r='3' fill='none' stroke='#E8A0B0' stroke-width='1.5'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "喜鹊",
+      "报喜",
+      "梅花",
+      "喜上眉梢",
+      "吉祥"
+    ]
+  },
+  {
+    "gene_id": "peacock_001",
+    "name": "孔雀纹",
+    "shape_category": "动物纹",
+    "meaning": "等级",
+    "era": "唐代",
+    "region": "西域",
+    "description": "孔雀纹以孔雀开屏为主题，孔雀为三品文官补服图案，象征文明与尊贵。孔雀翎毛华美绚烂，唐代织锦和金银器上多有孔雀纹，体现繁荣开放的时代气象。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='38' r='9' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><circle cx='48' cy='36' r='2' fill='#5B8C5A'/><polygon points='50,29 53,22 56,29' fill='#C4A265'/><ellipse cx='50' cy='55' rx='10' ry='14' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><ellipse cx='30' cy='65' rx='14' ry='18' fill='none' stroke='#5B8C5A' stroke-width='2' transform='rotate(-20,30,65)'/><ellipse cx='70' cy='65' rx='14' ry='18' fill='none' stroke='#5B8C5A' stroke-width='2' transform='rotate(20,70,65)'/><ellipse cx='20' cy='78' rx='10' ry='15' fill='none' stroke='#4A90C4' stroke-width='1.5' transform='rotate(-35,20,78)'/><ellipse cx='80' cy='78' rx='10' ry='15' fill='none' stroke='#4A90C4' stroke-width='1.5' transform='rotate(35,80,78)'/><circle cx='20' cy='75' r='2' fill='#C4A265'/><circle cx='80' cy='75' r='2' fill='#C4A265'/><circle cx='30' cy='60' r='2' fill='#C4A265'/><circle cx='70' cy='60' r='2' fill='#C4A265'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "孔雀",
+      "翎毛",
+      "官服",
+      "华贵",
+      "热带"
+    ]
+  },
+  {
+    "gene_id": "qilin_001",
+    "name": "麒麟纹",
+    "shape_category": "动物纹",
+    "meaning": "祈福",
+    "era": "秦汉",
+    "region": "中原",
+    "description": "麒麟为古代四灵之一，龙头鹿身牛尾马蹄，是传说中仁德之兽，'麒麟送子'为民间最受欢迎的吉祥主题之一，象征仁厚、祥瑞与子孙昌盛。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='35' cy='35' r='10' fill='none' stroke='#C4A265' stroke-width='3'/><circle cx='33' cy='33' r='2' fill='#C4A265'/><ellipse cx='55' cy='52' rx='22' ry='14' fill='none' stroke='#C4A265' stroke-width='3'/><path d='M38,38 Q45,28 52,35' fill='none' stroke='#C4A265' stroke-width='2.5'/><circle cx='12' cy='28' r='3' fill='#C4A265'/><circle cx='20' cy='22' r='3' fill='#C4A265'/><line x1='60' y1='66' x2='60' y2='88' stroke='#C4A265' stroke-width='2.5'/><line x1='50' y1='66' x2='50' y2='88' stroke='#C4A265' stroke-width='2.5'/><line x1='60' y1='88' x2='56' y2='93' stroke='#C4A265' stroke-width='1.5'/><line x1='50' y1='88' x2='54' y2='93' stroke='#C4A265' stroke-width='1.5'/><path d='M70,50 Q78,40 76,48' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M75,44 Q80,40 78,36' fill='none' stroke='#B8463A' stroke-width='1.5'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "麒麟",
+      "仁兽",
+      "送子",
+      "四灵",
+      "祥瑞"
+    ]
+  },
+  {
+    "gene_id": "tiger_001",
+    "name": "虎纹",
+    "shape_category": "动物纹",
+    "meaning": "等级",
+    "era": "商周",
+    "region": "中原",
+    "description": "虎为百兽之王，虎纹威猛雄壮，常用于驱邪避凶。商周青铜器上的虎食人卣、虎纹鼎为经典器物，民间虎头帽、虎头鞋寓意保护孩童健康成长。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='38' r='14' fill='none' stroke='#B8463A' stroke-width='3'/><circle cx='44' cy='35' r='2.5' fill='#B8463A'/><circle cx='56' cy='35' r='2.5' fill='#B8463A'/><path d='M44,44 Q50,48 56,44' fill='none' stroke='#B8463A' stroke-width='1.5'/><line x1='50' y1='42' x2='50' y2='40' stroke='#B8463A' stroke-width='1.5'/><path d='M36,30 Q32,20 30,15' fill='none' stroke='#B8463A' stroke-width='2'/><path d='M64,30 Q68,20 70,15' fill='none' stroke='#B8463A' stroke-width='2'/><ellipse cx='50' cy='60' rx='20' ry='14' fill='none' stroke='#B8463A' stroke-width='3'/><line x1='42' y1='72' x2='42' y2='90' stroke='#B8463A' stroke-width='2.5'/><line x1='58' y1='72' x2='58' y2='90' stroke='#B8463A' stroke-width='2.5'/><path d='M30,55 Q25,50 22,55' fill='none' stroke='#B8463A' stroke-width='1.5'/><path d='M70,55 Q75,50 78,55' fill='none' stroke='#B8463A' stroke-width='1.5'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "虎",
+      "辟邪",
+      "威武",
+      "守护",
+      "山兽"
+    ]
+  },
+  {
+    "gene_id": "bananaleaf_001",
+    "name": "蕉叶纹",
+    "shape_category": "植物纹",
+    "meaning": "等级",
+    "era": "商周",
+    "region": "中原",
+    "description": "蕉叶纹以宽大的蕉叶为装饰母题，常见于商周青铜器颈部、腹部和底座作为分隔装饰带。狭长的三角形叶片层层叠排，具有庄重肃穆的礼仪气息。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<polygon points='50,5 70,55 50,60 30,55' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><line x1='50' y1='5' x2='50' y2='60' stroke='#5B8C5A' stroke-width='1.5'/><path d='M50,15 Q55,20 58,18' fill='none' stroke='#5B8C5A' stroke-width='1'/><path d='M50,25 Q58,30 62,28' fill='none' stroke='#5B8C5A' stroke-width='1'/><path d='M50,35 Q55,40 58,38' fill='none' stroke='#5B8C5A' stroke-width='1'/><path d='M50,45 Q52,50 55,48' fill='none' stroke='#5B8C5A' stroke-width='1'/><polygon points='20,15 40,55 20,58 0,55' fill='none' stroke='#5B8C5A' stroke-width='2'/><polygon points='80,15 100,55 80,58 60,55' fill='none' stroke='#5B8C5A' stroke-width='2'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "蕉叶",
+      "青铜器",
+      "器身",
+      "装饰带",
+      "大叶"
+    ]
+  },
+  {
+    "gene_id": "chrysanthemum_001",
+    "name": "菊花纹",
+    "shape_category": "植物纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "江南",
+    "description": "菊花为四君子之一，陶渊明'采菊东篱下'赋予菊花隐逸高洁的人格象征。菊花纹花瓣细长卷曲，层次丰富，寓意长寿与隐士风骨，广泛用于瓷器、书画和织绣。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='50' r='6' fill='#C4A265'/><circle cx='50' cy='50' r='3' fill='none' stroke='#B8463A' stroke-width='1'/><ellipse cx='50' cy='22' rx='2' ry='10' fill='none' stroke='#C4A265' stroke-width='1.5'/><ellipse cx='50' cy='78' rx='2' ry='10' fill='none' stroke='#C4A265' stroke-width='1.5'/><ellipse cx='22' cy='50' rx='10' ry='2' fill='none' stroke='#C4A265' stroke-width='1.5'/><ellipse cx='78' cy='50' rx='10' ry='2' fill='none' stroke='#C4A265' stroke-width='1.5'/><ellipse cx='30' cy='30' rx='2' ry='9' fill='none' stroke='#C4A265' stroke-width='1.5' transform='rotate(45,30,30)'/><ellipse cx='70' cy='30' rx='2' ry='9' fill='none' stroke='#C4A265' stroke-width='1.5' transform='rotate(-45,70,30)'/><ellipse cx='30' cy='70' rx='2' ry='9' fill='none' stroke='#C4A265' stroke-width='1.5' transform='rotate(-45,30,70)'/><ellipse cx='70' cy='70' rx='2' ry='9' fill='none' stroke='#C4A265' stroke-width='1.5' transform='rotate(45,70,70)'/><ellipse cx='50' cy='14' rx='1.5' ry='7' fill='none' stroke='#E8A0B0' stroke-width='1'/><ellipse cx='86' cy='50' rx='7' ry='1.5' fill='none' stroke='#E8A0B0' stroke-width='1'/><ellipse cx='50' cy='86' rx='1.5' ry='7' fill='none' stroke='#E8A0B0' stroke-width='1'/><ellipse cx='14' cy='50' rx='7' ry='1.5' fill='none' stroke='#E8A0B0' stroke-width='1'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "菊花",
+      "隐士",
+      "长寿",
+      "四君子",
+      "秋"
+    ]
+  },
+  {
+    "gene_id": "gourd_001",
+    "name": "葫芦纹",
+    "shape_category": "植物纹",
+    "meaning": "祈福",
+    "era": "明清",
+    "region": "中原",
+    "description": "葫芦纹以葫芦为题材，'葫芦'与'福禄'谐音，道教视葫芦为法器，寓意驱邪纳福、福禄双全。葫芦藤蔓绵延象征子孙万代，广泛用于民间年画、剪纸和瓷器。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M50,8 Q42,8 40,18 Q38,28 42,35 Q48,42 50,45' fill='none' stroke='#C4A265' stroke-width='3'/><path d='M50,8 Q58,8 60,18 Q62,28 58,35 Q52,42 50,45' fill='none' stroke='#C4A265' stroke-width='3'/><path d='M50,45 Q42,48 38,58 Q34,72 42,82 Q48,90 50,92' fill='none' stroke='#C4A265' stroke-width='3'/><path d='M50,45 Q58,48 62,58 Q66,72 58,82 Q52,90 50,92' fill='none' stroke='#C4A265' stroke-width='3'/><line x1='50' y1='42' x2='50' y2='45' stroke='#C4A265' stroke-width='3'/><path d='M50,8 Q50,2 55,3' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><path d='M55,3 Q60,2 62,6' fill='none' stroke='#5B8C5A' stroke-width='1.5'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "葫芦",
+      "福禄",
+      "道教",
+      "驱邪",
+      "多子"
+    ]
+  },
+  {
+    "gene_id": "grape_001",
+    "name": "葡萄纹",
+    "shape_category": "植物纹",
+    "meaning": "祈福",
+    "era": "唐代",
+    "region": "西域",
+    "description": "葡萄纹随丝绸之路传入中原，唐代海兽葡萄镜为著名器物。成串的葡萄果实累累，象征丰收与多子，藤蔓缠绕寓意连绵不绝，具有浓郁的西域风情。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M50,15 Q40,30 45,50 Q50,65 40,80' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><path d='M50,15 Q65,30 60,50 Q58,65 65,80' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><path d='M50,15 Q30,25 20,35' fill='none' stroke='#5B8C5A' stroke-width='2'/><path d='M50,15 Q70,25 80,35' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='45' cy='38' r='6' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='55' cy='35' r='5' fill='none' stroke='#7BA86A' stroke-width='2'/><circle cx='42' cy='50' r='5' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='55' cy='48' r='6' fill='none' stroke='#7BA86A' stroke-width='2'/><circle cx='48' cy='60' r='5' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='40' cy='72' r='5' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='58' cy='65' r='5' fill='none' stroke='#7BA86A' stroke-width='2'/><circle cx='52' cy='78' r='4' fill='none' stroke='#5B8C5A' stroke-width='2'/><ellipse cx='30' cy='40' rx='5' ry='3' fill='none' stroke='#8B7355' stroke-width='1.5'/><ellipse cx='72' cy='40' rx='5' ry='3' fill='none' stroke='#8B7355' stroke-width='1.5'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "葡萄",
+      "西域",
+      "硕果",
+      "丰收",
+      "丝路"
+    ]
+  },
+  {
+    "gene_id": "honeysuckle_001",
+    "name": "忍冬纹",
+    "shape_category": "植物纹",
+    "meaning": "祈福",
+    "era": "魏晋",
+    "region": "西域",
+    "description": "忍冬纹随佛教艺术从印度、中亚传入，以金银花藤蔓为原型，三瓣或四瓣叶片沿S形曲线连续排列。敦煌壁画和北朝石刻中大量使用，象征灵魂不灭与轮回永生。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M5,50 Q25,25 50,50 Q75,75 95,50' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><ellipse cx='25' cy='38' rx='4' ry='8' fill='none' stroke='#5B8C5A' stroke-width='2' transform='rotate(35,25,38)'/><ellipse cx='25' cy='45' rx='4' ry='7' fill='none' stroke='#5B8C5A' stroke-width='2' transform='rotate(-25,25,45)'/><ellipse cx='50' cy='50' rx='4' ry='8' fill='none' stroke='#5B8C5A' stroke-width='2' transform='rotate(-35,50,50)'/><ellipse cx='50' cy='43' rx='4' ry='7' fill='none' stroke='#5B8C5A' stroke-width='2' transform='rotate(25,50,43)'/><ellipse cx='75' cy='62' rx='4' ry='8' fill='none' stroke='#5B8C5A' stroke-width='2' transform='rotate(35,75,62)'/><ellipse cx='75' cy='55' rx='4' ry='7' fill='none' stroke='#5B8C5A' stroke-width='2' transform='rotate(-25,75,55)'/><circle cx='15' cy='42' r='3' fill='#C4A265'/><circle cx='40' cy='55' r='3' fill='#C4A265'/><circle cx='65' cy='45' r='3' fill='#C4A265'/><circle cx='90' cy='55' r='3' fill='#C4A265'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "忍冬",
+      "金银花",
+      "佛教",
+      "敦煌",
+      "连续"
+    ]
+  },
+  {
+    "gene_id": "lingzhi_001",
+    "name": "灵芝纹",
+    "shape_category": "植物纹",
+    "meaning": "祈福",
+    "era": "汉代",
+    "region": "中原",
+    "description": "灵芝自古被视为仙草，传说食之可长生不老。灵芝纹呈如意云头状，汉代起广泛用于漆器、铜镜、织锦和建筑装饰，寓意健康长寿、吉祥如意。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M50,75 Q45,60 55,50 Q65,42 70,35 Q72,28 68,25 Q64,22 60,28 Q55,35 50,40' fill='none' stroke='#C4A265' stroke-width='3'/><path d='M50,40 Q38,30 25,30 Q18,30 15,38 Q12,46 18,48 Q26,45 32,42' fill='none' stroke='#C4A265' stroke-width='2.5'/><path d='M50,40 Q62,30 75,30 Q82,30 85,38 Q88,46 82,48 Q74,45 68,42' fill='none' stroke='#C4A265' stroke-width='2.5'/><path d='M50,40 Q45,25 50,20 Q55,25 50,40' fill='none' stroke='#B8463A' stroke-width='2'/><circle cx='50' cy='22' r='3' fill='#B8463A'/><line x1='50' y1='75' x2='50' y2='90' stroke='#8B7355' stroke-width='2.5'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "灵芝",
+      "仙草",
+      "长寿",
+      "如意",
+      "药用"
+    ]
+  },
+  {
+    "gene_id": "orchid_001",
+    "name": "兰花纹",
+    "shape_category": "植物纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "江南",
+    "description": "兰花为四君子之一，'空谷幽兰'象征君子清雅高洁、不媚世俗的品格。兰花纹以修长的叶片和优雅的花瓣为特征，常见于文人瓷器、水墨画和刺绣。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M50,75 Q45,50 55,35' fill='none' stroke='#5B8C5A' stroke-width='2'/><path d='M50,75 Q40,55 35,40' fill='none' stroke='#5B8C5A' stroke-width='2'/><path d='M50,75 Q60,55 65,40' fill='none' stroke='#5B8C5A' stroke-width='2'/><ellipse cx='50' cy='28' rx='6' ry='10' fill='none' stroke='#D4A0C0' stroke-width='2'/><ellipse cx='38' cy='33' rx='5' ry='8' fill='none' stroke='#D4A0C0' stroke-width='2' transform='rotate(-30,38,33)'/><ellipse cx='62' cy='33' rx='5' ry='8' fill='none' stroke='#D4A0C0' stroke-width='2' transform='rotate(30,62,33)'/><circle cx='50' cy='25' r='2.5' fill='#C4A265'/><circle cx='42' cy='30' r='2' fill='#C4A265'/><circle cx='58' cy='30' r='2' fill='#C4A265'/><path d='M50,75 Q30,80 15,70' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><path d='M50,75 Q70,80 85,70' fill='none' stroke='#5B8C5A' stroke-width='1.5'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "兰花",
+      "君子",
+      "幽香",
+      "四君子",
+      "文人"
+    ]
+  },
+  {
+    "gene_id": "peach_001",
+    "name": "桃花纹",
+    "shape_category": "植物纹",
+    "meaning": "祈福",
+    "era": "唐代",
+    "region": "中原",
+    "description": "桃花纹以桃花为题材，桃花灼灼象征春天与美好爱情（《诗经》'桃之夭夭'）。桃花也寓意长寿（寿桃），广泛用于瓷器、刺绣和年画，春风拂面、生机盎然。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='50' r='4' fill='#E8A0B0'/><circle cx='50' cy='35' r='7' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='65' cy='42' r='7' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='58' cy='58' r='7' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='42' cy='58' r='7' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='35' cy='42' r='7' fill='none' stroke='#E8A0B0' stroke-width='2'/><path d='M50,35 Q48,25 50,18' fill='none' stroke='#5B8C5A' stroke-width='2'/><path d='M50,18 Q45,12 50,8' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><circle cx='50' cy='35' r='2' fill='#C4A265'/><circle cx='65' cy='42' r='2' fill='#C4A265'/><circle cx='58' cy='58' r='2' fill='#C4A265'/><circle cx='42' cy='58' r='2' fill='#C4A265'/><circle cx='35' cy='42' r='2' fill='#C4A265'/>",
+    "default_color": "#E8A0B0",
+    "tags": [
+      "桃花",
+      "长寿",
+      "春天",
+      "爱情",
+      "诗经"
+    ]
+  },
+  {
+    "gene_id": "pine_001",
+    "name": "松纹",
+    "shape_category": "植物纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "江南",
+    "description": "松为岁寒三友之首，四季常青、凌霜不凋，象征坚贞不屈与长寿。松纹以苍劲的树干和层叠的松针为特征，广泛用于文人画、瓷器、漆器和织锦装饰。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M50,95 Q48,70 52,40 Q53,25 50,10' fill='none' stroke='#5B8C5A' stroke-width='5'/><path d='M50,55 Q30,45 15,50' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><path d='M50,65 Q72,55 85,60' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><path d='M50,50 Q25,35 20,38' fill='none' stroke='#5B8C5A' stroke-width='2'/><path d='M50,50 Q75,38 80,42' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='50' cy='10' r='15' fill='none' stroke='#5B8C5A' stroke-width='1'/><line x1='35' y1='10' x2='25' y2='5' stroke='#5B8C5A' stroke-width='1'/><line x1='50' y1='5' x2='50' y2='-2' stroke='#5B8C5A' stroke-width='1'/><line x1='65' y1='10' x2='75' y2='5' stroke='#5B8C5A' stroke-width='1'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "松树",
+      "长青",
+      "坚贞",
+      "岁寒三友",
+      "不老"
+    ]
+  },
+  {
+    "gene_id": "pomegranate_001",
+    "name": "石榴纹",
+    "shape_category": "植物纹",
+    "meaning": "祈福",
+    "era": "唐代",
+    "region": "西域",
+    "description": "石榴随丝绸之路传入中国，因果实多籽而象征'多子多福'。石榴纹常见于唐代织锦、金银器和瓷器，裂开的石榴露出饱满籽粒，寓意家族兴旺、子孙满堂。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='48' r='25' fill='none' stroke='#B8463A' stroke-width='3'/><circle cx='50' cy='48' r='10' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M50,23 Q45,10 55,10 Q65,10 60,23' fill='none' stroke='#B8463A' stroke-width='2'/><circle cx='50' cy='8' r='2' fill='#5B8C5A'/><path d='M35,40 Q30,35 28,42' fill='none' stroke='#D4606A' stroke-width='1.5'/><circle cx='38' cy='48' r='2.5' fill='#D4606A'/><circle cx='50' cy='45' r='2.5' fill='#D4606A'/><circle cx='62' cy='48' r='2.5' fill='#D4606A'/><circle cx='45' cy='55' r='2.5' fill='#D4606A'/><circle cx='55' cy='55' r='2.5' fill='#D4606A'/><circle cx='42' cy='42' r='2' fill='#D4606A'/><circle cx='58' cy='42' r='2' fill='#D4606A'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "石榴",
+      "多子",
+      "西域",
+      "饱满",
+      "多福"
+    ]
+  },
+  {
+    "gene_id": "curlcloud_001",
+    "name": "卷云纹",
+    "shape_category": "云水纹",
+    "meaning": "祈福",
+    "era": "秦汉",
+    "region": "中原",
+    "description": "卷云纹以云头卷曲为主要特征，云头向内或向外弯曲呈勾状，是战国至秦汉漆器和织锦中极具代表性的纹样。纹样线条转折有力、首尾呼应，象征气韵流转、生生不息。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M15,50 Q15,30 35,35 Q45,38 40,45 Q35,50 20,48' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M40,45 Q30,30 20,28' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M55,60 Q55,40 75,45 Q85,48 80,55 Q75,60 60,58' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M80,55 Q70,40 60,38' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M30,75 Q30,58 48,62 Q56,64 52,70 Q48,74 35,72' fill='none' stroke='#D4606A' stroke-width='2.5'/><path d='M52,70 Q44,58 35,56' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M70,30 Q70,18 85,22 Q92,24 88,30 Q84,34 75,32' fill='none' stroke='#D4606A' stroke-width='2.5'/><path d='M88,30 Q82,20 75,18' fill='none' stroke='#C4A265' stroke-width='2'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "卷云",
+      "秦汉",
+      "漆器",
+      "气纹",
+      "转折"
+    ]
+  },
+  {
+    "gene_id": "floretcloud_001",
+    "name": "朵云纹",
+    "shape_category": "云水纹",
+    "meaning": "祈福",
+    "era": "唐代",
+    "region": "中原",
+    "description": "朵云纹将云朵凝练为紧凑饱满的团状造型，云头圆润、云尾短促，是唐代织锦和金银器上极具辨识度的纹样。与汉代流云纹的飘逸相比，朵云纹更显雍容华贵，体现盛唐气象。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='30' cy='35' r='15' fill='none' stroke='#D4606A' stroke-width='2.5'/><circle cx='50' cy='25' r='18' fill='none' stroke='#B8463A' stroke-width='2.5'/><circle cx='70' cy='35' r='15' fill='none' stroke='#D4606A' stroke-width='2.5'/><path d='M20,45 Q30,55 50,50 Q70,55 80,45' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M50,50 Q48,60 45,68' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M50,50 Q52,60 55,68' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='50' cy='25' r='4' fill='#C4A265'/>",
+    "default_color": "#D4606A",
+    "tags": [
+      "朵云",
+      "团云",
+      "饱满",
+      "唐代",
+      "紧凑"
+    ]
+  },
+  {
+    "gene_id": "flowcloud_001",
+    "name": "流云纹",
+    "shape_category": "云水纹",
+    "meaning": "祈福",
+    "era": "汉代",
+    "region": "中原",
+    "description": "流云纹以流畅飘逸的曲线表现天地间流动的云气，线条舒展自由、富有动感，是汉代最具代表性的纹样。多见于汉代漆器、织锦和画像石，反映汉代'天人感应'的宇宙观和浪漫主义艺术精神。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M5,60 Q25,40 40,50 Q55,60 70,45 Q85,30 95,40' fill='none' stroke='#B8463A' stroke-width='3'/><path d='M40,50 Q50,40 55,45' fill='none' stroke='#B8463A' stroke-width='2'/><path d='M70,45 Q78,35 80,38' fill='none' stroke='#B8463A' stroke-width='2'/><path d='M5,70 Q30,50 50,62 Q65,72 80,60 Q90,52 95,55' fill='none' stroke='#D4606A' stroke-width='2.5'/><path d='M10,45 Q20,35 28,42' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M60,30 Q72,22 78,28' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='20' cy='40' r='3' fill='#C4A265' opacity='0.6'/><circle cx='75' cy='25' r='3' fill='#C4A265' opacity='0.6'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "流云",
+      "飘逸",
+      "动态",
+      "天象",
+      "气韵"
+    ]
+  },
+  {
+    "gene_id": "oceanwave_001",
+    "name": "海涛纹",
+    "shape_category": "云水纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "江南",
+    "description": "海涛纹以汹涌澎湃的海浪为主题，波涛起伏、浪花飞溅，富有动态美感。宋代瓷器（尤其是吉州窑、磁州窑）上大量使用海涛纹，也见于绘画和织锦，象征壮阔胸怀与源源不断的生命力。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M5,40 Q20,25 35,40 Q50,55 65,40 Q80,25 95,40' fill='none' stroke='#3A7AB4' stroke-width='3'/><path d='M5,55 Q20,45 30,55 Q40,65 50,55 Q60,45 70,55 Q80,65 95,55' fill='none' stroke='#2A6AA4' stroke-width='3'/><path d='M5,70 Q15,62 25,70 Q35,78 45,70 Q55,62 65,70 Q75,78 85,70 Q92,65 95,70' fill='none' stroke='#1A5A94' stroke-width='3'/><path d='M20,30 Q28,20 32,28' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M55,30 Q63,20 68,28' fill='none' stroke='#7BA3D6' stroke-width='2'/><path d='M85,35 Q92,28 95,32' fill='none' stroke='#7BA3D6' stroke-width='2'/><circle cx='30' cy='27' r='2' fill='#F5F0E8'/><circle cx='65' cy='27' r='2' fill='#F5F0E8'/><circle cx='90' cy='32' r='2' fill='#F5F0E8'/>",
+    "default_color": "#3A7AB4",
+    "tags": [
+      "海涛",
+      "波涛",
+      "汹涌",
+      "壮阔",
+      "动感"
+    ]
+  },
+  {
+    "gene_id": "rivercliff_001",
+    "name": "江崖纹",
+    "shape_category": "云水纹",
+    "meaning": "等级",
+    "era": "明清",
+    "region": "中原",
+    "description": "江崖纹又称海水江崖纹，由层层叠浪与耸立山石组成，是明清官服下摆的标志性纹饰。波浪层叠、山石耸立的组合象征'福山寿海'与江山永固，具有强烈的等级象征意味。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M5,70 Q20,62 35,70 Q50,78 65,70 Q80,62 95,70' fill='none' stroke='#3A7AB4' stroke-width='3'/><path d='M5,80 Q20,72 35,80 Q50,88 65,80 Q80,72 95,80' fill='none' stroke='#2A6AA4' stroke-width='3'/><path d='M5,90 Q20,82 35,90 Q50,95 65,90 Q80,82 95,90' fill='none' stroke='#1A5A94' stroke-width='3'/><polygon points='50,30 65,75 35,75' fill='none' stroke='#4A90C4' stroke-width='2.5'/><polygon points='40,40 55,75 25,75' fill='none' stroke='#5BA0D4' stroke-width='2'/><polygon points='60,40 75,75 45,75' fill='none' stroke='#5BA0D4' stroke-width='2'/><rect x='42' y='50' width='16' height='12' fill='none' stroke='#8B7355' stroke-width='2'/>",
+    "default_color": "#4A90C4",
+    "tags": [
+      "江崖",
+      "海水",
+      "官服",
+      "立水",
+      "江山"
+    ]
+  },
+  {
+    "gene_id": "rosycloud_001",
+    "name": "霞纹",
+    "shape_category": "云水纹",
+    "meaning": "祈福",
+    "era": "唐代",
+    "region": "中原",
+    "description": "霞纹以绚丽的晚霞为表现对象，通过层叠的弧形线条和多层色彩渲染霞光万道的效果。唐代织锦和壁画中霞纹常与仙女、飞天组合，营造祥瑞华美的天宫氛围。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M5,55 Q25,35 50,50 Q75,35 95,55' fill='none' stroke='#E8A0B0' stroke-width='3'/><path d='M5,45 Q25,25 50,40 Q75,25 95,45' fill='none' stroke='#D4A0C0' stroke-width='2.5'/><path d='M5,35 Q25,18 50,30 Q75,18 95,35' fill='none' stroke='#D4606A' stroke-width='2'/><path d='M10,60 Q30,42 50,58 Q70,42 90,60' fill='none' stroke='#C4A265' stroke-width='2'/><line x1='5' y1='55' x2='5' y2='35' stroke='#E8A0B0' stroke-width='2'/><line x1='95' y1='55' x2='95' y2='35' stroke='#E8A0B0' stroke-width='2'/>",
+    "default_color": "#E8A0B0",
+    "tags": [
+      "霞光",
+      "晚霞",
+      "色彩",
+      "华美",
+      "天象"
+    ]
+  },
+  {
+    "gene_id": "spiral_001",
+    "name": "涡纹",
+    "shape_category": "云水纹",
+    "meaning": "祈福",
+    "era": "商周",
+    "region": "中原",
+    "description": "涡纹以同心圆和螺旋线构成漩涡状图案，是中国最原始的纹饰之一，新石器时代彩陶上即已出现。青铜器上涡纹常与夔龙纹配合使用，象征水波旋转、生生不息的自然力量。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='50' r='38' fill='none' stroke='#4A90C4' stroke-width='2'/><circle cx='50' cy='50' r='28' fill='none' stroke='#4A90C4' stroke-width='2'/><circle cx='50' cy='50' r='18' fill='none' stroke='#4A90C4' stroke-width='2'/><circle cx='50' cy='50' r='8' fill='none' stroke='#4A90C4' stroke-width='2'/><circle cx='50' cy='50' r='3' fill='#4A90C4'/><path d='M5,50 Q20,30 40,50 Q60,70 80,50 Q90,40 95,50' fill='none' stroke='#7BA3D6' stroke-width='1.5'/><path d='M5,50 Q20,70 40,50 Q60,30 80,50 Q90,60 95,50' fill='none' stroke='#7BA3D6' stroke-width='1.5'/>",
+    "default_color": "#4A90C4",
+    "tags": [
+      "涡纹",
+      "漩涡",
+      "圆形",
+      "水纹",
+      "青铜器"
+    ]
+  },
+  {
+    "gene_id": "star_001",
+    "name": "星纹",
+    "shape_category": "云水纹",
+    "meaning": "祭祀",
+    "era": "商周",
+    "region": "中原",
+    "description": "星纹以放射状光芒表现星辰，古人对天文星象的崇拜催生了星纹装饰。商周青铜器和汉代画像石上的星纹常与日月纹组合，构成天文图像，象征天象秩序与宇宙运行。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='50' r='6' fill='#C4A265'/><line x1='50' y1='10' x2='50' y2='38' stroke='#C4A265' stroke-width='2.5'/><line x1='50' y1='62' x2='50' y2='90' stroke='#C4A265' stroke-width='2.5'/><line x1='10' y1='50' x2='38' y2='50' stroke='#C4A265' stroke-width='2.5'/><line x1='62' y1='50' x2='90' y2='50' stroke='#C4A265' stroke-width='2.5'/><line x1='22' y1='22' x2='34' y2='34' stroke='#C4A265' stroke-width='2'/><line x1='66' y1='66' x2='78' y2='78' stroke='#C4A265' stroke-width='2'/><line x1='78' y1='22' x2='66' y2='34' stroke='#C4A265' stroke-width='2'/><line x1='34' y1='66' x2='22' y2='78' stroke='#C4A265' stroke-width='2'/><circle cx='50' cy='50' r='3' fill='#B8463A'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "星",
+      "星辰",
+      "天象",
+      "天文",
+      "闪光"
+    ]
+  },
+  {
+    "gene_id": "thunder_001",
+    "name": "雷纹",
+    "shape_category": "云水纹",
+    "meaning": "祭祀",
+    "era": "商周",
+    "region": "中原",
+    "description": "雷纹以方形回旋线条表现雷电之形，是商周青铜器上仅次于饕餮纹的重要纹饰，常作为地纹填充主体纹饰周围空白。有方雷纹和旋雷纹两种变体，体现古人对自然力量的敬畏。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M5,10 L50,10 L50,30 L20,30 L20,60 L60,60 L60,50 L30,50 L30,40 L70,40 L70,70 L10,70 L10,20 L45,20' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M80,15 L95,15 L95,80 L25,80 L25,55 L80,55 L80,25 L35,25 L35,45 L85,45 L85,70 L30,70 L30,60 L75,60 L75,30 L40,30' fill='none' stroke='#B8463A' stroke-width='2'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "雷纹",
+      "螺旋",
+      "回旋",
+      "青铜器",
+      "天象"
+    ]
+  },
+  {
+    "gene_id": "baji_001",
+    "name": "八吉纹",
+    "shape_category": "吉祥文字纹",
+    "meaning": "祈福",
+    "era": "唐代",
+    "region": "西域",
+    "description": "八吉纹又称八吉祥纹，源自藏传佛教八种宝物：法轮、法螺、宝伞、白盖、莲花、宝瓶、金鱼、盘长，通常以丝带缠绕串联成装饰带。象征佛法无边、吉祥圆满，常见于瓷器、织锦和佛教建筑。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='18' cy='30' r='7' fill='none' stroke='#C4A265' stroke-width='2'/><line x1='18' y1='23' x2='18' y2='37' stroke='#C4A265' stroke-width='1.5'/><line x1='11' y1='30' x2='25' y2='30' stroke='#C4A265' stroke-width='1.5'/><circle cx='50' cy='22' r='8' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M48,18 Q50,14 52,18' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='82' cy='30' r='7' fill='none' stroke='#C4A265' stroke-width='2'/><ellipse cx='82' cy='30' rx='3' ry='5' fill='none' stroke='#C4A265' stroke-width='1.5'/><rect x='14' y='55' width='12' height='16' rx='2' fill='none' stroke='#C4A265' stroke-width='2'/><line x1='20' y1='55' x2='20' y2='71' stroke='#C4A265' stroke-width='1'/><path d='M42,52 Q50,45 58,52 Q62,58 58,65 Q50,72 42,65 Q38,58 42,52 Z' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='50' cy='58' r='3' fill='#C4A265'/><circle cx='78' cy='60' r='7' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='78' cy='60' r='3' fill='#C4A265'/><path d='M10,85 Q30,78 50,85 Q70,92 90,85' fill='none' stroke='#B8463A' stroke-width='1.5'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "八吉祥",
+      "佛教",
+      "法轮",
+      "法螺",
+      "宝伞"
+    ]
+  },
+  {
+    "gene_id": "doublejoy_001",
+    "name": "双喜纹",
+    "shape_category": "吉祥文字纹",
+    "meaning": "祈福",
+    "era": "明清",
+    "region": "中原",
+    "description": "双喜纹以'囍'字为核心，由两个'喜'并列组成，形态对称圆满，是婚礼专用吉祥符号。传说为宋代王安石所创，广泛用于剪纸、喜被、喜糖盒等婚庆用品，象征双喜临门、婚姻美满。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<rect x='20' y='15' width='26' height='30' fill='none' stroke='#B8463A' stroke-width='2.5'/><line x1='33' y1='15' x2='33' y2='45' stroke='#B8463A' stroke-width='2.5'/><line x1='20' y1='25' x2='46' y2='25' stroke='#B8463A' stroke-width='2'/><line x1='20' y1='35' x2='46' y2='35' stroke='#B8463A' stroke-width='2'/><line x1='20' y1='45' x2='46' y2='45' stroke='#B8463A' stroke-width='2.5'/><rect x='20' y='55' width='10' height='30' fill='none' stroke='#B8463A' stroke-width='2'/><rect x='36' y='55' width='10' height='30' fill='none' stroke='#B8463A' stroke-width='2'/><rect x='54' y='15' width='26' height='30' fill='none' stroke='#B8463A' stroke-width='2.5'/><line x1='67' y1='15' x2='67' y2='45' stroke='#B8463A' stroke-width='2.5'/><line x1='54' y1='25' x2='80' y2='25' stroke='#B8463A' stroke-width='2'/><line x1='54' y1='35' x2='80' y2='35' stroke='#B8463A' stroke-width='2'/><line x1='54' y1='45' x2='80' y2='45' stroke='#B8463A' stroke-width='2.5'/><rect x='54' y='55' width='10' height='30' fill='none' stroke='#B8463A' stroke-width='2'/><rect x='70' y='55' width='10' height='30' fill='none' stroke='#B8463A' stroke-width='2'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "双喜",
+      "婚礼",
+      "喜庆",
+      "囍字",
+      "婚嫁"
+    ]
+  },
+  {
+    "gene_id": "fuchar_001",
+    "name": "福字纹",
+    "shape_category": "吉祥文字纹",
+    "meaning": "祈福",
+    "era": "明清",
+    "region": "中原",
+    "description": "福字纹将'福'字图案化，常以圆形团福形式出现。'福'是中国民间最核心的吉祥观念，春节倒贴福字寓意'福到了'，福字纹广泛用于年画、瓷器款识和建筑装饰，寄托对幸福生活的向往。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='50' r='42' fill='none' stroke='#B8463A' stroke-width='3'/><path d='M30,35 L30,60 L42,60 L42,50 L36,50 L36,35' fill='none' stroke='#B8463A' stroke-width='3'/><line x1='48' y1='35' x2='48' y2='60' stroke='#B8463A' stroke-width='3'/><line x1='48' y1='48' x2='58' y2='48' stroke='#B8463A' stroke-width='3'/><path d='M58,35 L58,60' stroke='#B8463A' stroke-width='3'/><path d='M58,35 L70,35 L70,45 L62,45' fill='none' stroke='#B8463A' stroke-width='3'/><line x1='58' y1='60' x2='70' y2='60' stroke='#B8463A' stroke-width='3'/><path d='M30,65 L70,65 L70,75 L50,72 L30,75 Z' fill='none' stroke='#B8463A' stroke-width='2.5'/><circle cx='50' cy='50' r='42' fill='none' stroke='#C4A265' stroke-width='1'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "福",
+      "五福",
+      "春节",
+      "幸福",
+      "文字"
+    ]
+  },
+  {
+    "gene_id": "luchar_001",
+    "name": "禄字纹",
+    "shape_category": "吉祥文字纹",
+    "meaning": "祈福",
+    "era": "明清",
+    "region": "中原",
+    "description": "禄字纹将'禄'字图案化，禄指官禄俸禄，是古代读书人最看重的吉祥观念。'加官进禄'为常见吉祥组合，禄字纹常见于文房用品、官宦宅邸装饰和科举相关器物，寓意功名利禄。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<rect x='20' y='20' width='60' height='60' rx='8' fill='none' stroke='#C4A265' stroke-width='2.5'/><path d='M35,30 L35,55 L48,55 L48,46 L40,46 L40,30' fill='none' stroke='#C4A265' stroke-width='2.5'/><line x1='50' y1='30' x2='50' y2='55' stroke='#C4A265' stroke-width='2.5'/><line x1='50' y1='42' x2='58' y2='42' stroke='#C4A265' stroke-width='2.5'/><line x1='58' y1='30' x2='58' y2='55' stroke='#C4A265' stroke-width='2.5'/><path d='M58,30 L68,30 L68,38 L62,38 L62,55 L58,55' fill='none' stroke='#C4A265' stroke-width='2.5'/><path d='M35,62 L42,68 L49,62 L56,68 L63,62' fill='none' stroke='#B8463A' stroke-width='2'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "禄",
+      "官禄",
+      "俸禄",
+      "仕途",
+      "文字"
+    ]
+  },
+  {
+    "gene_id": "taiji_001",
+    "name": "太极纹",
+    "shape_category": "吉祥文字纹",
+    "meaning": "祈福",
+    "era": "商周",
+    "region": "中原",
+    "description": "太极纹以阴阳鱼（太极图）为核心图形，黑白相抱、阴阳互含，是道家哲学的最高视觉符号。宋代以后太极图广泛流传，常见于道教建筑、木雕门扇和民居装饰，象征宇宙万物的对立统一与循环转化。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='50' r='40' fill='none' stroke='#1E1B18' stroke-width='3'/><path d='M50,10 A40,40 0 0,1 50,90 A20,20 0 0,1 50,50 A20,20 0 0,0 50,10 Z' fill='#1E1B18'/><circle cx='50' cy='30' r='8' fill='#F5F0E8'/><circle cx='50' cy='70' r='8' fill='#1E1B18'/><circle cx='50' cy='30' r='3' fill='#1E1B18'/><circle cx='50' cy='70' r='3' fill='#F5F0E8'/>",
+    "default_color": "#1E1B18",
+    "tags": [
+      "太极",
+      "阴阳",
+      "道教",
+      "平衡",
+      "八卦"
+    ]
+  },
+  {
+    "gene_id": "yingluo_001",
+    "name": "璎珞纹",
+    "shape_category": "吉祥文字纹",
+    "meaning": "祈福",
+    "era": "唐代",
+    "region": "西域",
+    "description": "璎珞纹源自佛教艺术中的璎珞（珠玉串联的项饰），以串珠、宝石、花饰组合成弧形垂挂的华美装饰带。多见于敦煌壁画、石窟造像和佛教器物，象征庄严华贵、功德圆满。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M20,20 Q35,50 50,50 Q65,50 80,20' fill='none' stroke='#C4A265' stroke-width='2.5'/><circle cx='20' cy='20' r='4' fill='#C4A265'/><circle cx='35' cy='35' r='4' fill='#C4A265'/><circle cx='50' cy='42' r='4' fill='#C4A265'/><circle cx='65' cy='35' r='4' fill='#C4A265'/><circle cx='80' cy='20' r='4' fill='#C4A265'/><path d='M30,45 L30,70' stroke='#C4A265' stroke-width='2'/><path d='M50,50 L50,75' stroke='#C4A265' stroke-width='2'/><path d='M70,45 L70,70' stroke='#C4A265' stroke-width='2'/><circle cx='30' cy='75' r='5' fill='none' stroke='#B8463A' stroke-width='2'/><circle cx='50' cy='80' r='5' fill='none' stroke='#B8463A' stroke-width='2'/><circle cx='70' cy='75' r='5' fill='none' stroke='#B8463A' stroke-width='2'/><circle cx='30' cy='75' r='2.5' fill='#B8463A'/><circle cx='50' cy='80' r='2.5' fill='#B8463A'/><circle cx='70' cy='75' r='2.5' fill='#B8463A'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "璎珞",
+      "项链",
+      "佛教",
+      "华美",
+      "装饰"
+    ]
+  },
+  {
+    "gene_id": "ballflower_001",
+    "name": "皮球花纹",
+    "shape_category": "综合纹",
+    "meaning": "祈福",
+    "era": "明清",
+    "region": "中原",
+    "description": "皮球花纹以大小不等的圆形小花簇散点分布于器物表面，每朵小花由三至五片花瓣组成，大小错落有致，活泼灵动。清代雍正、乾隆官窑瓷器上大量使用，因形似彩球而得名'皮球花'。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='25' cy='25' r='12' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='25' cy='25' r='4' fill='#E8A0B0'/><circle cx='25' cy='21' r='3' fill='none' stroke='#D4A0C0' stroke-width='1.5'/><circle cx='29' cy='25' r='3' fill='none' stroke='#D4A0C0' stroke-width='1.5'/><circle cx='25' cy='29' r='3' fill='none' stroke='#D4A0C0' stroke-width='1.5'/><circle cx='21' cy='25' r='3' fill='none' stroke='#D4A0C0' stroke-width='1.5'/><circle cx='65' cy='35' r='9' fill='none' stroke='#B8463A' stroke-width='2'/><circle cx='65' cy='35' r='3' fill='#B8463A'/><circle cx='65' cy='30' r='2.5' fill='none' stroke='#D4606A' stroke-width='1.5'/><circle cx='70' cy='35' r='2.5' fill='none' stroke='#D4606A' stroke-width='1.5'/><circle cx='65' cy='40' r='2.5' fill='none' stroke='#D4606A' stroke-width='1.5'/><circle cx='60' cy='35' r='2.5' fill='none' stroke='#D4606A' stroke-width='1.5'/><circle cx='45' cy='70' r='10' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='45' cy='70' r='3.5' fill='#5B8C5A'/><circle cx='45' cy='64' r='2.5' fill='none' stroke='#7BA86A' stroke-width='1.5'/><circle cx='51' cy='70' r='2.5' fill='none' stroke='#7BA86A' stroke-width='1.5'/><circle cx='45' cy='76' r='2.5' fill='none' stroke='#7BA86A' stroke-width='1.5'/><circle cx='39' cy='70' r='2.5' fill='none' stroke='#7BA86A' stroke-width='1.5'/><circle cx='80' cy='75' r='7' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='80' cy='75' r='2.5' fill='#C4A265'/><circle cx='15' cy='65' r='6' fill='none' stroke='#7BA3D6' stroke-width='2'/><circle cx='15' cy='65' r='2' fill='#7BA3D6'/>",
+    "default_color": "#E8A0B0",
+    "tags": [
+      "皮球花",
+      "小团花",
+      "散点",
+      "瓷器",
+      "活泼"
+    ]
+  },
+  {
+    "gene_id": "fallflower_001",
+    "name": "落花流水纹",
+    "shape_category": "综合纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "江南",
+    "description": "落花流水纹将飘落的花瓣与流动的水波组合，取意'落花有意、流水无情'的诗意境界。宋代织锦中首创，明清瓷器上广泛使用，花瓣随波逐流的画面充满禅意与文人雅趣。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M5,50 Q20,40 35,50 Q50,60 65,50 Q80,40 95,50' fill='none' stroke='#4A90C4' stroke-width='2.5'/><path d='M5,65 Q20,55 35,65 Q50,75 65,65 Q80,55 95,65' fill='none' stroke='#3A7AB4' stroke-width='2.5'/><path d='M5,80 Q20,70 35,80 Q50,90 65,80 Q80,70 95,80' fill='none' stroke='#2A6AA4' stroke-width='2.5'/><ellipse cx='25' cy='38' rx='4' ry='5' fill='none' stroke='#E8A0B0' stroke-width='1.5' transform='rotate(20,25,38)'/><ellipse cx='25' cy='43' rx='3' ry='4' fill='none' stroke='#D4A0C0' stroke-width='1.5' transform='rotate(-30,25,43)'/><ellipse cx='60' cy='40' rx='4' ry='5' fill='none' stroke='#E8A0B0' stroke-width='1.5' transform='rotate(-15,60,40)'/><ellipse cx='60' cy='45' rx='3' ry='4' fill='none' stroke='#D4A0C0' stroke-width='1.5' transform='rotate(25,60,45)'/><ellipse cx='80' cy='55' rx='3' ry='4' fill='none' stroke='#E8A0B0' stroke-width='1.5' transform='rotate(40,80,55)'/><ellipse cx='40' cy='58' rx='3' ry='4' fill='none' stroke='#D4A0C0' stroke-width='1.5' transform='rotate(-40,40,58)'/><circle cx='25' cy='36' r='1.5' fill='#C4A265'/><circle cx='60' cy='38' r='1.5' fill='#C4A265'/>",
+    "default_color": "#4A90C4",
+    "tags": [
+      "落花",
+      "流水",
+      "桃花",
+      "春水",
+      "诗意"
+    ]
+  },
+  {
+    "gene_id": "fivebatshou_001",
+    "name": "五福捧寿纹",
+    "shape_category": "综合纹",
+    "meaning": "祈福",
+    "era": "明清",
+    "region": "中原",
+    "description": "五福捧寿纹以五只蝙蝠环绕团寿字组成，取'蝠'谐音'福'，五福指寿、富、康、德、命。五蝠围寿寓意五福齐备、长寿安康，是清代官窑瓷器和织锦上最常见的祝寿纹样。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='50' cy='50' r='20' fill='none' stroke='#B8463A' stroke-width='2.5'/><path d='M50,32 L50,68' stroke='#B8463A' stroke-width='3'/><path d='M32,50 L68,50' stroke='#B8463A' stroke-width='3'/><path d='M36,38 L50,50' stroke='#B8463A' stroke-width='2.5'/><path d='M64,38 L50,50' stroke='#B8463A' stroke-width='2.5'/><path d='M36,62 L50,50' stroke='#B8463A' stroke-width='2.5'/><path d='M64,62 L50,50' stroke='#B8463A' stroke-width='2.5'/><path d='M50,18 Q42,15 38,20 Q36,26 42,22' fill='none' stroke='#B8463A' stroke-width='1.5'/><path d='M50,18 Q58,15 62,20 Q64,26 58,22' fill='none' stroke='#B8463A' stroke-width='1.5'/><path d='M82,50 Q85,42 80,38 Q74,36 78,42' fill='none' stroke='#B8463A' stroke-width='1.5'/><path d='M82,50 Q85,58 80,62 Q74,64 78,58' fill='none' stroke='#B8463A' stroke-width='1.5'/><path d='M18,50 Q15,42 20,38 Q26,36 22,42' fill='none' stroke='#B8463A' stroke-width='1.5'/><path d='M18,50 Q15,58 20,62 Q26,64 22,58' fill='none' stroke='#B8463A' stroke-width='1.5'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "五福",
+      "蝙蝠",
+      "团寿",
+      "祝寿",
+      "组合"
+    ]
+  },
+  {
+    "gene_id": "fourseasons_001",
+    "name": "四季花纹",
+    "shape_category": "综合纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "中原",
+    "description": "四季花纹将春夏秋冬四时代表性花卉（春桃、夏荷、秋菊、冬梅）组合在同一画面中，象征四季平安、周而复始。常见于瓷器、织锦和建筑彩绘，寄托'年年岁岁花相似'的美好愿景。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<circle cx='25' cy='25' r='10' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><circle cx='25' cy='25' r='3' fill='#E8A0B0'/><circle cx='25' cy='20' r='2' fill='none' stroke='#E8A0B0' stroke-width='1.5'/><circle cx='30' cy='25' r='2' fill='none' stroke='#E8A0B0' stroke-width='1.5'/><circle cx='25' cy='30' r='2' fill='none' stroke='#E8A0B0' stroke-width='1.5'/><circle cx='20' cy='25' r='2' fill='none' stroke='#E8A0B0' stroke-width='1.5'/><ellipse cx='75' cy='25' rx='10' ry='14' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><ellipse cx='68' cy='25' rx='7' ry='10' fill='none' stroke='#D4A0C0' stroke-width='1.5' transform='rotate(-25,68,25)'/><ellipse cx='82' cy='25' rx='7' ry='10' fill='none' stroke='#D4A0C0' stroke-width='1.5' transform='rotate(25,82,25)'/><circle cx='75' cy='25' r='2.5' fill='#C4A265'/><circle cx='25' cy='75' r='10' fill='none' stroke='#C4A265' stroke-width='2.5'/><ellipse cx='25' cy='68' rx='2' ry='8' fill='none' stroke='#C4A265' stroke-width='1.5'/><ellipse cx='25' cy='82' rx='2' ry='8' fill='none' stroke='#C4A265' stroke-width='1.5'/><ellipse cx='18' cy='75' rx='8' ry='2' fill='none' stroke='#C4A265' stroke-width='1.5'/><ellipse cx='32' cy='75' rx='8' ry='2' fill='none' stroke='#C4A265' stroke-width='1.5'/><circle cx='75' cy='75' r='10' fill='none' stroke='#D4A0C0' stroke-width='2.5'/><circle cx='75' cy='75' r='3' fill='#D4A0C0'/><circle cx='72' cy='70' r='2.5' fill='none' stroke='#E8A0B0' stroke-width='1'/><circle cx='78' cy='70' r='2.5' fill='none' stroke='#E8A0B0' stroke-width='1'/><circle cx='72' cy='80' r='2.5' fill='none' stroke='#E8A0B0' stroke-width='1'/><circle cx='78' cy='80' r='2.5' fill='none' stroke='#E8A0B0' stroke-width='1'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "四季",
+      "梅兰竹菊",
+      "时令",
+      "轮回",
+      "花卉"
+    ]
+  },
+  {
+    "gene_id": "fushou_001",
+    "name": "福寿双全纹",
+    "shape_category": "综合纹",
+    "meaning": "祈福",
+    "era": "明清",
+    "region": "中原",
+    "description": "福寿双全纹将蝙蝠与寿桃组合，取'蝠'谐音'福'、桃代表长寿。有时加入两枚铜钱（'双钱'谐音'双全'），是祝寿和年节最常用的综合吉祥纹样，寄托'既有福气又享高寿'的美好愿望。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M50,60 Q42,48 35,45 Q28,42 25,48 Q22,54 30,50 Q28,46 32,44' fill='none' stroke='#B8463A' stroke-width='2'/><path d='M50,60 Q58,48 65,45 Q72,42 75,48 Q78,54 70,50 Q72,46 68,44' fill='none' stroke='#B8463A' stroke-width='2'/><path d='M50,60 Q48,52 44,48 Q40,44 44,40' fill='none' stroke='#B8463A' stroke-width='1.5'/><path d='M50,60 Q52,52 56,48 Q60,44 56,40' fill='none' stroke='#B8463A' stroke-width='1.5'/><circle cx='50' cy='64' r='2.5' fill='#B8463A'/><circle cx='50' cy='30' r='16' fill='none' stroke='#E8A0B0' stroke-width='2.5'/><path d='M50,14 Q48,8 50,5' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><ellipse cx='43' cy='32' rx='5' ry='9' fill='none' stroke='#D48090' stroke-width='1.5' transform='rotate(-25,43,32)'/><ellipse cx='57' cy='32' rx='5' ry='9' fill='none' stroke='#D48090' stroke-width='1.5' transform='rotate(25,57,32)'/><circle cx='50' cy='28' r='2' fill='#C4A265'/>",
+    "default_color": "#B8463A",
+    "tags": [
+      "福寿",
+      "蝙蝠",
+      "寿桃",
+      "双全",
+      "祝寿"
+    ]
+  },
+  {
+    "gene_id": "hiddenimmortal_001",
+    "name": "暗八仙纹",
+    "shape_category": "综合纹",
+    "meaning": "祈福",
+    "era": "明清",
+    "region": "中原",
+    "description": "暗八仙纹以道教八仙各自持有的法器为图案（葫芦、团扇、鱼鼓、宝剑、荷花、花篮、横笛、玉板），各法器以丝带缠绕，以物代人，寓意仙人护佑、逢凶化吉，常见于瓷器、木雕和建筑装饰。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M15,20 Q20,12 30,18 Q25,28 15,20' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='38' cy='22' r='8' fill='none' stroke='#C4A265' stroke-width='2'/><line x1='38' y1='14' x2='38' y2='30' stroke='#C4A265' stroke-width='1.5'/><rect x='55' y='18' width='6' height='18' rx='2' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M72,15 L78,10 L82,18 L76,25 Z' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M12,55 Q20,48 28,55 L20,65 Z' fill='none' stroke='#C4A265' stroke-width='2'/><circle cx='42' cy='58' r='9' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M42,52 Q46,48 50,52' fill='none' stroke='#C4A265' stroke-width='1.5'/><path d='M60,50 Q68,44 76,50 Q72,56 68,50' fill='none' stroke='#C4A265' stroke-width='2'/><rect x='82' y='55' width='10' height='4' rx='1' fill='none' stroke='#C4A265' stroke-width='2'/><path d='M5,85 Q25,75 50,85 Q75,95 95,85' fill='none' stroke='#B8463A' stroke-width='1.5'/>",
+    "default_color": "#C4A265",
+    "tags": [
+      "暗八仙",
+      "道教",
+      "法器",
+      "吕洞宾",
+      "八仙"
+    ]
+  },
+  {
+    "gene_id": "lotuschild_001",
+    "name": "连生贵子纹",
+    "shape_category": "综合纹",
+    "meaning": "祈福",
+    "era": "明清",
+    "region": "中原",
+    "description": "连生贵子纹将莲花与童子组合，取'莲'谐音'连'，寓意连续不断地生养贵子。画面通常为胖娃娃手捧莲花或骑坐莲叶之上，是民间年画、剪纸和瓷器中最受欢迎的生育吉祥纹样。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<ellipse cx='50' cy='62' rx='16' ry='8' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><ellipse cx='50' cy='62' rx='8' ry='4' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><circle cx='50' cy='45' r='10' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='47' cy='43' r='1.5' fill='#E8A0B0'/><circle cx='53' cy='43' r='1.5' fill='#E8A0B0'/><path d='M47,48 Q50,50 53,48' fill='none' stroke='#E8A0B0' stroke-width='1'/><ellipse cx='50' cy='55' rx='7' ry='10' fill='none' stroke='#E8A0B0' stroke-width='1.5'/><line x1='50' y1='55' x2='50' y2='62' stroke='#E8A0B0' stroke-width='1.5'/><line x1='43' y1='58' x2='40' y2='65' stroke='#E8A0B0' stroke-width='1.5'/><line x1='57' y1='58' x2='60' y2='65' stroke='#E8A0B0' stroke-width='1.5'/><ellipse cx='50' cy='28' rx='8' ry='14' fill='none' stroke='#E8A0B0' stroke-width='2'/><ellipse cx='42' cy='32' rx='6' ry='11' fill='none' stroke='#D4A0C0' stroke-width='1.5' transform='rotate(-20,42,32)'/><ellipse cx='58' cy='32' rx='6' ry='11' fill='none' stroke='#D4A0C0' stroke-width='1.5' transform='rotate(20,58,32)'/>",
+    "default_color": "#E8A0B0",
+    "tags": [
+      "莲花",
+      "童子",
+      "连生贵子",
+      "多子",
+      "生育"
+    ]
+  },
+  {
+    "gene_id": "magpiemume_001",
+    "name": "喜上眉梢纹",
+    "shape_category": "综合纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "中原",
+    "description": "喜上眉梢纹以喜鹊立于梅花枝头为主题，取'梅'谐音'眉'、'鹊'谐音'喜'，意为喜事涌上眉梢。画面通常一枝梅花斜出、两只喜鹊栖于枝上，是民间最受欢迎的报喜图案之一。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M15,75 Q30,65 50,58 Q70,50 90,42' fill='none' stroke='#8B7355' stroke-width='3'/><circle cx='30' cy='60' r='5' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='50' cy='52' r='5' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='70' cy='45' r='5' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='35' cy='68' r='4' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='55' cy='62' r='4' fill='none' stroke='#E8A0B0' stroke-width='2'/><ellipse cx='60' cy='40' rx='10' ry='7' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='53' cy='33' r='5' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='52' cy='31' r='1.5' fill='#5B8C5A'/><polygon points='48,28 42,23 47,30' fill='#5B8C5A'/><path d='M65,35 Q72,28 75,32' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><ellipse cx='28' cy='55' rx='9' ry='6' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='22' cy='48' r='4' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='21' cy='46' r='1.2' fill='#5B8C5A'/><polygon points='19,42 14,38 18,44' fill='#5B8C5A'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "喜鹊",
+      "梅花",
+      "喜上眉梢",
+      "报喜",
+      "吉兆"
+    ]
+  },
+  {
+    "gene_id": "melons_001",
+    "name": "瓜瓞绵绵纹",
+    "shape_category": "综合纹",
+    "meaning": "祈福",
+    "era": "明清",
+    "region": "中原",
+    "description": "瓜瓞绵绵纹以瓜果与藤蔓为主题，取意《诗经》'绵绵瓜瓞'，大瓜为瓜、小瓜为瓞，藤蔓绵长缠绕，象征子孙繁衍、家族昌盛。常见于青花瓷、织锦和剪纸，是婚礼和生育庆典的重要装饰纹样。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M10,20 Q30,15 50,25 Q70,15 90,20' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><path d='M50,25 Q45,15 50,5' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><circle cx='50' cy='38' r='14' fill='none' stroke='#5B8C5A' stroke-width='2.5'/><circle cx='50' cy='35' r='3' fill='#5B8C5A'/><ellipse cx='40' cy='45' rx='8' ry='10' fill='none' stroke='#5B8C5A' stroke-width='2'/><ellipse cx='60' cy='48' rx='7' ry='9' fill='none' stroke='#5B8C5A' stroke-width='2'/><ellipse cx='50' cy='62' rx='6' ry='8' fill='none' stroke='#7BA86A' stroke-width='2'/><path d='M40,58 Q35,62 32,70' fill='none' stroke='#5B8C5A' stroke-width='2'/><path d='M60,60 Q65,65 68,72' fill='none' stroke='#5B8C5A' stroke-width='2'/><path d='M20,25 Q18,35 25,40' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='25' cy='46' r='6' fill='none' stroke='#7BA86A' stroke-width='2'/><path d='M80,25 Q82,35 75,42' fill='none' stroke='#5B8C5A' stroke-width='2'/><circle cx='75' cy='48' r='5' fill='none' stroke='#7BA86A' stroke-width='2'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "瓜瓞",
+      "连绵",
+      "子孙",
+      "藤蔓",
+      "繁衍"
+    ]
+  },
+  {
+    "gene_id": "threefriends_001",
+    "name": "岁寒三友纹",
+    "shape_category": "综合纹",
+    "meaning": "祈福",
+    "era": "宋代",
+    "region": "江南",
+    "description": "岁寒三友纹将松、竹、梅三种耐寒植物组合，'松长青、竹有节、梅傲雪'，象征君子在逆境中保持高尚品格。该纹样自宋代文人画兴起后广泛流行，常见于青花瓷、紫砂壶、刺绣和漆器。",
+    "svg_viewbox": "0 0 100 100",
+    "svg_content": "<path d='M25,90 Q22,60 28,30 Q30,15 25,5' fill='none' stroke='#5B8C5A' stroke-width='3'/><path d='M28,30 Q15,25 10,28' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><path d='M28,45 Q40,40 45,42' fill='none' stroke='#5B8C5A' stroke-width='1.5'/><rect x='58' y='10' width='5' height='75' fill='none' stroke='#5B8C5A' stroke-width='2'/><line x1='50' y1='25' x2='70' y2='25' stroke='#5B8C5A' stroke-width='1.5'/><line x1='48' y1='45' x2='68' y2='45' stroke='#5B8C5A' stroke-width='1.5'/><line x1='50' y1='65' x2='72' y2='65' stroke='#5B8C5A' stroke-width='1.5'/><circle cx='85' cy='50' r='7' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='78' cy='42' r='6' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='92' cy='42' r='6' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='78' cy='58' r='6' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='92' cy='58' r='6' fill='none' stroke='#E8A0B0' stroke-width='2'/><circle cx='85' cy='50' r='2.5' fill='#C4A265'/>",
+    "default_color": "#5B8C5A",
+    "tags": [
+      "岁寒三友",
+      "松竹梅",
+      "气节",
+      "文人",
+      "高洁"
+    ]
   }
 ]
