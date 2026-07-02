@@ -55,6 +55,9 @@ CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 REDIS_ENABLED = bool(os.getenv("REDIS_URL", ""))  # 仅显式设置时启用
 
+# 数字展厅管理员密码
+EXHIBITION_ADMIN_PASSWORD = os.getenv("EXHIBITION_ADMIN_PASSWORD", "123456")
+
 # 确保目录存在
 for d in [IMAGE_DIR, VOICE_DIR, EXPORT_DIR, HEATMAP_DIR, GENERATED_DIR]:
     d.mkdir(parents=True, exist_ok=True)

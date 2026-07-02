@@ -13,6 +13,21 @@ logger = logging.getLogger("restoration_pipeline")
 MOCK_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "mock"
 
 
+def _log_dashscope_usage(response, model: str, endpoint: str) -> None:
+    """从 DashScope 响应提取 usage 并记录 AI 用量"""
+    from app.utils.ai_governance import log_ai_usage, get_ai_user
+    usage = response.usage
+    log_ai_usage(
+        user_id=get_ai_user(),
+        model=model,
+        endpoint=endpoint,
+        tokens_in=usage.input_tokens if usage else 0,
+        tokens_out=usage.output_tokens if usage else 0,
+        latency_ms=0,
+        status="success",
+    )
+
+
 def run_restoration_pipeline(image_path: str) -> dict:
     """
     运行完整的4步修复管道
@@ -171,6 +186,7 @@ def _run_damage_analysis(image_path: str) -> dict:
             )
 
         raw_text = response.output.choices[0].message.content[0]["text"]
+        _log_dashscope_usage(response, "qwen-vl-max", "restoration_damage_analysis")
         return _parse_damage_response(raw_text)
 
     except ImportError:
@@ -369,6 +385,7 @@ def _run_verification(original_path: str, restored_path: str, category: str) -> 
             )
 
         raw_text = response.output.choices[0].message.content[0]["text"]
+        _log_dashscope_usage(response, "qwen-vl-max", "restoration_verification")
         return _parse_verification_response(raw_text)
 
     except ImportError:
@@ -583,6 +600,18 @@ def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
                 service="Wanx-I2I"
             )
 
+        # 记录 AI 用量 (Wanx I2I 无 token，按调用次数)
+        from app.utils.ai_governance import log_ai_usage, get_ai_user
+        log_ai_usage(
+            user_id=get_ai_user(),
+            model="wan2.5-i2i-preview",
+            endpoint="restoration_image_repair",
+            tokens_in=len(prompt),
+            tokens_out=1,
+            latency_ms=0,
+            status="success",
+        )
+
         # 下载生成的图片
         images = []
         for img_result in response.output.results:
@@ -655,6 +684,7 @@ def _run_verification_enhanced(
             raise AIServiceError(f"API error: {response.code}", service="Qwen-VL")
 
         raw_text = response.output.choices[0].message.content[0]["text"]
+        _log_dashscope_usage(response, "qwen-vl-max", "restoration_verification_enhanced")
         return _parse_verification_enhanced(raw_text)
 
     except ImportError:

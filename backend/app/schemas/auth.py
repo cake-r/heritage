@@ -30,6 +30,7 @@ class UserPublic(BaseModel):
     username: str
     nickname: str
     avatar_url: str
+    role: str = "user"
 
     model_config = {"from_attributes": True}
 

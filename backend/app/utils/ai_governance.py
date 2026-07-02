@@ -3,6 +3,7 @@
 import time
 import threading
 import logging
+from contextvars import ContextVar
 from functools import wraps
 from typing import Callable, Any, Optional
 
@@ -10,6 +11,19 @@ from app.models.database import SessionLocal
 from app.services.ai.base import mock_mode
 
 logger = logging.getLogger("ai_governance")
+
+# === 请求级用户上下文 (contextvars 自动跨线程传播) ===
+_current_ai_user: ContextVar[Optional[int]] = ContextVar("ai_user_id", default=None)
+
+
+def set_ai_user(user_id: Optional[int]) -> None:
+    """设置当前请求的 AI 调用用户 ID (API 入口处调用)"""
+    _current_ai_user.set(user_id)
+
+
+def get_ai_user() -> Optional[int]:
+    """获取当前请求的 AI 调用用户 ID (AI service 内部调用)"""
+    return _current_ai_user.get()
 
 # === 熔断器状态 ===
 _circuit_state = {

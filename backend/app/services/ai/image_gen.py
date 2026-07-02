@@ -62,6 +62,18 @@ def text_to_image(
             local_path = _download_image(img_result.url, f"t2i_{actual_seed}_{i}.png")
             image_paths.append(local_path)
 
+        # 记录 AI 用量 (文生图无 token，按调用次数记录)
+        from app.utils.ai_governance import log_ai_usage, get_ai_user
+        log_ai_usage(
+            user_id=get_ai_user(),
+            model="wanx2.1-t2i-plus",
+            endpoint="text_to_image",
+            tokens_in=len(prompt),
+            tokens_out=len(image_paths),
+            latency_ms=0,
+            status="success",
+        )
+
         return {"images": image_paths, "seed": actual_seed}
 
     except ImportError:
@@ -133,6 +145,18 @@ def image_to_image(
         for i, img_result in enumerate(result.output.results):
             local_path = _download_image(img_result.url, f"i2i_{actual_seed}_{i}.png")
             image_paths.append(local_path)
+
+        # 记录 AI 用量
+        from app.utils.ai_governance import log_ai_usage, get_ai_user
+        log_ai_usage(
+            user_id=get_ai_user(),
+            model="wan2.5-i2i-preview",
+            endpoint="image_to_image",
+            tokens_in=len(prompt),
+            tokens_out=len(image_paths),
+            latency_ms=0,
+            status="success",
+        )
 
         return {"images": image_paths, "seed": actual_seed}
 

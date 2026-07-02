@@ -10,12 +10,13 @@ import {
   HeartFilled, AppstoreOutlined, UnorderedListOutlined,
   PictureOutlined, EnvironmentOutlined, FieldTimeOutlined,
   MessageOutlined, ExpandOutlined, CheckOutlined, CloseOutlined,
-  ReloadOutlined,
+  ReloadOutlined, LockOutlined, EditOutlined,
 } from '@ant-design/icons'
 import {
   getItems, getCategories, getRegions, getEras, uploadWork,
   startExpansion, getTaskStatus, getExpansionQueue,
   approveExpansionItem, rejectExpansionItem, uploadQueueImages,
+  verifyAdminPassword, updateHeritageItem, uploadHeritageImages,
   type HeritageItem, type ExpansionQueueItem,
 } from '../services/exhibition'
 import { addFavorite, deleteFavorite, listFavorites } from '../services/user'
@@ -79,6 +80,27 @@ export default function ExhibitionHall() {
   const [reviewPage, setReviewPage] = useState(1)
   const [reviewTotal, setReviewTotal] = useState(0)
   const [approving, setApproving] = useState<number | null>(null)
+
+  // === 管理员编辑模式 ===
+  const [adminMode, setAdminMode] = useState(false)
+  const [adminToken, setAdminToken] = useState<string | null>(null)
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false)
+  const [adminPassword, setAdminPassword] = useState('')
+  const [adminVerifying, setAdminVerifying] = useState(false)
+
+  // 编辑弹窗
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<HeritageItem | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editCategory, setEditCategory] = useState('')
+  const [editRegion, setEditRegion] = useState('')
+  const [editEra, setEditEra] = useState('')
+  const [editDesc, setEditDesc] = useState('')
+  const [editTechniques, setEditTechniques] = useState('')
+  const [editInheritors, setEditInheritors] = useState('')
+  const [editCulturalMeaning, setEditCulturalMeaning] = useState('')
+  const [editFiles, setEditFiles] = useState<File[]>([])
+  const [editSaving, setEditSaving] = useState(false)
 
   // load categories / regions / eras + pending review count
   useEffect(() => {
@@ -164,12 +186,18 @@ export default function ExhibitionHall() {
             return { name: line.trim(), desc: '' }
           })
         : []
-      // 解析传承人: 每行 "姓名：称号" 或 "姓名:称号" 或仅 "姓名"
+      // 解析传承人: 每行 "姓名：称号：简介" 或 "姓名：称号" 或 "姓名"
       const inheritors = uploadInheritors.trim()
         ? uploadInheritors.split('\n').filter(Boolean).map(line => {
-            const idx = line.indexOf('：') >= 0 ? line.indexOf('：') : line.indexOf(':')
-            if (idx >= 0) return { name: line.slice(0, idx).trim(), title: line.slice(idx + 1).trim() }
-            return { name: line.trim(), title: '' }
+            const idx1 = line.indexOf('：') >= 0 ? line.indexOf('：') : line.indexOf(':')
+            if (idx1 < 0) return { name: line.trim(), title: '', desc: '' }
+            const name = line.slice(0, idx1).trim()
+            const rest = line.slice(idx1 + 1).trim()
+            const idx2 = rest.indexOf('：') >= 0 ? rest.indexOf('：') : rest.indexOf(':')
+            if (idx2 >= 0) {
+              return { name, title: rest.slice(0, idx2).trim(), desc: rest.slice(idx2 + 1).trim() }
+            }
+            return { name, title: rest, desc: '' }
           })
         : []
       await uploadWork(
@@ -280,6 +308,122 @@ export default function ExhibitionHall() {
   const handleOpenReview = () => {
     setReviewOpen(true)
     handleLoadReviewQueue(1)
+  }
+
+  // === 管理员功能 ===
+
+  const handleAdminVerify = async () => {
+    setAdminVerifying(true)
+    try {
+      const res = await verifyAdminPassword(adminPassword)
+      setAdminToken(res.token)
+      setAdminMode(true)
+      setPasswordModalOpen(false)
+      setAdminPassword('')
+      message.success('已进入管理员编辑模式')
+    } catch (err: any) {
+      message.error(err.response?.data?.detail || '密码错误')
+    } finally {
+      setAdminVerifying(false)
+    }
+  }
+
+  const handleExitAdminMode = () => {
+    setAdminMode(false)
+    setAdminToken(null)
+    message.info('已退出管理员编辑模式')
+  }
+
+  const handleOpenEdit = (item: HeritageItem, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setEditingItem(item)
+    setEditName(item.name)
+    setEditCategory(item.category)
+    setEditRegion(item.region || '')
+    setEditEra(item.era || '')
+    setEditDesc(item.description || '')
+    setEditTechniques(
+      item.techniques.map(t => t.desc ? `${t.name}：${t.desc}` : t.name).join('\n')
+    )
+    setEditInheritors(
+      item.inheritors.map(i => {
+        if (i.desc) return `${i.name}：${i.title || ''}：${i.desc}`
+        if (i.title) return `${i.name}：${i.title}`
+        return i.name
+      }).join('\n')
+    )
+    setEditCulturalMeaning(item.cultural_meaning || '')
+    setEditFiles([])
+    setEditModalOpen(true)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingItem || !adminToken) return
+    if (!editName.trim()) { message.warning('请输入名称'); return }
+    setEditSaving(true)
+    try {
+      // 解析技法
+      const techniques = editTechniques.trim()
+        ? editTechniques.split('\n').filter(Boolean).map(line => {
+            const idx = line.indexOf('：') >= 0 ? line.indexOf('：') : line.indexOf(':')
+            if (idx >= 0) return { name: line.slice(0, idx).trim(), desc: line.slice(idx + 1).trim() }
+            return { name: line.trim(), desc: '' }
+          })
+        : []
+      // 解析传承人: 每行 "姓名：称号：简介" 或 "姓名：称号" 或 "姓名"
+      const inheritors = editInheritors.trim()
+        ? editInheritors.split('\n').filter(Boolean).map(line => {
+            const idx1 = line.indexOf('：') >= 0 ? line.indexOf('：') : line.indexOf(':')
+            if (idx1 < 0) return { name: line.trim(), title: '', desc: '' }
+            const name = line.slice(0, idx1).trim()
+            const rest = line.slice(idx1 + 1).trim()
+            const idx2 = rest.indexOf('：') >= 0 ? rest.indexOf('：') : rest.indexOf(':')
+            if (idx2 >= 0) {
+              return { name, title: rest.slice(0, idx2).trim(), desc: rest.slice(idx2 + 1).trim() }
+            }
+            return { name, title: rest, desc: '' }
+          })
+        : []
+
+      // 先更新文本信息
+      await updateHeritageItem(
+        editingItem.id,
+        {
+          name: editName.trim(),
+          category: editCategory,
+          region: editRegion || undefined,
+          era: editEra || undefined,
+          description: editDesc.trim() || undefined,
+          techniques,
+          inheritors,
+          cultural_meaning: editCulturalMeaning.trim() || undefined,
+        } as any,
+        adminToken,
+      )
+
+      // 如有新图片，单独上传替换
+      if (editFiles.length > 0) {
+        await uploadHeritageImages(editingItem.id, editFiles, adminToken)
+      }
+
+      message.success('修改已保存')
+      setEditModalOpen(false)
+      setEditingItem(null)
+      // 刷新筛选选项
+      getRegions().then(setRegions).catch(() => {})
+      getEras().then(setEras).catch(() => {})
+      getCategories().then(setCategories).catch(() => {})
+      loadItems(page)
+    } catch (err: any) {
+      message.error(err.response?.data?.detail || err.message || '保存失败')
+      if (err.response?.status === 403) {
+        setAdminMode(false)
+        setAdminToken(null)
+        message.warning('管理员会话已过期，请重新输入密码')
+      }
+    } finally {
+      setEditSaving(false)
+    }
   }
 
   return (
@@ -405,6 +549,16 @@ export default function ExhibitionHall() {
                 <Button icon={<UploadOutlined />} onClick={() => setUploadOpen(true)} disabled={!isAuthenticated}>
                   {isAuthenticated ? '上传作品' : '登录后上传'}
                 </Button>
+                {adminMode ? (
+                  <Button danger onClick={handleExitAdminMode}>退出管理</Button>
+                ) : (
+                  <Button
+                    icon={<LockOutlined />}
+                    onClick={() => setPasswordModalOpen(true)}
+                  >
+                    管理员
+                  </Button>
+                )}
               </Space>
             </Col>
           </Row>
@@ -444,12 +598,24 @@ export default function ExhibitionHall() {
                               borderTopRightRadius: 12,
                             }}
                           />
-                          <Button
-                            type="text"
-                            icon={favIds.has(`${item.item_type || 'heritage'}:${item.id}`) ? <HeartFilled style={{ color: '#C41E3A' }} /> : <HeartOutlined />}
-                            onClick={e => { e.stopPropagation(); handleToggleFavorite(item) }}
-                            style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.8)' }}
-                          />
+                          {adminMode ? (
+                            <Button
+                              type="primary"
+                              size="small"
+                              icon={<EditOutlined />}
+                              onClick={e => handleOpenEdit(item, e)}
+                              style={{ position: 'absolute', bottom: 8, right: 8, zIndex: 2, opacity: 0.9 }}
+                            >
+                              编辑
+                            </Button>
+                          ) : (
+                            <Button
+                              type="text"
+                              icon={favIds.has(`${item.item_type || 'heritage'}:${item.id}`) ? <HeartFilled style={{ color: '#C41E3A' }} /> : <HeartOutlined />}
+                              onClick={e => { e.stopPropagation(); handleToggleFavorite(item) }}
+                              style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.8)' }}
+                            />
+                          )}
                         </div>
                       ) : (
                         <div style={{
@@ -568,8 +734,8 @@ export default function ExhibitionHall() {
             <Form.Item label="工艺技法" extra="每行一个，格式：技法名：描述（如 掐丝：用细铜丝掐出花纹...）">
               <Input.TextArea value={uploadTechniques} onChange={e => setUploadTechniques(e.target.value)} placeholder="技法名：描述&#10;技法名：描述" rows={3} />
             </Form.Item>
-            <Form.Item label="传承人" extra="每行一个，格式：姓名：称号（如 张大师：国家级非遗传承人）">
-              <Input.TextArea value={uploadInheritors} onChange={e => setUploadInheritors(e.target.value)} placeholder="姓名：称号&#10;姓名：称号" rows={3} />
+            <Form.Item label="传承人" extra="每行一个，格式：姓名：称号：简介（如 张大师：国家级非遗传承人：从事该技艺40余年...）">
+              <Input.TextArea value={uploadInheritors} onChange={e => setUploadInheritors(e.target.value)} placeholder="姓名：称号：简介&#10;姓名：称号：简介" rows={3} />
             </Form.Item>
             <Form.Item label="文化寓意">
               <Input.TextArea value={uploadCulturalMeaning} onChange={e => setUploadCulturalMeaning(e.target.value)} placeholder="这件作品有什么文化寓意..." rows={3} />
@@ -785,6 +951,130 @@ export default function ExhibitionHall() {
             </div>
           )}
         </Drawer>
+
+        {/* 管理员密码验证 Modal */}
+        <Modal
+          title="管理员验证"
+          open={passwordModalOpen}
+          onCancel={() => { setPasswordModalOpen(false); setAdminPassword('') }}
+          onOk={handleAdminVerify}
+          confirmLoading={adminVerifying}
+          okText="验证"
+          cancelText="取消"
+          width={360}
+        >
+          <div style={{ padding: '8px 0' }}>
+            <Text type="secondary">请输入管理员密码以进入编辑模式</Text>
+            <Input.Password
+              prefix={<LockOutlined />}
+              value={adminPassword}
+              onChange={e => setAdminPassword(e.target.value)}
+              onPressEnter={handleAdminVerify}
+              placeholder="管理员密码"
+              style={{ marginTop: 12 }}
+              autoFocus
+            />
+          </div>
+        </Modal>
+
+        {/* 管理员编辑 Modal */}
+        <Modal
+          title={editingItem ? `编辑: ${editingItem.name}` : '编辑非遗项目'}
+          open={editModalOpen}
+          onCancel={() => { setEditModalOpen(false); setEditingItem(null) }}
+          onOk={handleSaveEdit}
+          confirmLoading={editSaving}
+          okText="保存修改"
+          width={640}
+          style={{ top: 20 }}
+        >
+          {editingItem && (
+            <Form layout="vertical" style={{ maxHeight: '65vh', overflowY: 'auto', paddingRight: 8 }}>
+              <Form.Item label="名称" required>
+                <Input value={editName} onChange={e => setEditName(e.target.value)} placeholder="非遗项目名称" />
+              </Form.Item>
+              <Form.Item label="分类">
+                <Select value={editCategory || undefined} onChange={setEditCategory} placeholder="选择分类" allowClear>
+                  {categories.map(c => <Select.Option key={c} value={c}>{c}</Select.Option>)}
+                </Select>
+              </Form.Item>
+              <Form.Item label="地区">
+                <AutoComplete
+                  value={editRegion || undefined}
+                  onChange={setEditRegion}
+                  placeholder="如：江苏苏州"
+                  options={regions.map(r => ({ value: r }))}
+                  allowClear
+                />
+              </Form.Item>
+              <Form.Item label="年代">
+                <AutoComplete
+                  value={editEra || undefined}
+                  onChange={setEditEra}
+                  placeholder="如：清代"
+                  options={eras.map(e => ({ value: e }))}
+                  allowClear
+                />
+              </Form.Item>
+              <Form.Item label="描述">
+                <Input.TextArea value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="介绍这个非遗项目..." rows={3} />
+              </Form.Item>
+              <Form.Item label="工艺技法" extra="每行一个，格式：技法名：描述">
+                <Input.TextArea value={editTechniques} onChange={e => setEditTechniques(e.target.value)} placeholder="技法名：描述" rows={3} />
+              </Form.Item>
+              <Form.Item label="传承人" extra="每行一个，格式：姓名：称号：简介">
+                <Input.TextArea value={editInheritors} onChange={e => setEditInheritors(e.target.value)} placeholder="姓名：称号：简介" rows={3} />
+              </Form.Item>
+              <Form.Item label="文化寓意">
+                <Input.TextArea value={editCulturalMeaning} onChange={e => setEditCulturalMeaning(e.target.value)} placeholder="文化寓意..." rows={3} />
+              </Form.Item>
+              <Form.Item label="图片">
+                <div style={{ marginBottom: 8 }}>
+                  {editingItem.images.length > 0 ? (
+                    <Image.PreviewGroup>
+                      <Space wrap>
+                        {editingItem.images.map((img, i) => (
+                          <Image
+                            key={i}
+                            src={normalizeImageUrl(img)}
+                            width={80}
+                            height={80}
+                            style={{ objectFit: 'cover', borderRadius: 4 }}
+                          />
+                        ))}
+                      </Space>
+                    </Image.PreviewGroup>
+                  ) : (
+                    <Text type="secondary">暂无图片</Text>
+                  )}
+                </div>
+                <Upload
+                  accept="image/*"
+                  multiple
+                  maxCount={5}
+                  listType="picture-card"
+                  beforeUpload={(file) => {
+                    const isImage = file.type.startsWith('image/')
+                    if (!isImage) { message.error('只能上传图片文件'); return false }
+                    const isLt10M = (file as any).size / 1024 / 1024 < 10
+                    if (!isLt10M) { message.error('图片大小不能超过 10MB'); return false }
+                    setEditFiles(prev => [...prev, file]); return false
+                  }}
+                  onRemove={(file) => { setEditFiles(prev => prev.filter(f => f.name !== file.name)) }}
+                >
+                  {editFiles.length < 5 && (
+                    <div><UploadOutlined /><div style={{ marginTop: 8 }}>上传新图片</div></div>
+                  )}
+                </Upload>
+                {editFiles.length > 0 && (
+                  <Text type="secondary" style={{ display: 'block', marginTop: 4 }}>
+                    已选择 {editFiles.length} 张新图片，保存后将替换现有图片
+                  </Text>
+                )}
+              </Form.Item>
+            </Form>
+          )}
+        </Modal>
       </Content>
     </Layout>
   )

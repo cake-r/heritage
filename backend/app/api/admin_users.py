@@ -102,8 +102,8 @@ def get_user_detail(
         "is_banned": getattr(user, "is_banned", False),
         "recognition_count": rec_count,
         "generation_count": gen_count,
-        "xp_total": cultivation.total_xp if cultivation else 0,
-        "rank": cultivation.rank_name if cultivation else "学徒",
+        "xp_total": cultivation.xp if cultivation else 0,
+        "rank": cultivation.rank if cultivation else "初窥门径",
         "created_at": user.created_at.isoformat() if user.created_at else None,
     }
 

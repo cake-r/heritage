@@ -48,6 +48,19 @@ def chat(messages: list[dict], stream: bool = False) -> str:
             max_tokens=2048,
         )
 
+        # 记录 AI 用量
+        from app.utils.ai_governance import log_ai_usage, get_ai_user
+        usage = response.usage
+        log_ai_usage(
+            user_id=get_ai_user(),
+            model="deepseek-chat",
+            endpoint="chat",
+            tokens_in=usage.prompt_tokens if usage else 0,
+            tokens_out=usage.completion_tokens if usage else 0,
+            latency_ms=0,
+            status="success",
+        )
+
         return response.choices[0].message.content
 
     except ImportError:
@@ -92,11 +105,29 @@ def chat_stream(messages: list[dict]) -> Generator[str, None, None]:
             temperature=0.7,
             max_tokens=2048,
             stream=True,
+            stream_options={"include_usage": True},
         )
 
+        token_count = 0
+        input_tokens = 0
         for chunk in response:
-            if chunk.choices[0].delta.content:
+            if chunk.choices and chunk.choices[0].delta.content:
+                token_count += 1
                 yield chunk.choices[0].delta.content
+            if chunk.usage:
+                input_tokens = chunk.usage.prompt_tokens or 0
+
+        # 流结束后记录用量
+        from app.utils.ai_governance import log_ai_usage, get_ai_user
+        log_ai_usage(
+            user_id=get_ai_user(),
+            model="deepseek-chat",
+            endpoint="chat_stream",
+            tokens_in=input_tokens,
+            tokens_out=token_count,
+            latency_ms=0,
+            status="success",
+        )
 
     except ImportError:
         raise AIServiceError("openai SDK未安装", service="DeepSeek", retryable=False)

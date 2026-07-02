@@ -3,10 +3,10 @@
 import json
 import uuid
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, UploadFile, File, Form, Query
+from fastapi import APIRouter, Depends, UploadFile, File, Form, Query, Header, Body, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, or_
 from PIL import Image
@@ -22,7 +22,11 @@ from app.schemas.exhibition import (
 from app.schemas.common import PaginatedResponse
 from app.api.deps import get_current_user, get_optional_user
 from app.utils.exceptions import AppException
-from app.config import IMAGE_DIR, MAX_UPLOAD_SIZE_BYTES, ALLOWED_IMAGE_FORMATS, MIN_IMAGE_DIMENSION
+from app.utils.security import create_access_token, decode_access_token
+from app.config import (
+    IMAGE_DIR, MAX_UPLOAD_SIZE_BYTES, ALLOWED_IMAGE_FORMATS,
+    MIN_IMAGE_DIMENSION, EXHIBITION_ADMIN_PASSWORD, SECRET_KEY, ALGORITHM,
+)
 
 logger = logging.getLogger("exhibition_api")
 router = APIRouter()
@@ -298,6 +302,134 @@ async def upload_work(
         user_id=upload.user_id,
         created_at=upload.created_at,
     )
+
+
+# === 管理员功能 ===
+
+def _verify_admin_token(x_admin_token: str | None) -> bool:
+    """验证展厅管理员 token"""
+    if not x_admin_token:
+        return False
+    payload = decode_access_token(x_admin_token)
+    if not payload:
+        return False
+    return payload.get("sub") == "exhibition_admin"
+
+
+@router.post("/admin-verify")
+async def verify_admin_password(request: Request):
+    """验证展厅管理员密码，返回 admin token"""
+    body = await request.json()
+    password = body.get("password", "")
+    if password != EXHIBITION_ADMIN_PASSWORD:
+        raise AppException("密码错误", code=403)
+
+    # 生成管理员 token（24小时有效）
+    from jose import jwt
+    expire = datetime.utcnow() + timedelta(hours=24)
+    payload = {
+        "sub": "exhibition_admin",
+        "exp": expire,
+        "iat": datetime.utcnow(),
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return {"token": token, "message": "验证成功"}
+
+
+@router.put("/items/{item_id}", response_model=HeritageItemResponse)
+async def update_heritage_item(
+    item_id: int,
+    request: Request,
+    x_admin_token: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+):
+    """管理员更新非遗项目信息"""
+    if not _verify_admin_token(x_admin_token):
+        raise AppException("需要管理员权限", code=403)
+
+    body = await request.json()
+
+    item = db.query(HeritageItem).filter(HeritageItem.id == item_id).first()
+    if not item:
+        raise AppException("非遗项目不存在", code=404)
+
+    # 更新文本字段
+    if "name" in body:
+        item.name = body["name"]
+    if "category" in body:
+        item.category = body["category"]
+    if "region" in body:
+        item.region = body["region"]
+    if "era" in body:
+        item.era = body["era"]
+    if "description" in body:
+        item.description = body["description"]
+    if "cultural_meaning" in body:
+        item.cultural_meaning = body["cultural_meaning"]
+
+    # 更新技法 JSON
+    if "techniques" in body:
+        techniques = body["techniques"]
+        if isinstance(techniques, list):
+            item.techniques_json = json.dumps(techniques, ensure_ascii=False)
+
+    # 更新传承人 JSON
+    if "inheritors" in body:
+        inheritors = body["inheritors"]
+        if isinstance(inheritors, list):
+            item.inheritors_json = json.dumps(inheritors, ensure_ascii=False)
+
+    db.commit()
+    db.refresh(item)
+
+    logger.info(f"管理员更新非遗项目: id={item.id}, name={item.name}")
+    return _build_item_response(item, False)
+
+
+@router.post("/items/{item_id}/images")
+async def upload_heritage_images(
+    item_id: int,
+    images: list[UploadFile] = File(..., max_length=5),
+    x_admin_token: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+):
+    """管理员替换非遗项目图片"""
+    if not _verify_admin_token(x_admin_token):
+        raise AppException("需要管理员权限", code=403)
+
+    item = db.query(HeritageItem).filter(HeritageItem.id == item_id).first()
+    if not item:
+        raise AppException("非遗项目不存在", code=404)
+
+    saved = []
+    IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+    for img in images:
+        if not img.filename:
+            continue
+        try:
+            _validate_upload_file(img)
+        except AppException:
+            continue
+
+        ext = Path(img.filename).suffix.lower() or ".jpg"
+        filename = f"heritage_{item_id}_{uuid.uuid4().hex[:8]}{ext}"
+        filepath = IMAGE_DIR / filename
+        content = await img.read()
+        if len(content) < 1000:
+            continue
+        filepath.write_bytes(content)
+        saved.append(f"/static/images/{filename}")
+
+    if saved:
+        item.images_json = json.dumps(saved, ensure_ascii=False)
+        db.commit()
+        logger.info(f"管理员更新非遗图片: id={item.id}, images={len(saved)}")
+    else:
+        # 保留旧图片
+        pass
+
+    images_list = json.loads(item.images_json) if item.images_json else []
+    return {"images": images_list, "message": f"已更新 {len(saved)} 张图片"}
 
 
 # === 内部工具 ===

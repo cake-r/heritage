@@ -24,10 +24,19 @@ def get_task_queue_status(
     ).group_by(AsyncTask.status).all()
     status_map = dict(counts)
 
-    # 平均延迟
-    avg_latency = db.query(func.avg(AsyncTask.latency_ms)).filter(
-        AsyncTask.status == "success"
-    ).scalar() or 0.0
+    # 平均延迟（从 started_at / completed_at 时间戳计算）
+    completed = db.query(AsyncTask).filter(
+        AsyncTask.status == "success",
+        AsyncTask.started_at.isnot(None),
+        AsyncTask.completed_at.isnot(None),
+    ).all()
+    if completed:
+        avg_latency = sum(
+            (t.completed_at - t.started_at).total_seconds() * 1000
+            for t in completed
+        ) / len(completed)
+    else:
+        avg_latency = 0.0
 
     return {
         "pending": status_map.get("pending", 0),

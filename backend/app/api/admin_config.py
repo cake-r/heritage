@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from datetime import datetime
 
-from app.models.database import get_db, engine
+from app.models.database import get_db, engine, SessionLocal
 from app.models.user import User
 from app.api.deps import get_current_admin
 from app.schemas.admin import ConfigUpdateRequest
@@ -149,5 +149,3 @@ def load_config_from_db() -> dict:
 
     return config
 
-
-from app.models.database import SessionLocal

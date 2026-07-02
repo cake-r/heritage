@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func, cast, Date
+from sqlalchemy import func
 from datetime import datetime, timedelta
 
 from app.models.database import get_db
@@ -39,9 +39,9 @@ def get_cost_summary(
     ).filter(AIUsageLog.created_at >= cutoff).group_by(AIUsageLog.endpoint).all()
     by_endpoint = {ep: round(float(cost), 4) for ep, cost in by_endpoint_rows if ep}
 
-    # 按日
+    # 按日 (SQLite/PG 兼容: func.date 替代 cast)
     by_day_rows = db.query(
-        cast(AIUsageLog.created_at, Date).label("date"),
+        func.date(AIUsageLog.created_at).label("date"),
         func.sum(AIUsageLog.cost_cny).label("cost"),
         func.count(AIUsageLog.id).label("count"),
     ).filter(AIUsageLog.created_at >= cutoff).group_by("date").order_by("date").all()

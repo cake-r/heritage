@@ -81,6 +81,20 @@ def call_embedding_api(text: str) -> Optional[list[float]]:
             model="deepseek-embedding",
             input=text[:8192],  # 截断到安全长度
         )
+
+        # 记录 AI 用量
+        from app.utils.ai_governance import log_ai_usage, get_ai_user
+        usage = resp.usage
+        log_ai_usage(
+            user_id=get_ai_user(),
+            model="deepseek-embedding",
+            endpoint="embedding",
+            tokens_in=usage.prompt_tokens if usage else len(text[:8192]),
+            tokens_out=0,
+            latency_ms=0,
+            status="success",
+        )
+
         return resp.data[0].embedding
     except Exception as e:
         logger.warning(f"嵌入生成失败: {e}")

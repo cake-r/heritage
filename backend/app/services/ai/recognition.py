@@ -85,6 +85,20 @@ def recognize(image_path: str) -> dict:
             )
 
         raw_text = response.output.choices[0].message.content[0]["text"]
+
+        # 记录 AI 用量
+        from app.utils.ai_governance import log_ai_usage, get_ai_user
+        usage = response.usage
+        log_ai_usage(
+            user_id=get_ai_user(),
+            model="qwen-vl-max",
+            endpoint="recognition",
+            tokens_in=usage.input_tokens if usage else 0,
+            tokens_out=usage.output_tokens if usage else 0,
+            latency_ms=0,
+            status="success",
+        )
+
         return _parse_response(raw_text, image_path)
 
     except ImportError:

@@ -65,6 +65,18 @@ def synthesize(text: str, speed: float = 1.0) -> str:
         with open(filepath, "wb") as f:
             f.write(audio_data)
 
+        # 记录 AI 用量 (TTS 无 token，按字符数估算)
+        from app.utils.ai_governance import log_ai_usage, get_ai_user
+        log_ai_usage(
+            user_id=get_ai_user(),
+            model="cosyvoice-v1",
+            endpoint="tts",
+            tokens_in=len(text),
+            tokens_out=0,
+            latency_ms=0,
+            status="success",
+        )
+
         logger.info(f"TTS合成成功: {filepath} ({len(audio_data)} bytes)")
         return f"/static/voices/{filename}"
 

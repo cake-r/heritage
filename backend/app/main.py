@@ -20,7 +20,7 @@ from app.config import CORS_ORIGINS, DEPLOY_ENV, MOCK_MODE, UPLOAD_DIR
 from app.models.database import init_db
 from app.schemas.common import ErrorResponse
 from app.utils.exceptions import AppException
-from app.utils.middleware import log_requests
+from app.utils.middleware import log_requests, ai_user_context
 from app.utils.ai_governance import AICircuitOpenError, AIRateLimitError, get_rate_limit_remaining, is_circuit_open
 
 logger = logging.getLogger("ich_backend")
@@ -89,6 +89,9 @@ app.add_middleware(
 
 # 请求日志中间件
 app.middleware("http")(log_requests)
+
+# AI 用量上下文中间件（从 JWT 提取 user_id 供 AI service 记账）
+app.middleware("http")(ai_user_context)
 
 # 安全响应头（CSP + XSS 防护）
 app.add_middleware(SecurityHeadersMiddleware)

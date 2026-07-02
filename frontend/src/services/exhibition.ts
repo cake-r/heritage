@@ -79,7 +79,7 @@ export async function uploadWork(
   region: string,
   era: string,
   techniques: { name: string; desc: string }[],
-  inheritors: { name: string; title: string }[],
+  inheritors: { name: string; title: string; desc?: string }[],
   cultural_meaning: string,
 ): Promise<UserUploadResponse> {
   const formData = new FormData()
@@ -170,6 +170,40 @@ export async function uploadQueueImages(id: number, images: File[]): Promise<{ i
   images.forEach(f => formData.append('images', f))
   const res = await api.post(`/api/expansion/queue/${id}/images`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return res.data
+}
+
+// === 管理员编辑功能 ===
+
+export async function verifyAdminPassword(password: string): Promise<{ token: string; message: string }> {
+  const res = await api.post('/api/exhibition/admin-verify', { password })
+  return res.data
+}
+
+export async function updateHeritageItem(
+  id: number,
+  data: Partial<HeritageItem> & { techniques?: { name: string; desc: string }[]; inheritors?: { name: string; title: string; desc?: string }[] },
+  adminToken: string,
+): Promise<HeritageItem> {
+  const res = await api.put(`/api/exhibition/items/${id}`, data, {
+    headers: { 'X-Admin-Token': adminToken },
+  })
+  return res.data
+}
+
+export async function uploadHeritageImages(
+  id: number,
+  images: File[],
+  adminToken: string,
+): Promise<{ images: string[]; message: string }> {
+  const formData = new FormData()
+  images.forEach(f => formData.append('images', f))
+  const res = await api.post(`/api/exhibition/items/${id}/images`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'X-Admin-Token': adminToken,
+    },
   })
   return res.data
 }
