@@ -26,16 +26,37 @@ def _handle_restoration(task_type: str, payload: dict, task) -> dict:
         # 执行修复管道
         result = run_restoration_pipeline(image_url)
 
+        # 从管道步骤中提取各阶段数据
+        pipeline_steps = result.get("pipeline_steps", [])
+        step1 = pipeline_steps[0].get("result", {}) if len(pipeline_steps) > 0 else {}
+        step2 = pipeline_steps[1].get("result", {}) if len(pipeline_steps) > 1 else {}
+        step3 = pipeline_steps[2].get("result", {}) if len(pipeline_steps) > 2 else {}
+        step4 = pipeline_steps[3].get("result", {}) if len(pipeline_steps) > 3 else {}
+
+        # 判断管道状态
+        any_failed = any(s.get("status") == "failed" for s in pipeline_steps)
+        pipeline_status = "failed" if any_failed else "completed"
+
         # 保存记录到数据库
         from app.models.restoration import RestorationRecord
         record = RestorationRecord(
             user_id=task.user_id,
-            original_url=image_url,
-            result_url=result.get("restored_image_url", ""),
-            pipeline_status=result.get("status", "completed"),
-            damage_analysis_json=json.dumps(result.get("damage_analysis", {}), ensure_ascii=False),
-            restoration_prompt=result.get("restoration_prompt", ""),
-            verification_json=json.dumps(result.get("verification", {}), ensure_ascii=False),
+            original_image_path=image_url,
+            damage_category=step1.get("category"),
+            damage_types_json=json.dumps(step1.get("damage_types", []), ensure_ascii=False),
+            damage_severity=step1.get("severity"),
+            damage_description=step1.get("description"),
+            restoration_prompt=step2.get("prompt"),
+            restored_images_json=json.dumps(
+                step3.get("images", []) if len(pipeline_steps) > 2 else [],
+                ensure_ascii=False,
+            ) if len(pipeline_steps) > 2 else None,
+            restoration_seed=step3.get("seed") if len(pipeline_steps) > 2 else None,
+            verification_score=step4.get("overall_score"),
+            verification_json=json.dumps(step4, ensure_ascii=False),
+            pipeline_status=pipeline_status,
+            pipeline_error=next((s.get("result", {}).get("error", "")
+                                 for s in pipeline_steps if s.get("status") == "failed"), None),
         )
         db.add(record)
         db.commit()
@@ -43,7 +64,7 @@ def _handle_restoration(task_type: str, payload: dict, task) -> dict:
         return {
             "record_id": record.id,
             "restored_image_url": result.get("restored_image_url", ""),
-            "status": result.get("status", "completed"),
+            "status": pipeline_status,
         }
     except Exception:
         db.rollback()

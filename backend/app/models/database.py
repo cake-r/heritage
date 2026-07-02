@@ -2,7 +2,7 @@
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base
-from app.config import DATABASE_URL, USE_SQLITE, USE_POSTGRES
+from app.config import DATABASE_URL, USE_SQLITE, USE_POSTGRES, BASE_DIR
 
 # 根据数据库方言构造引擎参数
 if USE_SQLITE:
@@ -72,6 +72,7 @@ def init_db():
     import app.models.ai_usage  # noqa: F401
     import app.models.async_task  # noqa: F401
     import app.models.heritage_chunk  # noqa: F401
+    import app.models.pattern_gene  # noqa: F401
     Base.metadata.create_all(bind=engine)
 
     # 迁移: 为已有数据库添加新列
@@ -99,6 +100,9 @@ def init_db():
     # 自动种子数据: 确保数据库重建后非遗展厅数据不丢失
     _seed_heritage_if_empty()
 
+    # 自动种子纹样基因库
+    _seed_pattern_genes_if_empty()
+
 
 def _seed_heritage_if_empty():
     """如果 heritage_items 表为空, 自动从 JSON 导入种子数据
@@ -109,7 +113,7 @@ def _seed_heritage_if_empty():
     import json
     from pathlib import Path
 
-    json_path = Path(__file__).resolve().parent.parent / "data" / "knowledge" / "heritage_sample.json"
+    json_path = BASE_DIR / "data" / "knowledge" / "heritage_sample.json"
     if not json_path.exists():
         return
 
@@ -140,6 +144,48 @@ def _seed_heritage_if_empty():
     except Exception as e:
         db.rollback()
         print(f"[init_db] 种子数据导入失败 (可手动运行 seed_knowledge.py): {e}")
+    finally:
+        db.close()
+
+
+def _seed_pattern_genes_if_empty():
+    """如果 pattern_genes 表为空, 自动从 JSON 导入种子数据"""
+    import json
+    from pathlib import Path
+
+    json_path = BASE_DIR / "data" / "knowledge" / "pattern_genes.json"
+    if not json_path.exists():
+        return
+
+    db = SessionLocal()
+    try:
+        from app.models.pattern_gene import PatternGene
+        if db.query(PatternGene).count() > 0:
+            return  # 已有数据, 跳过
+
+        with open(json_path, "r", encoding="utf-8") as f:
+            genes = json.load(f)
+
+        for g in genes:
+            pg = PatternGene(
+                gene_id=g["gene_id"],
+                name=g["name"],
+                shape_category=g["shape_category"],
+                meaning=g.get("meaning"),
+                era=g.get("era"),
+                region=g.get("region"),
+                description=g.get("description"),
+                svg_viewbox=g.get("svg_viewbox", "0 0 100 100"),
+                svg_content=g.get("svg_content", ""),
+                default_color=g.get("default_color", "#B8463A"),
+                tags_json=json.dumps(g.get("tags", []), ensure_ascii=False),
+            )
+            db.add(pg)
+        db.commit()
+        print(f"[init_db] 纹样基因库导入完成: {len(genes)} 个纹样")
+    except Exception as e:
+        db.rollback()
+        print(f"[init_db] 纹样基因库导入失败: {e}")
     finally:
         db.close()
 

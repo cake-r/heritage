@@ -18,6 +18,7 @@ const KnowledgeGraph = lazy(() => import('./pages/KnowledgeGraph'))
 const UserCenter = lazy(() => import('./pages/UserCenter'))
 const CustomInheritorWizard = lazy(() => import('./pages/CustomInheritorWizard'))
 const DigitalRestoration = lazy(() => import('./pages/DigitalRestoration'))
+const PatternEngine = lazy(() => import('./pages/PatternEngine'))
 const Passport = lazy(() => import('./pages/Passport'))
 const Cultivation = lazy(() => import('./pages/Cultivation'))
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -78,6 +79,9 @@ function App() {
           } />
           <Route path="/restoration" element={
             <Suspense fallback={<PageLoader />}><DigitalRestoration /></Suspense>
+          } />
+          <Route path="/pattern-engine" element={
+            <Suspense fallback={<PageLoader />}><PatternEngine /></Suspense>
           } />
           <Route path="/passport" element={
             <Suspense fallback={<PageLoader />}><Passport /></Suspense>

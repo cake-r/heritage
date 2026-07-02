@@ -323,22 +323,8 @@ def _mock_prompt_generation(category: str) -> dict:
 
 
 # ============================================================
-# Step 3: Image Restoration (Wanx 2.5 I2I)
+# Step 3: Image Restoration (Wanx 2.5 I2I) — 实现在文件末尾
 # ============================================================
-
-def _run_image_restoration(image_path: str, prompt: str) -> dict:
-    """用通义万相 2.5 图生图 进行修复"""
-    from app.services.ai.image_gen import image_to_image
-
-    negative_prompt = "damage, cracks, stains, blur, noise, missing parts, broken, decay, faded, torn, rust, dust, scratch, distortion, oversaturated, over-sharpened, artificial looking, plastic texture"
-
-    result = image_to_image(
-        ref_image_path=image_path,
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        count=1,
-    )
-    return {"images": result["images"], "seed": result["seed"]}
 
 
 # ============================================================
@@ -568,7 +554,7 @@ def _run_image_restoration(image_path: str, prompt: str, contour_result: dict | 
 
 
 def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
-    """原始的 Wanx I2I 调用 (从原 _run_image_restoration 移过来)"""
+    """原始的 Wanx I2I 调用 — 通过 DashFiles 上传获取 URL，使用 images 参数"""
     if mock_mode():
         return _mock_image_restoration()
 
@@ -579,19 +565,33 @@ def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
     try:
         import dashscope
         from dashscope import ImageSynthesis
+        from dashscope import Files as DashFiles
+        import random
 
-        with open(image_path, "rb") as f:
-            image_b64 = base64.b64encode(f.read()).decode()
+        # 上传图片到 DashScope OSS 获取公网 URL
+        upload_result = DashFiles.upload(image_path, purpose="inference")
+        if upload_result.status_code != 200 or not upload_result.output.get("uploaded_files"):
+            raise AIServiceError(
+                f"上传参考图失败: {upload_result.code} - {upload_result.message}",
+                service="Wanx-I2I"
+            )
+        file_id = upload_result.output["uploaded_files"][0]["file_id"]
+        file_info = DashFiles.get(file_id)
+        ref_url = file_info.output["url"]
 
         negative_prompt = "blurry, distorted, deformed, low quality, watermarks, text, ugly, unnatural colors"
+        actual_seed = random.randint(1, 2**31)
 
         response = ImageSynthesis.call(
             model="wan2.5-i2i-preview",
             prompt=prompt,
             negative_prompt=negative_prompt,
-            ref_image=f"data:image/jpeg;base64,{image_b64}",
+            images=[ref_url],
             n=1,
+            seed=actual_seed,
             api_key=api_key,
+            size="1024*1024",
+            task="image2image",
         )
 
         if response.status_code != 200:
@@ -816,3 +816,30 @@ def _url_to_local_path(url: str) -> str:
     from app.config import GENERATED_DIR
     filename = Path(url).name
     return str(GENERATED_DIR / filename)
+
+
+def _download_generated_image(url: str, filename: str) -> str:
+    """下载 AI 生成的图片到本地 generated 目录"""
+    import httpx
+    from app.config import GENERATED_DIR
+
+    GENERATED_DIR.mkdir(parents=True, exist_ok=True)
+    local_path = GENERATED_DIR / filename
+
+    try:
+        with httpx.Client(timeout=60) as client:
+            resp = client.get(url)
+            resp.raise_for_status()
+            with open(local_path, "wb") as f:
+                f.write(resp.content)
+    except Exception as e:
+        logger.error(f"下载生成图片失败: {e}")
+
+    return str(local_path)
+
+
+def _mock_image_restoration() -> dict:
+    """Mock 模式: 复制示例图片作为修复结果"""
+    from app.services.ai.image_gen import _mock_generate
+    result = _mock_generate(count=1, mode="img2img")
+    return {"images": result["images"], "seed": result["seed"]}

@@ -11,7 +11,7 @@ from app.services.ai.base import with_retry, AIServiceError, mock_mode, load_moc
 logger = logging.getLogger("recognition")
 
 # Confidence threshold — results below this are considered unreliable
-CONFIDENCE_THRESHOLD = 0.6
+CONFIDENCE_THRESHOLD = 0.35
 # Category returned when recognition fails
 UNKNOWN_CATEGORY = "无法识别"
 
@@ -49,6 +49,7 @@ def recognize(image_path: str) -> dict:
             "confidence": 0.0,
             "top3": [],
             "features": [],
+            "pattern_names": [],
             "raw_description": "Cannot identify this image as a known ICH category. Please upload traditional handicraft images.",
         }
 
@@ -110,24 +111,39 @@ def recognize(image_path: str) -> dict:
 
 
 def _build_recognition_prompt() -> str:
-    return """Please identify whether this image belongs to a Chinese Intangible Cultural Heritage category.
+    return """Identify this image as a Chinese Intangible Cultural Heritage (ICH) handicraft category.
 
-**IMPORTANT: If the image is NOT a Chinese traditional handicraft (e.g., modern objects, landscapes, portraits, buildings, animals, etc.), you MUST return category="无法识别" and confidence=0.**
+Try your best to match the image to the closest ICH category, even for non-perfect matches (modern reproductions, partial views, decorative items inspired by traditional crafts). Only use "无法识别" if the image has NO connection whatsoever to Chinese traditional crafts (e.g., purely modern objects like cars, Western-style portraits, natural landscapes without cultural elements).
 
 Return strictly in JSON format:
 {
-  "category": "ICH category name, or '无法识别' if not ICH",
-  "confidence": 0.95,
+  "category": "ICH category name, use '无法识别' only as last resort",
+  "confidence": 0.85,
   "top3": [
-    {"category": "category1", "confidence": 0.95},
-    {"category": "category2", "confidence": 0.03},
-    {"category": "category3", "confidence": 0.02}
+    {"category": "category1", "confidence": 0.85},
+    {"category": "category2", "confidence": 0.10},
+    {"category": "category3", "confidence": 0.05}
   ],
   "features": ["feature1", "feature2", "feature3"],
-  "description": "Detailed visual description including patterns, techniques, materials, colors, style era"
+  "pattern_names": ["云纹", "回纹", "缠枝纹"],
+  "description": "Detailed visual description including patterns, techniques, materials, colors, style era (80-150 words)"
 }
 
-ICH categories: 苏绣, 湘绣, 蜀绣, 粤绣, 剪纸, 皮影, 年画, 蓝印花布, 唐三彩, 青花瓷, 紫砂陶, 京剧脸谱, 敦煌壁画, 苗银, 景泰蓝, 木版年画, 书法, 篆刻"""
+Important rules:
+- confidence: reflect how certain you are. 0.85+ for clear matches, 0.5-0.85 for plausible but uncertain, below 0.5 only for pure guesses.
+- top3 confidences MUST sum to 1.0.
+- features: list 3-5 observable craft techniques or visual characteristics (can be general like "手工制作痕迹", "传统纹样装饰" for uncertain images).
+- pattern_names: list up to 5 traditional Chinese decorative patterns/motifs visible in the image. Common patterns include: 云纹, 回纹, 饕餮纹, 缠枝纹, 莲花纹, 蝙蝠纹, 如意纹, 牡丹纹, 龙凤纹, 卷草纹, 水波纹, 铜钱纹, 方胜纹, 寿字纹, 万字纹, 盘长纹, 冰裂纹, 火焰纹, 龟背纹, 宝相花纹, 团花纹, 博古纹, 梅花纹, 竹纹, 锁子纹, 八卦纹, 菱格纹. Return empty array only if absolutely no patterns visible.
+
+ICH categories (pick the closest one, return ONLY the category name without prefix):
+刺绣: 苏绣, 湘绣, 蜀绣, 粤绣, 京绣, 杭绣, 顾绣, 苗绣
+陶瓷: 青花瓷, 唐三彩, 紫砂陶, 龙泉青瓷, 景德镇瓷, 德化白瓷
+雕塑: 木雕, 玉雕, 石雕, 竹雕, 泥塑, 面塑
+织造: 云锦, 宋锦, 蜀锦, 壮锦, 缂丝
+金属: 景泰蓝, 苗银, 金银细工, 铁画
+纸艺: 剪纸, 皮影, 年画, 木版年画, 灯笼
+绘画: 敦煌壁画, 国画, 书法, 篆刻, 唐卡
+其他: 蓝印花布, 京剧脸谱, 漆器, 竹编, 风筝, 傩面具"""
 
 
 def _parse_response(raw_text: str, image_path: str) -> dict:
@@ -159,15 +175,18 @@ def _parse_response(raw_text: str, image_path: str) -> dict:
         confidence = 0.0
         top3 = []
         features = []
+        pattern_names = []
     else:
         top3 = data.get("top3", [])
         features = data.get("features", [])
+        pattern_names = data.get("pattern_names", [])
 
     return {
         "category": category,
         "confidence": confidence,
         "top3": top3,
         "features": features,
+        "pattern_names": pattern_names if isinstance(pattern_names, list) else [],
         "raw_description": data.get("description", raw_text),
     }
 
@@ -176,15 +195,15 @@ def _mock_response(image_path: str) -> dict:
     """Generate mock recognition result based on filename match"""
     filename = Path(image_path).stem.lower()
     mock_map = {
-        "suxiu": ("苏绣", ["平针绣", "乱针绣", "双面绣"]),
-        "cixiu": ("刺绣", ["平绣", "打籽绣", "盘金绣"]),
-        "jianzhi": ("剪纸", ["阴刻", "阳刻", "套色"]),
-        "taoci": ("陶瓷", ["拉坯", "施釉", "青花"]),
-        "piying": ("皮影", ["雕刻", "染色", "表演"]),
-        "zishahu": ("紫砂壶", ["拍身筒", "明针", "镶身筒"]),
+        "suxiu": ("苏绣", ["平针绣", "乱针绣", "双面绣"], ["缠枝纹", "牡丹纹", "祥云纹"]),
+        "cixiu": ("刺绣", ["平绣", "打籽绣", "盘金绣"], ["莲花纹", "蝴蝶纹", "团花纹"]),
+        "jianzhi": ("剪纸", ["阴刻", "阳刻", "套色"], ["回纹", "梅花纹", "方胜纹"]),
+        "taoci": ("陶瓷", ["拉坯", "施釉", "青花"], ["回纹", "水波纹", "卷草纹"]),
+        "piying": ("皮影", ["雕刻", "染色", "表演"], ["如意纹", "祥云纹", "龙纹"]),
+        "zishahu": ("紫砂壶", ["拍身筒", "明针", "镶身筒"], ["回纹", "竹纹", "冰裂纹"]),
     }
 
-    for key, (cat, features) in mock_map.items():
+    for key, (cat, features, pattern_names) in mock_map.items():
         if key in filename:
             return {
                 "category": cat,
@@ -195,6 +214,7 @@ def _mock_response(image_path: str) -> dict:
                     {"category": "年画", "confidence": 0.03},
                 ],
                 "features": features,
+                "pattern_names": pattern_names,
                 "raw_description": f"A beautiful {cat} artwork",
             }
 
@@ -208,5 +228,6 @@ def _mock_response(image_path: str) -> dict:
             {"category": "蜀绣", "confidence": 0.05},
         ],
         "features": ["平针绣", "套针", "抢针"],
+        "pattern_names": ["缠枝纹", "牡丹纹", "蝴蝶纹"],
         "raw_description": "A traditional Chinese embroidery artwork",
     }

@@ -256,6 +256,14 @@ def _build_response(
         except (json.JSONDecodeError, TypeError):
             heatmap_data = []
 
+    # 从 raw_response_json 提取纹样名称（recognition 服务解析时存入）
+    raw_resp = {}
+    if record.raw_response_json:
+        try:
+            raw_resp = json.loads(record.raw_response_json)
+        except (json.JSONDecodeError, TypeError):
+            pass
+
     return RecognitionResponse(
         id=record.id,
         image_url=f"/static/images/{Path(record.image_path).name}",
@@ -263,6 +271,7 @@ def _build_response(
         confidence=record.confidence,
         top3=[CategoryCandidate(**t) for t in top3],
         features=features,
+        pattern_names=raw_resp.get("pattern_names", []),
         explanation=Explanation(**explanation),
         heatmap_url=record.heatmap_path,
         heatmap_data=[HeatmapFeature(**h) for h in (heatmap_data or [])],

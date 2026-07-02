@@ -50,6 +50,7 @@ class RecognitionResponse(BaseModel):
     heatmap_url: str | None = None
     heatmap_data: list[HeatmapFeature] = []
     voice_url: str | None = None
+    pattern_names: list[str] = []
     related: RelatedRecommendations
     created_at: datetime
 

@@ -249,7 +249,16 @@ export default function Recognition() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <Title level={3} style={{ margin: 0 }}>📷 非遗智能识别与讲解</Title>
         {step === 'result' && (
-          <Button icon={<ReloadOutlined />} onClick={handleRetry}>重新识别</Button>
+          <Space>
+            <Button
+              icon={<ExperimentOutlined />}
+              onClick={() => navigate(`/pattern-engine?recognition_id=${result?.id}`)}
+              disabled={!result?.pattern_names || result.pattern_names.length === 0}
+            >
+              纹样基因重组
+            </Button>
+            <Button icon={<ReloadOutlined />} onClick={handleRetry}>重新识别</Button>
+          </Space>
         )}
       </div>
 

@@ -7,6 +7,7 @@ export interface RecognitionResult {
   confidence: number
   top3: { category: string; confidence: number }[]
   features: string[]
+  pattern_names: string[]
   explanation: {
     history: string
     technique: string
