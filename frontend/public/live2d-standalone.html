@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live2D 纯净测试 — 零 React / 零业务代码</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    color: #eee;
+    font-family: monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  h2 { margin-bottom: 10px; font-weight: 400; }
+  #log {
+    width: 700px; max-height: 300px; overflow-y: auto;
+    background: #0d0d1a; border: 1px solid #333;
+    padding: 10px; margin-bottom: 16px;
+    font-size: 12px; line-height: 1.6; border-radius: 6px;
+  }
+  #log .ok { color: #4caf50; }
+  #log .warn { color: #ff9800; }
+  #log .err { color: #f44336; }
+  #log .info { color: #64b5f6; }
+  .canvas-wrap {
+    border: 2px dashed #555;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.03);
+  }
+  .controls { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  button {
+    padding: 6px 16px; border: 1px solid #555; border-radius: 6px;
+    background: #2a2a3e; color: #ddd; cursor: pointer; font-size: 13px;
+  }
+  button:hover { background: #3a3a5e; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+  .badge-ok { background: #1b5e20; color: #81c784; }
+  .badge-err { background: #b71c1c; color: #ef9a9a; }
+</style>
+</head>
+<body>
+
+<h2>Live2D 纯净环境测试</h2>
+<p style="font-size:12px;color:#888;margin-bottom:12px">
+  绕过 React / Vite HMR / zustand / 所有业务代码，直接用 PIXI + pixi-live2d-display 加载模型
+</p>
+
+<div id="log"></div>
+<div class="canvas-wrap">
+  <canvas id="live2d-canvas" width="400" height="400"></canvas>
+</div>
+
+<div class="controls">
+  <button onclick="testBlink()">强制眨眼</button>
+  <button onclick="testBreath()">强制呼吸</button>
+  <button onclick="testLookAt()">随机视线</button>
+  <button onclick="testExpression()">切换表情</button>
+  <span id="frame-counter" style="font-size:12px;color:#888">帧: 0</span>
+  <span id="status-badge" class="badge badge-err">未加载</span>
+</div>
+
+<!-- Cubism Core -->
+<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+
+<script type="importmap">
+{
+  "imports": {
+    "pixi.js":                     "/node_modules/pixi.js/dist/pixi.mjs",
+    "pixi-live2d-display/cubism4": "/node_modules/pixi-live2d-display/dist/cubism4.es.js",
+    "@pixi/core":                  "/node_modules/@pixi/core/lib/index.mjs",
+    "@pixi/display":               "/node_modules/@pixi/display/lib/index.mjs",
+    "@pixi/color":                 "/node_modules/@pixi/color/lib/index.mjs",
+    "@pixi/colord":                "/node_modules/@pixi/colord/index.mjs",
+    "@pixi/constants":             "/node_modules/@pixi/constants/lib/index.mjs",
+    "@pixi/extensions":            "/node_modules/@pixi/extensions/lib/index.mjs",
+    "@pixi/math":                  "/node_modules/@pixi/math/lib/index.mjs",
+    "@pixi/runner":                "/node_modules/@pixi/runner/lib/index.mjs",
+    "@pixi/settings":              "/node_modules/@pixi/settings/lib/index.mjs",
+    "@pixi/ticker":                "/node_modules/@pixi/ticker/lib/index.mjs",
+    "@pixi/utils":                 "/node_modules/@pixi/utils/lib/index.mjs"
+  }
+}
+</script>
+
+<script type="module">
+// ══════════════════════════════════════════
+// 纯净测试：无 React / 无 hook / 无 store
+// ══════════════════════════════════════════
+
+const logEl = document.getElementById('log')
+const status = document.getElementById('status-badge')
+const frameSpan = document.getElementById('frame-counter')
+
+function log(msg, cls = 'info') {
+  const div = document.createElement('div')
+  div.className = cls
+  div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`
+  logEl.appendChild(div)
+  logEl.scrollTop = logEl.scrollHeight
+  console.log(`[Live2D-Test] ${msg}`)
+}
+
+function setStatus(ok, text) {
+  status.textContent = text
+  status.className = `badge ${ok ? 'badge-ok' : 'badge-err'}`
+}
+
+// ── Step 1: 检查 Cubism Core ──
+const core = window.Live2DCubismCore
+if (!core) {
+  log('❌ window.Live2DCubismCore 不存在！CDN 加载失败', 'err')
+  setStatus(false, 'Core 加载失败')
+  throw new Error('Cubism Core not loaded')
+}
+log(`✅ Cubism Core 加载成功 (Version: ${core.Version || '?'})`, 'ok')
+
+// ── Step 2: 动态导入 ──
+log('⏳ 导入 pixi.js + pixi-live2d-display/cubism4...')
+const [PIXI, cubism4] = await Promise.all([
+  import('pixi.js'),
+  import('pixi-live2d-display/cubism4'),
+])
+// 🔴 关键: pixi-live2d-display 通过 window.PIXI.Ticker.shared 驱动模型内部 update()。
+// 不设置会导致 Motion/Physics/Blink/Breath 全部静默失效。
+window.PIXI = PIXI
+const { Live2DModel } = cubism4
+log(`✅ PIXI v${PIXI.VERSION || '?'} + cubism4 导入成功`, 'ok')
+
+// ── Step 3: 检查 WebGL ──
+const testCanvas = document.createElement('canvas')
+const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl')
+if (!gl) {
+  log('❌ WebGL 不可用', 'err')
+  setStatus(false, 'WebGL 不可用')
+  throw new Error('WebGL not available')
+}
+log(`✅ WebGL ${gl instanceof WebGL2RenderingContext ? '2.0' : '1.0'}`, 'ok')
+
+// ── Step 4: 创建 PIXI App ──
+const canvas = document.getElementById('live2d-canvas')
+canvas.width = 400
+canvas.height = 400
+
+const app = new PIXI.Application({
+  view: canvas,
+  width: 400,
+  height: 400,
+  backgroundAlpha: 0,
+  antialias: true,
+  resolution: window.devicePixelRatio || 1,
+  autoDensity: true,
+})
+log('✅ PIXI Application 创建完成', 'ok')
+
+// ── Step 5: 加载 Live2D 模型 ──
+const MODEL_URL = '/live2d/yuezhengling/乐正绫10live2d.model3.json'
+log(`⏳ 加载模型: ${MODEL_URL}`)
+
+let model
+try {
+  // 先手动 fetch 验证所有资源可访问
+  const checkRes = await fetch(MODEL_URL)
+  if (!checkRes.ok) throw new Error(`model3.json HTTP ${checkRes.status}`)
+  const modelJson = await checkRes.json()
+  log(`  model3.json: Version=${modelJson.Version}, Groups=${modelJson.Groups?.length || 0}`, 'info')
+  log(`  FileReferences: ${Object.keys(modelJson.FileReferences).join(', ')}`, 'info')
+
+  if (modelJson.FileReferences?.Motions) {
+    log(`  Motions: ${Object.keys(modelJson.FileReferences.Motions).join(', ')}`, 'info')
+  }
+
+  // 验证贴图可访问
+  for (const tex of (modelJson.FileReferences?.Textures || [])) {
+    const base = MODEL_URL.substring(0, MODEL_URL.lastIndexOf('/') + 1)
+    const texUrl = base + tex
+    const tr = await fetch(texUrl)
+    log(`  贴图 ${tex}: ${tr.ok ? `✅ ${(await tr.clone().blob()).size} bytes` : `❌ HTTP ${tr.status}`}`, tr.ok ? 'ok' : 'err')
+  }
+
+  // 验证 moc3
+  const mocUrl = MODEL_URL.substring(0, MODEL_URL.lastIndexOf('/') + 1) + modelJson.FileReferences.Moc
+  const mr = await fetch(mocUrl)
+  log(`  moc3: ${mr.ok ? `✅ ${(await mr.clone().blob()).size} bytes` : `❌ HTTP ${mr.status}`}`, mr.ok ? 'ok' : 'err')
+
+  // 实际加载
+  log('⏳ Live2DModel.from()...')
+  model = await Live2DModel.from(MODEL_URL, {
+    autoUpdate: true,
+    autoFocus: false,
+    autoHitTest: false,
+  })
+  log(`✅ 模型加载成功: ${model.internalModel.width}×${model.internalModel.height}`, 'ok')
+} catch (e) {
+  log(`❌ 模型加载失败: ${e.message}`, 'err')
+  if (e.stack) log(`  ${e.stack.split('\n').slice(0, 3).join('\n')}`, 'err')
+  setStatus(false, '模型加载失败')
+  throw e
+}
+
+// ── Step 6: 检查运行时能力 ──
+const im = model.internalModel
+log(`  internalModel.settings.motions: ${im?.settings?.motions ? Object.keys(im.settings.motions).join(', ') : '无'}`, 'info')
+log(`  internalModel.physics: ${im?.physics ? '✅ 存在' : '⚠️ 不存在'}`, im?.physics ? 'ok' : 'warn')
+log(`  internalModel.coreModel: ${im?.coreModel ? '✅ 存在' : '❌ 不存在'}`, im?.coreModel ? 'ok' : 'err')
+
+// 检查核心参数
+const cm = im?.coreModel
+if (cm) {
+  log(`  参数总数: ${cm.getParameterCount?.() || '?'}`, 'info')
+  log(`  部件总数: ${cm.getPartCount?.() || '?'}`, 'info')
+}
+
+// ── Step 7: 缩放居中 ──
+model.anchor.set(0.5, 0.5)
+model.x = 200
+model.y = 220
+const s = Math.min((400 * 0.85) / model.internalModel.width, (400 * 0.9) / model.internalModel.height)
+model.scale.set(s)
+app.stage.addChild(model)
+log(`  scale=${s.toFixed(3)}, 已加入 stage`, 'info')
+
+// ── Step 8: 激活 Physics ──
+try {
+  if (im?.physics) {
+    im.physics.start()
+    log('✅ Physics.start() 成功', 'ok')
+  }
+} catch (e) {
+  log(`⚠️ Physics 激活失败: ${e.message}`, 'warn')
+}
+
+// ── Step 9: 播放 Idle 动画 ──
+try {
+  const motionNames = im?.settings?.motions ? Object.keys(im.settings.motions) : []
+  if (motionNames.length > 0) {
+    model.motion(motionNames[0], 0, 1) // IDLE priority
+    log(`✅ Idle 动画已启动 (group: "${motionNames[0]}")`, 'ok')
+  } else {
+    log('⚠️ 没有动作组可用', 'warn')
+  }
+} catch (e) {
+  log(`⚠️ Idle 动画启动失败: ${e.message}`, 'warn')
+}
+
+// ── Step 10: 启动 rAF 验证循环 ──
+let frameCount = 0
+let lastBlink = performance.now()
+let blinkPhase = 0
+let blinkInterval = 3000 // 3秒眨眼一次
+
+function gameLoop(now) {
+  frameCount++
+
+  // 每 60 帧更新一次计数器显示
+  if (frameCount % 60 === 0) {
+    frameSpan.textContent = `帧: ${frameCount} | 运行中 ✅`
+  }
+
+  // ── 自动眨眼（直接测试 coreModel API） ──
+  if (cm && (now - lastBlink) > blinkInterval) {
+    blinkPhase = 0
+    lastBlink = now
+    blinkInterval = 2000 + Math.random() * 4000 // 2-6秒
+  }
+
+  if (cm && (now - lastBlink) < 140) {
+    // 眨眼周期内
+    const elapsed = now - lastBlink
+    if (elapsed < 80) {
+      cm.setParameterValueById('ParamEyeLOpen', 0) // 闭眼
+      cm.setParameterValueById('ParamEyeROpen', 0)
+    } else {
+      const t = (elapsed - 80) / 60
+      cm.setParameterValueById('ParamEyeLOpen', t) // 睁开
+      cm.setParameterValueById('ParamEyeROpen', t)
+    }
+  }
+
+  // ── 自动呼吸 ──
+  if (cm && frameCount % 2 === 0) {
+    const breath = Math.sin(now * 0.0012) * 0.5 + 0.5
+    cm.setParameterValueById('ParamBreath', breath)
+  }
+
+  requestAnimationFrame(gameLoop)
+}
+
+requestAnimationFrame(gameLoop)
+log('✅ rAF 验证循环已启动（眨眼 + 呼吸）', 'ok')
+setStatus(true, '运行中')
+
+// ── 暴露测试函数到全局 ──
+window._model = model
+window._coreModel = cm
+window._app = app
+window._log = log
+
+log('🎉 纯净环境测试就绪！', 'ok')
+log('  模型应有: Idle循环动画 + 自动眨眼 + 自动呼吸', 'info')
+log('  点击下方按钮测试手动控制', 'info')
+</script>
+
+<!-- 手动测试函数（通过全局 window） -->
+<script>
+function testBlink() {
+  const cm = window._coreModel
+  if (!cm) return window._log?.('模型未加载', 'err')
+  cm.setParameterValueById('ParamEyeLOpen', 0)
+  cm.setParameterValueById('ParamEyeROpen', 0)
+  window._log?.('手动眨眼: 闭眼', 'info')
+  setTimeout(() => {
+    cm.setParameterValueById('ParamEyeLOpen', 1)
+    cm.setParameterValueById('ParamEyeROpen', 1)
+    window._log?.('手动眨眼: 睁眼 ✅ (如果眼睛有变化说明参数驱动正常)', 'ok')
+  }, 150)
+}
+
+function testBreath() {
+  const cm = window._coreModel
+  if (!cm) return window._log?.('模型未加载', 'err')
+  for (let i = 0; i < 20; i++) {
+    setTimeout(() => {
+      cm.setParameterValueById('ParamBreath', Math.sin(i * 0.3) * 0.5 + 0.5)
+    }, i * 50)
+  }
+  window._log?.('呼吸波动测试: 胸部应有可见起伏', 'info')
+}
+
+function testLookAt() {
+  const cm = window._coreModel
+  if (!cm) return window._log?.('模型未加载', 'err')
+  const rx = (Math.random() - 0.5) * 2
+  const ry = (Math.random() - 0.5) * 2
+  cm.setParameterValueById('ParamEyeBallX', rx)
+  cm.setParameterValueById('ParamEyeBallY', ry)
+  cm.setParameterValueById('ParamAngleX', rx * 30)
+  cm.setParameterValueById('ParamAngleY', ry * 20)
+  window._log?.(`视线: (${rx.toFixed(2)}, ${ry.toFixed(2)}) — 如果眼球/头转动说明骨骼驱动正常`, 'info')
+}
+
+function testExpression() {
+  const model = window._model
+  if (!model) return window._log?.('模型未加载', 'err')
+  const exps = ['star', 'sing', 'angry', 'dizzy']
+  const exp = exps[Math.floor(Math.random() * exps.length)]
+  try {
+    model.expression(`${exp}.exp3.json`)
+    window._log?.(`表情切换: ${exp} ✅`, 'ok')
+  } catch(e) {
+    window._log?.(`表情切换失败: ${e.message}`, 'err')
+  }
+}
+</script>
+
+</body>
+</html>

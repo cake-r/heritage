@@ -307,7 +307,9 @@ def _compute_item_score(category: str, region: str, techniques_json: str,
         score += 0.4 * cat_weights[category]
 
     # 技法匹配 (权重 0.3)
-    techniques = json.loads(techniques_json or "[]")
+    techniques_raw = json.loads(techniques_json or "[]")
+    # techniques_json 格式为 [{"name":"平针绣","desc":"..."}]，需提取 name 字段
+    techniques = [t["name"] if isinstance(t, dict) else t for t in techniques_raw]
     if techniques:
         tech_match = sum(tech_weights.get(t, 0) for t in techniques) / len(techniques)
         score += 0.3 * tech_match
@@ -451,7 +453,8 @@ def _module_knowledge_graph(cat_weights, tech_weights, region_weights, db) -> di
         # 查找使用此技法的 heritage items
         heritage = db.query(HeritageItem).all()
         for h in heritage:
-            techniques = json.loads(h.techniques_json or "[]")
+            techniques_raw = json.loads(h.techniques_json or "[]")
+            techniques = [t["name"] if isinstance(t, dict) else t for t in techniques_raw]
             if tech_name in techniques:
                 images = json.loads(h.images_json or "[]")
                 items.append({

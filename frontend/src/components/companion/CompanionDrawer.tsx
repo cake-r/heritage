@@ -1,10 +1,13 @@
-/** AI 伴游 Drawer — v2 对话式导游面板 */
+/** AI 伴游 Drawer — v2 对话式导游面板
+ *
+ * Live2D 模型统一由右下角 FloatButton 承载，Drawer 只做聊天面板。
+ */
 
 import { useRef, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Drawer, Typography, Button, Input, Space, Tag, Skeleton, Empty } from 'antd'
 import { SendOutlined, RobotOutlined, DeleteOutlined, UserOutlined, BulbOutlined } from '@ant-design/icons'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useCompanion } from '../../contexts/CompanionContext'
 import type { CompanionSuggestion } from '../../services/companion'
 import type { CompanionChatMsg } from '../../contexts/CompanionContext'
@@ -285,12 +288,14 @@ function WelcomePanel({
   )
 }
 
+// ── 主组件 ──
+
 export default function CompanionDrawer() {
   const navigate = useNavigate()
   const {
     visible, closeDrawer, suggestions, loading, chatMessages,
     chatLoading, sendMessage, clearChat, context,
-    recordClick, recordDismiss,
+    recordClick,
   } = useCompanion()
 
   const [inputValue, setInputValue] = useState('')
@@ -356,7 +361,9 @@ export default function CompanionDrawer() {
       title={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <RobotOutlined style={{ fontSize: 18, color: 'var(--color-vermilion)' }} />
+            <span style={{ fontSize: 18, lineHeight: '40px', width: 40, textAlign: 'center' }}>
+              🤖
+            </span>
             <span style={{
               fontFamily: 'var(--font-display)',
               fontSize: 'var(--text-base)',
@@ -500,5 +507,3 @@ export default function CompanionDrawer() {
     </Drawer>
   )
 }
-
-

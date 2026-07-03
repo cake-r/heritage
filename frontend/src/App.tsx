@@ -1,4 +1,7 @@
 import { lazy, Suspense } from 'react'
+// ── Live2D 调试页面（开发用，生产需移除） ──
+import Live2DTest from './pages/Live2DTest'
+import Live2DBlank from './pages/Live2DBlank'
 import { Routes, Route } from 'react-router-dom'
 import { Spin } from 'antd'
 import MainLayout from './components/layout/MainLayout'
@@ -18,6 +21,7 @@ const KnowledgeGraph = lazy(() => import('./pages/KnowledgeGraph'))
 const UserCenter = lazy(() => import('./pages/UserCenter'))
 const CustomInheritorWizard = lazy(() => import('./pages/CustomInheritorWizard'))
 const DigitalRestoration = lazy(() => import('./pages/DigitalRestoration'))
+const CollaborativeRestoration = lazy(() => import('./pages/CollaborativeRestoration'))
 const PatternEngine = lazy(() => import('./pages/PatternEngine'))
 const Passport = lazy(() => import('./pages/Passport'))
 const Cultivation = lazy(() => import('./pages/Cultivation'))
@@ -58,6 +62,10 @@ function App() {
           <Suspense fallback={<PageLoader />}><KnowledgeGraph /></Suspense>
         } />
 
+        {/* Live2D 调试页面（开发用） */}
+        <Route path="/live2d-test" element={<Live2DTest />} />
+        <Route path="/live2d-blank" element={<Live2DBlank />} />
+
         {/* 404 页面 */}
         <Route path="*" element={
           <Suspense fallback={<PageLoader />}><NotFound /></Suspense>
@@ -79,6 +87,9 @@ function App() {
           } />
           <Route path="/restoration" element={
             <Suspense fallback={<PageLoader />}><DigitalRestoration /></Suspense>
+          } />
+          <Route path="/restoration-workbench" element={
+            <Suspense fallback={<PageLoader />}><CollaborativeRestoration /></Suspense>
           } />
           <Route path="/pattern-engine" element={
             <Suspense fallback={<PageLoader />}><PatternEngine /></Suspense>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import {
   Card, Upload, Typography, Spin, Tag, Button,
   Row, Col, Space, message, Steps, Progress, Tabs, Empty, Divider, Tooltip,
@@ -251,6 +251,7 @@ export default function DigitalRestoration() {
   const [visibleSteps, setVisibleSteps] = useState<number>(0)
   const [errorMsg, setErrorMsg] = useState<string>('')
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
 
   // 修复案例画廊 & 排行榜
   const [galleryItems, setGalleryItems] = useState<RestorationListItem[]>([])
@@ -448,12 +449,33 @@ export default function DigitalRestoration() {
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <Title level={3} style={{ margin: 0 }}>🏺 AI 文物数字修复</Title>
         {(step === 'complete' || step === 'error') && (
           <Button icon={<ReloadOutlined />} onClick={handleRetry}>重新修复</Button>
         )}
       </div>
+
+      {/* 模式切换 Tabs */}
+      <Tabs
+        activeKey="one-click"
+        style={{ marginBottom: 20 }}
+        items={[
+          {
+            key: 'one-click',
+            label: '一键修复',
+          },
+          {
+            key: 'workbench',
+            label: '协同修复',
+          },
+        ]}
+        onChange={(key) => {
+          if (key === 'workbench') {
+            navigate('/restoration-workbench')
+          }
+        }}
+      />
 
       {/* === 上传区 === */}
       {step === 'upload' && (

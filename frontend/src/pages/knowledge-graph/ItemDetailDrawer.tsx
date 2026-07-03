@@ -1,9 +1,10 @@
-import { Drawer, Image, Tag, Typography, Space, Collapse, Row, Col, Card, Button, Empty } from 'antd'
-import { HeartOutlined, HeartFilled, LinkOutlined, ToolOutlined } from '@ant-design/icons'
+import { Drawer, Image, Tag, Typography, Space, Collapse, Row, Col, Card, Button, Empty, Tabs } from 'antd'
+import { HeartOutlined, HeartFilled, LinkOutlined, ToolOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { getCategoryColor } from '../../utils/categoryColors'
 import { normalizeImageUrl } from '../../utils/imageUrl'
+import HeritageTimelinePanel from './HeritageTimeline'
 
 const { Text, Paragraph } = Typography
 
@@ -21,41 +22,19 @@ interface ItemDetailDrawerProps {
   onToggleFavorite: () => void
 }
 
-export default function ItemDetailDrawer({
-  open, onClose, item, related, onRelatedClick, isFavorited, onToggleFavorite,
-}: ItemDetailDrawerProps) {
-  const { isAuthenticated } = useAuth()
-  const navigate = useNavigate()
-
-  if (!item) return null
-
-  const techniques = item.techniques || []
-  const inheritors = item.inheritors || []
-  const images = item.images || []
-
+function DetailContent({ item, images, techniques, inheritors, related, isAuthenticated, navigate, onClose, onRelatedClick }: {
+  item: Record<string, any>
+  images: string[]
+  techniques: any[]
+  inheritors: any[]
+  related: ItemDetailDrawerProps['related']
+  isAuthenticated: boolean
+  navigate: ReturnType<typeof useNavigate>
+  onClose: () => void
+  onRelatedClick: (id: number) => void
+}) {
   return (
-    <Drawer
-      open={open}
-      onClose={onClose}
-      width={680}
-      title={item.name}
-      extra={
-        <Space>
-          <Button
-            type={isFavorited ? 'primary' : 'default'}
-            icon={isFavorited ? <HeartFilled /> : <HeartOutlined />}
-            onClick={onToggleFavorite}
-            danger={isFavorited}
-            disabled={!isAuthenticated}
-          >
-            {isFavorited ? '取消收藏' : '收藏'}
-          </Button>
-          <Button icon={<LinkOutlined />} onClick={() => { navigate(`/exhibition?id=${item.id}`); onClose() }}>
-            展厅查看
-          </Button>
-        </Space>
-      }
-    >
+    <>
       {/* 图片 */}
       {images.length > 0 ? (
         <div style={{ marginBottom: 24 }}>
@@ -129,7 +108,7 @@ export default function ItemDetailDrawer({
         </div>
       )}
 
-      {/* 修复建议 — 年代久远的藏品 */}
+      {/* 修复建议 */}
       {isAuthenticated && item.era && _isAncientEra(item.era) && (
         <Card
           size="small"
@@ -210,6 +189,77 @@ export default function ItemDetailDrawer({
           )}
         </div>
       )}
+    </>
+  )
+}
+
+export default function ItemDetailDrawer({
+  open, onClose, item, related, onRelatedClick, isFavorited, onToggleFavorite,
+}: ItemDetailDrawerProps) {
+  const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+
+  if (!item) return null
+
+  const techniques = item.techniques || []
+  const inheritors = item.inheritors || []
+  const images = item.images || []
+
+  return (
+    <Drawer
+      open={open}
+      onClose={onClose}
+      width={680}
+      title={item.name}
+      extra={
+        <Space>
+          <Button
+            type={isFavorited ? 'primary' : 'default'}
+            icon={isFavorited ? <HeartFilled /> : <HeartOutlined />}
+            onClick={onToggleFavorite}
+            danger={isFavorited}
+            disabled={!isAuthenticated}
+          >
+            {isFavorited ? '取消收藏' : '收藏'}
+          </Button>
+          <Button icon={<LinkOutlined />} onClick={() => { navigate(`/exhibition?id=${item.id}`); onClose() }}>
+            展厅查看
+          </Button>
+        </Space>
+      }
+    >
+      <Tabs
+        defaultActiveKey="detail"
+        items={[
+          {
+            key: 'detail',
+            label: '📖 详情',
+            children: (
+              <DetailContent
+                item={item}
+                images={images}
+                techniques={techniques}
+                inheritors={inheritors}
+                related={related}
+                isAuthenticated={isAuthenticated}
+                navigate={navigate}
+                onClose={onClose}
+                onRelatedClick={onRelatedClick}
+              />
+            ),
+          },
+          {
+            key: 'timeline',
+            label: (
+              <span>
+                <ClockCircleOutlined style={{ marginRight: 4 }} />
+                传承时间线
+              </span>
+            ),
+            children: <HeritageTimelinePanel itemId={item.id} />,
+          },
+        ]}
+      />
     </Drawer>
   )
 }

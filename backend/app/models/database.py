@@ -73,6 +73,7 @@ def init_db():
     import app.models.async_task  # noqa: F401
     import app.models.heritage_chunk  # noqa: F401
     import app.models.pattern_gene  # noqa: F401
+    import app.models.restoration_archive  # noqa: F401
     Base.metadata.create_all(bind=engine)
 
     # 迁移: 为已有数据库添加新列

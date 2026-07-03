@@ -2,7 +2,9 @@
 
 import json
 import logging
+import os
 from collections import Counter, defaultdict
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
@@ -436,3 +438,161 @@ def get_timeline(db: Session = Depends(get_db)):
             result.append(entry)
 
     return result
+
+
+# ========== ❼ 时代背景（时空叙事新增） ==========
+
+ERA_CONTEXT_CACHE: dict | None = None
+
+
+def _load_era_contexts() -> dict:
+    """加载朝代背景 JSON（懒加载 + 内存缓存）"""
+    global ERA_CONTEXT_CACHE
+    if ERA_CONTEXT_CACHE is not None:
+        return ERA_CONTEXT_CACHE
+
+    context_path = Path(__file__).resolve().parent.parent.parent / "data" / "knowledge" / "era_contexts.json"
+    if context_path.exists():
+        try:
+            with open(context_path, "r", encoding="utf-8") as f:
+                ERA_CONTEXT_CACHE = json.load(f)
+            logger.info(f"Loaded era contexts from {context_path}")
+            return ERA_CONTEXT_CACHE
+        except (json.JSONDecodeError, IOError) as e:
+            logger.warning(f"Failed to load era_contexts.json: {e}")
+
+    ERA_CONTEXT_CACHE = {}
+    return ERA_CONTEXT_CACHE
+
+
+@router.get("/era-context")
+def get_era_context(era: str = Query(..., description="朝代名称，如 '唐'、'明清'")):
+    """获取指定朝代的政治/经济/文化背景"""
+    contexts = _load_era_contexts()
+
+    # 精确匹配
+    if era in contexts:
+        entry = contexts[era]
+        entry["era"] = era
+        return entry
+
+    # 模糊匹配：检查 era 是否包含在 key 中，或 key 是否包含在 era 中
+    for key, entry in contexts.items():
+        if key in era or era in key:
+            entry["era"] = key
+            return entry
+
+    # 未匹配时返回通用描述
+    return {
+        "era": era,
+        "politics": f"关于{era}时期的历史资料正在整理中。",
+        "economy": f"关于{era}时期的经济状况资料正在整理中。",
+        "culture": f"关于{era}时期的文化特征资料正在整理中。",
+        "craft_relevance": f"关于{era}时期的非遗技艺发展资料正在整理中。",
+    }
+
+
+# ========== ❽ 传承时间线（时空叙事新增） ==========
+
+def _build_fallback_timeline(item: HeritageItem, inheritors: list, techniques: list) -> list[dict]:
+    """基于数据库已有数据构建降级时间线（不调用 LLM）"""
+    events = []
+
+    # 技艺起源事件
+    if item.era:
+        events.append({
+            "era": item.era,
+            "event_type": "origin",
+            "description": f"{item.name}最早可追溯至{item.era}时期，在{item.region}地区形成独特的技艺传统。",
+            "related_person": "",
+        })
+
+    # 传承人事件
+    for inh in inheritors[:5]:
+        era_hint = ""
+        if item.era:
+            era_hint = f"（{item.era}至今）"
+        events.append({
+            "era": item.era or "近现代",
+            "event_type": "inheritor",
+            "description": f"{inh.get('name', '')}（{inh.get('title', '')}）：{inh.get('desc', '')[:150]}{era_hint}",
+            "related_person": inh.get("name", ""),
+        })
+
+    # 技法事件
+    for t in techniques[:5]:
+        events.append({
+            "era": item.era or "近现代",
+            "event_type": "evolution",
+            "description": f"核心技法「{t.get('name', '')}」：{t.get('desc', '')[:200]}",
+            "related_person": "",
+        })
+
+    return events
+
+
+@router.get("/items/{item_id}/heritage-timeline")
+def get_heritage_timeline(item_id: int, db: Session = Depends(get_db)):
+    """获取非遗项目的传承时间线（LLM 增强 + 降级兜底）"""
+    item = db.query(HeritageItem).filter(HeritageItem.id == item_id).first()
+    if not item:
+        from app.utils.exceptions import AppException
+        raise AppException("项目不存在", code=404)
+
+    inheritors = json.loads(item.inheritors_json) if item.inheritors_json else []
+    techniques = _parse_techniques(item)
+
+    # 尝试 LLM 生成
+    try:
+        from app.services.ai.llm import chat
+
+        ctx = {
+            "name": item.name,
+            "category": item.category,
+            "era": item.era or "未知",
+            "region": item.region or "未知",
+            "description": (item.description or "")[:500],
+            "cultural_meaning": (item.cultural_meaning or "")[:300],
+            "inheritors": [{"name": i.get("name"), "title": i.get("title"), "desc": i.get("desc", "")[:200]} for i in inheritors[:5]],
+            "techniques": [{"name": t.get("name"), "desc": t.get("desc", "")[:150]} for t in techniques[:5]],
+        }
+
+        prompt = f"""你是一位中国非物质文化遗产研究专家。请为以下非遗项目生成「传承时间线」，按朝代顺序列出关键事件。
+
+非遗项目信息：
+```json
+{json.dumps(ctx, ensure_ascii=False, indent=2)}
+```
+
+请返回 JSON 数组（不要包含其他文字），每个事件包含：
+- era: 朝代/时期（如"唐代""宋代""明清""近现代"）
+- event_type: 事件类型，取 "origin"(技艺起源)、"evolution"(技艺变革)、"inheritor"(传承人)、"event"(历史事件) 之一
+- description: 事件描述（80-150字，有历史依据）
+- related_person: 相关人物姓名（没有则为空字符串）
+
+要求：
+1. 按时间顺序排列（从古到今）
+2. 至少包含 3 个事件，最多 7 个
+3. 技艺起源和传承人必须有数据依据
+4. 如果某项信息不足，跳过该类型事件
+5. 只返回 JSON 数组，不要包含任何其他文字"""
+
+        messages = [{"role": "user", "content": prompt}]
+        text = chat(messages)
+
+        # 尝试解析 JSON
+        text = text.strip()
+        if text.startswith("```"):
+            lines = text.split("\n")
+            text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+
+        timeline = json.loads(text)
+        if isinstance(timeline, list) and len(timeline) > 0:
+            logger.info(f"LLM generated timeline for item {item_id}: {len(timeline)} events")
+            return {"item_id": item_id, "item_name": item.name, "timeline": timeline}
+    except Exception as e:
+        logger.warning(f"LLM timeline generation failed for item {item_id}: {e}, using fallback")
+
+    # 降级兜底
+    fallback = _build_fallback_timeline(item, inheritors, techniques)
+    return {"item_id": item_id, "item_name": item.name, "timeline": fallback}

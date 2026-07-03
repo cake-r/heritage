@@ -107,3 +107,36 @@ class TimelineEraItem(BaseModel):
     distribution: dict[str, int] = {}  # {province: count}
     techniques_introduced: list[str] = []  # new techniques first appearing in this era
     category_breakdown: dict[str, int] = {}  # {category: count}
+
+
+# === 时空叙事新增 Schema ===
+
+class EraContextResponse(BaseModel):
+    era: str
+    politics: str = ""
+    economy: str = ""
+    culture: str = ""
+    craft_relevance: str = ""
+
+
+class HeritageTimelineEvent(BaseModel):
+    era: str                # 朝代/时期
+    event_type: str         # "origin" | "evolution" | "inheritor" | "event"
+    description: str
+    related_person: str = ""
+
+
+class HeritageTimelineResponse(BaseModel):
+    item_id: int
+    item_name: str
+    timeline: list[HeritageTimelineEvent] = []
+
+
+class KinshipResponse(BaseModel):
+    item1: dict = {}        # {id, name, category, region, era}
+    item2: dict = {}
+    shared_techniques: list[str] = []
+    shared_genes: list[dict] = []  # [{gene_id, name, shape_category, meaning}]
+    semantic_similarity: float = 0.0
+    relation_analysis: str = ""   # LLM 生成的亲缘叙事
+    kinship_score: float = 0.0    # 综合亲缘度 0-1

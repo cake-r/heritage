@@ -127,3 +127,48 @@ export async function getTimeline(): Promise<TimelineItem[]> {
   const res = await api.get('/api/knowledge-graph/timeline')
   return res.data
 }
+
+// ========== 时空叙事新增 Types ==========
+
+export interface EraContext {
+  era: string
+  politics: string
+  economy: string
+  culture: string
+  craft_relevance: string
+}
+
+export interface HeritageTimelineEvent {
+  era: string
+  event_type: 'origin' | 'evolution' | 'inheritor' | 'event'
+  description: string
+  related_person: string
+}
+
+export interface HeritageTimeline {
+  item_id: number
+  item_name: string
+  timeline: HeritageTimelineEvent[]
+}
+
+export interface KinshipData {
+  item1: { id: number; name: string; category: string; region: string; era: string }
+  item2: { id: number; name: string; category: string; region: string; era: string }
+  shared_techniques: string[]
+  shared_genes: { gene_id: string; name: string; shape_category: string; meaning: string }[]
+  semantic_similarity: number
+  relation_analysis: string
+  kinship_score: number
+}
+
+// ========== 时空叙事新增 API ==========
+
+export async function getEraContext(era: string): Promise<EraContext> {
+  const res = await api.get('/api/knowledge-graph/era-context', { params: { era } })
+  return res.data
+}
+
+export async function getHeritageTimeline(itemId: number): Promise<HeritageTimeline> {
+  const res = await api.get(`/api/knowledge-graph/items/${itemId}/heritage-timeline`)
+  return res.data
+}

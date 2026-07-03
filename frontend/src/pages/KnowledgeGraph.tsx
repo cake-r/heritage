@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { Card, Spin, Empty, Button, message, Alert } from 'antd'
-import { ReloadOutlined, InfoCircleOutlined } from '@ant-design/icons'
+import { Card, Spin, Empty, Button, message, Alert, Drawer } from 'antd'
+import { ReloadOutlined, InfoCircleOutlined, NodeIndexOutlined } from '@ant-design/icons'
 import * as echarts from 'echarts'
 import { FilterProvider, useFilters } from './knowledge-graph/FilterContext'
 import GraphBanner from './knowledge-graph/GraphBanner'
@@ -11,6 +11,8 @@ import CategorySidebar from './knowledge-graph/CategorySidebar'
 import ProvinceDetailPanel from './knowledge-graph/ProvinceDetailPanel'
 import ItemDetailDrawer from './knowledge-graph/ItemDetailDrawer'
 import TechniquePanel from './knowledge-graph/TechniquePanel'
+import EraContextPanel from './knowledge-graph/EraContextPanel'
+import KinshipGraph from './knowledge-graph/KinshipGraph'
 import { useSunburstData } from './knowledge-graph/useSunburstData'
 import {
   getOverview, getItems, getRegions, getTimeline,
@@ -52,6 +54,7 @@ function KnowledgeGraph() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [techPanelOpen, setTechPanelOpen] = useState(false)
   const [favIds, setFavIds] = useState<Set<number>>(new Set())
+  const [kinshipOpen, setKinshipOpen] = useState(false)
 
   // 首次访问操作提示
   const [showGuide, setShowGuide] = useState(() => {
@@ -173,7 +176,7 @@ function KnowledgeGraph() {
   }
 
   // ========== Render ==========
-  const showRightPanel = region !== null
+  const showRightPanel = region !== null || era !== null
   const filteredRegionData = region ? regions.find(r => r.name === region) : undefined
 
   return (
@@ -246,14 +249,19 @@ function KnowledgeGraph() {
           />
         </Card>
 
-        {/* Right: Province Detail Panel (conditional) */}
+        {/* Right: Province Detail Panel + Era Context Panel (conditional) */}
         {showRightPanel && (
-          <ProvinceDetailPanel
-            province={region!}
-            regionData={filteredRegionData}
-            items={filteredItems?.nodes || []}
-            onItemClick={handleItemClick}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
+            {region && (
+              <ProvinceDetailPanel
+                province={region!}
+                regionData={filteredRegionData}
+                items={filteredItems?.nodes || []}
+                onItemClick={handleItemClick}
+              />
+            )}
+            {era && <EraContextPanel era={era} />}
+          </div>
         )}
       </div>
 
@@ -324,6 +332,36 @@ function KnowledgeGraph() {
         loading={techLoading}
         onItemClick={handleItemClick}
       />
+
+      {/* Kinship Graph Button */}
+      <div style={{ textAlign: 'center', marginTop: 8 }}>
+        <Button
+          icon={<NodeIndexOutlined />}
+          type="dashed"
+          onClick={() => setKinshipOpen(true)}
+          style={{
+            borderColor: 'var(--color-gold, #C4A265)',
+            color: 'var(--color-ink, #2C241A)',
+          }}
+        >
+          技艺亲缘关系图
+        </Button>
+      </div>
+
+      {/* Kinship Graph Drawer */}
+      <Drawer
+        open={kinshipOpen}
+        onClose={() => setKinshipOpen(false)}
+        width={800}
+        title="🔗 技艺亲缘关系图"
+        styles={{ body: { padding: 16 } }}
+      >
+        <KinshipGraph
+          data={allItems}
+          onNodeClick={(id) => { setKinshipOpen(false); handleItemClick(id) }}
+          height={520}
+        />
+      </Drawer>
     </div>
   )
 }

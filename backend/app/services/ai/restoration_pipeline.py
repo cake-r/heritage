@@ -200,8 +200,14 @@ Return strictly in JSON format (no markdown, no extra text):
   "category": "identified craft category (e.g. 陶瓷, 刺绣, 剪纸, 皮影, 紫砂壶, 木雕, or 非遗工艺品 if unclear)",
   "damage_types": ["damage type 1", "damage type 2"],
   "severity": "轻度 or 中度 or 重度",
-  "description": "Detailed damage analysis in Chinese (200-400 characters), describing what is damaged, where, and the extent"
+  "description": "Detailed damage analysis in Chinese (200-400 characters), describing what is damaged, where, and the extent",
+  "damage_regions": [
+    {"x": 100, "y": 200, "width": 150, "height": 120, "description": "釉面剥落区域,面积约15%", "severity": "重度"},
+    {"x": 300, "y": 50, "width": 80, "height": 60, "description": "表面裂纹区域", "severity": "轻度"}
+  ]
 }
+
+For damage_regions: provide bounding box coordinates (x, y from top-left corner, width, height in pixels) for each visually damaged area. Estimate coordinates as proportions of the image — assume the image is 1024x1024. Include ALL visible damage areas (at least 1, at most 6). Coordinates must be integers. If no specific damage region is visible, return an empty array [].
 
 Damage types to consider: 釉面剥落, 表面裂纹, 色彩氧化, 丝线褪色, 局部破损, 污渍, 纸张泛黄, 边缘破损, 折叠痕迹, 皮革龟裂, 颜料脱落, 连接处松动, 表面磨损, 漆面剥落, 虫蛀痕迹, 画面模糊, 细节丢失, 对比度不足, 噪点"""
 
@@ -221,6 +227,7 @@ def _parse_damage_response(raw_text: str) -> dict:
             "damage_types": ["画面模糊"],
             "severity": "轻度",
             "description": raw_text[:400],
+            "damage_regions": [],
         }
 
     return {
@@ -228,6 +235,7 @@ def _parse_damage_response(raw_text: str) -> dict:
         "damage_types": data.get("damage_types", []),
         "severity": data.get("severity", "轻度"),
         "description": data.get("description", ""),
+        "damage_regions": data.get("damage_regions", []),
     }
 
 
@@ -246,6 +254,7 @@ def _mock_damage_analysis(image_path: str) -> dict:
                         "damage_types": sample["damage_types"],
                         "severity": sample["severity"],
                         "description": sample["description"],
+                        "damage_regions": sample.get("damage_regions", []),
                     }
 
     # Fallback to default
@@ -256,6 +265,7 @@ def _mock_damage_analysis(image_path: str) -> dict:
             "damage_types": d["damage_types"],
             "severity": d["severity"],
             "description": d["description"],
+            "damage_regions": d.get("damage_regions", []),
         }
 
     # Ultimate fallback (no JSON file)
@@ -264,6 +274,7 @@ def _mock_damage_analysis(image_path: str) -> dict:
         "damage_types": ["画面模糊", "细节丢失"],
         "severity": "轻度",
         "description": "该图片整体存在轻微模糊和对比度不足的问题。部分细节区域因拍摄条件限制出现噪点和纹理丢失，但主体结构完整，可通过AI修复恢复大部分细节。",
+        "damage_regions": [],
     }
 
 
@@ -764,13 +775,14 @@ def _mock_verification_enhanced(category: str) -> dict:
 # Local Restoration (用户框选区域修复)
 # ============================================================
 
-def run_local_restoration(image_path: str, region: dict) -> dict:
+def run_local_restoration(image_path: str, region: dict, feather_radius: int = 10) -> dict:
     """
-    局部修复: 仅修复用户指定的矩形区域。
+    局部修复: 仅修复用户指定的矩形区域，使用 seamlessClone 自然融合边缘。
 
     Args:
         image_path: 原始图片路径
         region: {{x, y, width, height}} (像素坐标)
+        feather_radius: 边缘羽化半径 (像素)，用于蒙版腐蚀
 
     Returns:
         与 run_restoration_pipeline 相同格式的结果
@@ -786,6 +798,13 @@ def run_local_restoration(image_path: str, region: dict) -> dict:
     if img is None:
         raise AIServiceError("无法读取图片", service="LocalRestoration", retryable=False)
 
+    # 边界检查
+    ih, iw = img.shape[:2]
+    x = max(0, min(x, iw - 1))
+    y = max(0, min(y, ih - 1))
+    w = max(1, min(w, iw - x))
+    h = max(1, min(h, ih - y))
+
     crop = img[y:y + h, x:x + w]
     crop_path = str(Path(image_path).parent / f"crop_{Path(image_path).stem}.jpg")
     cv2.imwrite(crop_path, crop)
@@ -793,13 +812,33 @@ def run_local_restoration(image_path: str, region: dict) -> dict:
     # 对裁剪区域运行完整管道
     result = run_restoration_pipeline(crop_path)
 
-    # 如果修复成功，将结果混合回原图
+    # 如果修复成功，使用 seamlessClone 自然融合回原图
     if result.get("restored_image_url"):
         restored_crop_path = _url_to_local_path(result["restored_image_url"])
         restored_crop = cv2.imread(restored_crop_path)
         if restored_crop is not None:
             restored_crop = cv2.resize(restored_crop, (w, h))
-            img[y:y + h, x:x + w] = restored_crop
+
+            # 创建蒙版: 全白矩形，边缘腐蚀创建羽化过渡区
+            mask = np.full((h, w), 255, dtype=np.uint8)
+            if feather_radius > 0 and w > feather_radius * 2 and h > feather_radius * 2:
+                kernel = np.ones((feather_radius, feather_radius), np.uint8)
+                mask = cv2.erode(mask, kernel, iterations=1)
+
+            center = (x + w // 2, y + h // 2)
+
+            try:
+                # Poisson 融合: NORMAL_CLONE 保留纹理细节
+                blended = cv2.seamlessClone(
+                    restored_crop, img, mask, center, cv2.NORMAL_CLONE
+                )
+                img = blended
+                logger.info(f"seamlessClone 融合成功: region ({x},{y},{w},{h})")
+            except cv2.error as e:
+                # 回退到硬拼接
+                logger.warning(f"seamlessClone 失败，回退硬拼接: {e}")
+                img[y:y + h, x:x + w] = restored_crop
+
             blended_path = str(Path(image_path).parent / f"blended_{Path(image_path).stem}.jpg")
             cv2.imwrite(blended_path, img)
             result["restored_image_url"] = f"/static/generated/{Path(blended_path).name}"
