@@ -112,15 +112,32 @@ def _build_queue_item(q: ExpansionQueue) -> ExpansionQueueItem:
     )
 
 
-def _structure_with_llm(raw_info: dict) -> dict | None:
-    """使用 DeepSeek 将搜索到的原始信息结构化为 HeritageItem 格式"""
+def _structure_with_llm(raw_info: dict, preferences: dict | None = None) -> dict | None:
+    """使用 DeepSeek 将搜索到的原始信息结构化为 HeritageItem 格式
+
+    Args:
+        raw_info: 搜索结果原始信息 {keyword, name, snippet}
+        preferences: 用户偏好 {regions, eras, keywords}，用于指导 LLM 输出
+    """
+    pref_note = ""
+    if preferences:
+        parts = []
+        if preferences.get("regions"):
+            parts.append(f"- 用户偏好地域: {', '.join(preferences['regions'])}，请优先返回该地域的非遗项目")
+        if preferences.get("eras"):
+            parts.append(f"- 用户偏好年代: {', '.join(preferences['eras'])}，请优先返回该年代起源的项目")
+        if preferences.get("keywords"):
+            parts.append(f"- 用户关注关键词: {', '.join(preferences['keywords'])}，请围绕该主题展开")
+        if parts:
+            pref_note = "\n用户偏好指引:\n" + "\n".join(parts) + "\n"
+
     prompt = f"""你是中国非物质文化遗产研究专家。请根据以下搜索结果，为这项非遗项目补全结构化信息。
 请务必详尽深入地填写工艺技法和传承人信息，这是本次任务的核心关注点。
 
 搜索关键词: {raw_info.get('keyword', '')}
 搜索摘要: {raw_info.get('snippet', '')}
 候选名称: {raw_info.get('name', '')}
-
+{pref_note}
 请严格按 JSON 格式返回（不要加```json标记，直接返回纯JSON）:
 {{
   "name": "非遗项目准确全称",
@@ -168,8 +185,15 @@ def _structure_with_llm(raw_info: dict) -> dict | None:
         return None
 
 
-def _expand_task(task_id: str, count: int, categories: list[str] | None):
-    """后台任务: 搜索 + 结构化 + 写入 expansion_queue"""
+def _expand_task(task_id: str, count: int, categories: list[str] | None, preferences: dict | None = None):
+    """后台任务: 搜索 + 结构化 + 写入 expansion_queue
+
+    Args:
+        task_id: 任务ID
+        count: 目标扩充数量
+        categories: 指定品类列表
+        preferences: 用户偏好 {regions, eras, keywords}，用于引导搜索方向
+    """
     db = SessionLocal()
     try:
         existing_names = get_existing_names()
@@ -180,24 +204,62 @@ def _expand_task(task_id: str, count: int, categories: list[str] | None):
         search_categories = categories or CATEGORIES.copy()
         random.shuffle(search_categories)
 
+        # 构建偏好信息
+        pref_keywords = preferences.get("keywords", []) if preferences else []
+        pref_regions = preferences.get("regions", []) if preferences else []
+        pref_eras = preferences.get("eras", []) if preferences else []
+
+        # 构建搜索关键词列表
+        search_queries = []
+
+        # 策略1: 用户提供了自定义关键词 → 精确搜索
+        if pref_keywords:
+            for kw in pref_keywords:
+                search_queries.append(f"{kw} 非物质文化遗产 中国传统技艺")
+                # 如果有地域偏好，组合搜索
+                for region in pref_regions[:2]:  # 限制组合数量
+                    search_queries.append(f"{kw} {region} 非物质文化遗产")
+        # 策略2: 品类+地域组合搜索
+        elif pref_regions:
+            for cat in search_categories[:10]:
+                for region in pref_regions[:3]:
+                    search_queries.append(f"{cat} {region} 非物质文化遗产")
+        # 策略3: 品类+年代组合搜索
+        elif pref_eras:
+            for cat in search_categories[:10]:
+                for era in pref_eras[:3]:
+                    search_queries.append(f"{cat} {era} 非物质文化遗产")
+        # 策略4: 纯品类搜索（现有行为，兜底）
+        else:
+            search_queries = [f"{cat} 非物质文化遗产 中国传统技艺" for cat in search_categories]
+
+        random.shuffle(search_queries)
+
         found = 0
-        attempted = 0
+        query_idx = 0
 
-        for category in search_categories:
-            if found >= count:
-                break
+        while found < count and query_idx < len(search_queries):
+            keyword = search_queries[query_idx]
+            query_idx += 1
 
-            attempted += 1
-            keyword = f"{category} 非物质文化遗产 中国传统技艺"
+            # 提取品类名（用于进度显示）
+            display_category = "自定义搜索"
+            for cat in CATEGORIES:
+                if cat in keyword:
+                    display_category = cat
+                    break
+            if not pref_keywords and any(r in keyword for r in (pref_regions or [])):
+                display_category = keyword.split(" ")[0] if " " in keyword else display_category
+
             _task_status[task_id] = {
                 "status": "running",
                 "total": count,
                 "completed": found,
                 "items_found": found,
-                "current_category": category,
+                "current_category": display_category,
             }
 
-            logger.info(f"[{task_id}] 搜索品类: {category} ({found+1}/{count})")
+            logger.info(f"[{task_id}] 搜索: {keyword[:60]}... ({found+1}/{count})")
 
             _delay(1.0, 2.0)
             search_results = search_360_items(keyword, count=5)
@@ -225,20 +287,28 @@ def _expand_task(task_id: str, count: int, categories: list[str] | None):
                     "name": result.get("title", ""),
                     "snippet": result.get("snippet", ""),
                 }
-                structured = _structure_with_llm(raw_info)
+                # 传入偏好信息，引导 LLM 输出
+                llm_prefs = {}
+                if pref_regions:
+                    llm_prefs["regions"] = pref_regions
+                if pref_eras:
+                    llm_prefs["eras"] = pref_eras
+                if pref_keywords:
+                    llm_prefs["keywords"] = pref_keywords
+                structured = _structure_with_llm(raw_info, llm_prefs if llm_prefs else None)
 
                 if not structured or not structured.get("name"):
                     continue
 
                 # 验证品类
-                cat = structured.get("category", category)
+                cat = structured.get("category", display_category if display_category != "自定义搜索" else "其他")
                 if cat not in CATEGORIES:
                     for c in CATEGORIES:
                         if c in cat or cat in c:
                             cat = c
                             break
                     else:
-                        cat = category
+                        cat = "其他"
 
                 # 去重（LLM 返回的名字可能与搜索结果不同）
                 final_name = structured.get("name", name)
@@ -318,7 +388,15 @@ def start_expansion(
     req: ExpandRequest,
     current_user: User = Depends(get_current_user),
 ):
-    """启动知识库扩充任务 (后台异步执行)"""
+    """启动知识库扩充任务 (后台异步执行)
+
+    支持偏好输入：
+    - categories: 品类偏好
+    - regions: 地域偏好
+    - eras: 年代偏好
+    - keywords: 自定义搜索关键词
+    所有偏好均为可选，不填则自动随机扩充
+    """
     # 检查是否有正在运行的任务
     for tid, status in _task_status.items():
         if status.get("status") == "running":
@@ -330,10 +408,19 @@ def start_expansion(
     task_id = uuid.uuid4().hex[:12]
     _task_status[task_id] = {"status": "running", "total": req.count, "completed": 0, "items_found": 0}
 
+    # 构建偏好 dict
+    preferences = {}
+    if req.regions:
+        preferences["regions"] = req.regions
+    if req.eras:
+        preferences["eras"] = req.eras
+    if req.keywords:
+        preferences["keywords"] = req.keywords
+
     # 后台线程执行
     thread = threading.Thread(
         target=_expand_task,
-        args=(task_id, req.count, req.categories),
+        args=(task_id, req.count, req.categories, preferences if preferences else None),
         daemon=True,
     )
     thread.start()

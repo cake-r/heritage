@@ -19,6 +19,9 @@ class ExpandRequest(BaseModel):
     """启动扩充请求"""
     count: int = Field(default=5, ge=1, le=30, description="扩充数量 (1-30)")
     categories: list[str] | None = Field(default=None, description="指定品类，不指定则自动轮询")
+    regions: list[str] | None = Field(default=None, description="偏好地域 (如 ['江苏苏州', '四川成都'])")
+    eras: list[str] | None = Field(default=None, description="偏好年代 (如 ['唐代', '宋代', '明清'])")
+    keywords: list[str] | None = Field(default=None, description="自定义搜索关键词 (如 ['蜀绣', '景德镇瓷器'])")
 
 
 class ExpandResponse(BaseModel):

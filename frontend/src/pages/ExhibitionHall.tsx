@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import {
   Layout, Menu, Card, Typography, Input, Select, Button, Badge,
   Row, Col, Drawer, Image, Tag, Pagination, Modal, Upload,
-  Form, Spin, Empty, Space, message, Segmented, Collapse, AutoComplete,
+  Form, Spin, Empty, Space, message, Segmented, Collapse, AutoComplete, Checkbox,
 } from 'antd'
 import {
   SearchOutlined, UploadOutlined, HeartOutlined,
@@ -17,7 +17,7 @@ import {
   startExpansion, getTaskStatus, getExpansionQueue,
   approveExpansionItem, rejectExpansionItem, uploadQueueImages,
   verifyAdminPassword, updateHeritageItem, uploadHeritageImages,
-  type HeritageItem, type ExpansionQueueItem,
+  type HeritageItem, type ExpansionQueueItem, type ExpansionPreferences,
 } from '../services/exhibition'
 import { addFavorite, deleteFavorite, listFavorites } from '../services/user'
 import { useAuth } from '../contexts/AuthContext'
@@ -71,6 +71,10 @@ export default function ExhibitionHall() {
   // 知识库扩充
   const [expandOpen, setExpandOpen] = useState(false)
   const [expandCount, setExpandCount] = useState(5)
+  const [expandCategories, setExpandCategories] = useState<string[]>([])
+  const [expandRegions, setExpandRegions] = useState<string[]>([])
+  const [expandEras, setExpandEras] = useState<string[]>([])
+  const [expandKeywords, setExpandKeywords] = useState('')
   const [taskId, setTaskId] = useState<string | null>(null)
   const [taskRunning, setTaskRunning] = useState(false)
   const [taskProgress, setTaskProgress] = useState({ completed: 0, total: 0, items_found: 0 })
@@ -234,7 +238,14 @@ export default function ExhibitionHall() {
     setTaskRunning(true)
     setTaskProgress({ completed: 0, total: expandCount, items_found: 0 })
     try {
-      const { task_id, message: msg } = await startExpansion(expandCount)
+      // 构建偏好参数
+      const prefs: ExpansionPreferences = {}
+      if (expandCategories.length > 0) prefs.categories = expandCategories
+      if (expandRegions.length > 0) prefs.regions = expandRegions
+      if (expandEras.length > 0) prefs.eras = expandEras
+      if (expandKeywords.trim()) prefs.keywords = expandKeywords.trim().split(/[,，、\s]+/).filter(Boolean)
+
+      const { task_id, message: msg } = await startExpansion(expandCount, Object.keys(prefs).length > 0 ? prefs : undefined)
       message.success(msg)
       setTaskId(task_id)
       // 每 3 秒轮询进度
@@ -747,14 +758,65 @@ export default function ExhibitionHall() {
         <Modal
           title="AI 扩充知识库"
           open={expandOpen}
-          onCancel={() => setExpandOpen(false)}
+          onCancel={() => {
+            setExpandOpen(false)
+            // 关闭时不清空偏好，方便下次打开继续调整
+          }}
           onOk={handleStartExpansion}
           okText="开始扩充"
           cancelText="取消"
-          width={420}
+          width={560}
         >
-          <div style={{ padding: '8px 0' }}>
-            <Form.Item label="扩充数量" extra="AI 将从互联网搜索并结构化非遗信息">
+          <div style={{ padding: '4px 0' }}>
+            {/* 偏好品类 */}
+            <Form.Item label="偏好品类" extra="不选则自动轮询全部品类">
+              <Select
+                mode="multiple"
+                placeholder="选择你感兴趣的非遗品类..."
+                value={expandCategories}
+                onChange={setExpandCategories}
+                options={categories.map(c => ({ label: c, value: c }))}
+                allowClear
+                style={{ width: '100%' }}
+                maxTagCount={6}
+              />
+            </Form.Item>
+
+            {/* 偏好地域 */}
+            <Form.Item label="偏好地域" extra="输入后按回车添加，如「江苏苏州」「四川成都」">
+              <Select
+                mode="tags"
+                placeholder="输入感兴趣的地域..."
+                value={expandRegions}
+                onChange={setExpandRegions}
+                style={{ width: '100%' }}
+                maxTagCount={5}
+              />
+            </Form.Item>
+
+            {/* 偏好年代 */}
+            <Form.Item label="偏好年代" extra="不选则不限制年代">
+              <Checkbox.Group
+                options={['商周', '秦汉', '魏晋南北朝', '隋唐', '宋元', '明清', '近现代']}
+                value={expandEras}
+                onChange={v => setExpandEras(v as string[])}
+                style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 16px' }}
+              />
+            </Form.Item>
+
+            {/* 自定义关键词 */}
+            <Form.Item label="自定义关键词" extra="输入你最想了解的非遗名称或主题，用逗号分隔">
+              <Input.TextArea
+                placeholder="如：蜀绣、景德镇瓷器、龙泉宝剑、苗族银饰..."
+                value={expandKeywords}
+                onChange={e => setExpandKeywords(e.target.value)}
+                rows={2}
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
+
+            {/* 扩充数量 */}
+            <Form.Item label="扩充数量" extra="建议每次 3-5 个，便于逐一审核">
               <Input
                 type="number"
                 min={1}
@@ -763,10 +825,8 @@ export default function ExhibitionHall() {
                 onChange={e => setExpandCount(Math.min(30, Math.max(1, parseInt(e.target.value) || 1)))}
                 style={{ width: '100%' }}
               />
-              <div style={{ marginTop: 8, color: 'var(--color-ink-secondary)' }}>
-                <small>建议每次 3-5 个，便于逐一审核。搜索关键词：「品类 + 非物质文化遗产 + 中国传统技艺」</small>
-              </div>
             </Form.Item>
+
             {taskRunning && (
               <div style={{
                 background: 'var(--color-bg-hover, #F5F5F0)',

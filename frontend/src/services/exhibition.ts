@@ -126,8 +126,24 @@ export interface TaskStatus {
   error?: string | null
 }
 
-export async function startExpansion(count: number, categories?: string[]): Promise<{ task_id: string; message: string }> {
-  const res = await api.post('/api/expansion/expand', { count, categories })
+export interface ExpansionPreferences {
+  categories?: string[]
+  regions?: string[]
+  eras?: string[]
+  keywords?: string[]
+}
+
+export async function startExpansion(
+  count: number,
+  preferences?: ExpansionPreferences
+): Promise<{ task_id: string; message: string }> {
+  const res = await api.post('/api/expansion/expand', {
+    count,
+    categories: preferences?.categories,
+    regions: preferences?.regions,
+    eras: preferences?.eras,
+    keywords: preferences?.keywords,
+  })
   return res.data
 }
 
