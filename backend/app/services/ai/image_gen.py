@@ -111,6 +111,7 @@ def image_to_image(
         from dashscope import ImageSynthesis
 
         import random
+        import time as _time
         actual_seed = seed or random.randint(1, 2**31)
 
         # 先上传参考图到OSS获取URL
@@ -141,10 +142,49 @@ def image_to_image(
                 service="通义万相"
             )
 
+        # 处理异步 task-based 响应 (wan2.5-i2i-preview 返回 task_id)
+        task_id = getattr(result.output, "task_id", None)
+        if task_id:
+            logger.info(f"图生图异步任务: task_id={task_id}, 等待完成...")
+            for attempt in range(40):
+                _time.sleep(3)
+                fetch_response = ImageSynthesis.fetch(task_id, api_key=api_key)
+                if fetch_response.status_code != 200:
+                    logger.warning(f"图生图轮询失败 (attempt {attempt+1}): {fetch_response.code}")
+                    continue
+                task_status = getattr(fetch_response.output, "task_status", "")
+                if task_status == "SUCCEEDED":
+                    result = fetch_response
+                    logger.info(f"图生图异步任务完成: task_id={task_id}")
+                    break
+                elif task_status == "FAILED":
+                    raise AIServiceError(
+                        f"图生图异步任务失败: task_id={task_id}, "
+                        f"code={getattr(fetch_response, 'code', 'N/A')}, "
+                        f"message={getattr(fetch_response, 'message', 'N/A')}",
+                        service="通义万相"
+                    )
+            else:
+                raise AIServiceError(
+                    f"图生图异步任务超时: task_id={task_id}",
+                    service="通义万相"
+                )
+
+        # 下载生成的图片 (使用 .url 属性访问，兼容 dict fallback)
         image_paths = []
-        for i, img_result in enumerate(result.output.results):
-            local_path = _download_image(img_result.url, f"i2i_{actual_seed}_{i}.png")
-            image_paths.append(local_path)
+        results = getattr(result.output, "results", None) or []
+        for i, img_result in enumerate(results):
+            img_url = getattr(img_result, "url", None) or (
+                img_result.get("url", "") if hasattr(img_result, "get") else ""
+            )
+            if img_url:
+                local_path = _download_image(img_url, f"i2i_{actual_seed}_{i}.png")
+                image_paths.append(local_path)
+
+        if not image_paths:
+            logger.error(
+                f"图生图返回空结果: status_code={result.status_code}"
+            )
 
         # 记录 AI 用量
         from app.utils.ai_governance import log_ai_usage, get_ai_user

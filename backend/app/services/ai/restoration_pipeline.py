@@ -560,12 +560,16 @@ def _run_image_restoration(image_path: str, prompt: str, contour_result: dict | 
     else:
         enhanced_prompt = prompt
 
-    # 调用原始实现 (保持向后兼容)
     return _run_image_restoration_original(image_path, enhanced_prompt)
 
 
 def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
-    """原始的 Wanx I2I 调用 — 通过 DashFiles 上传获取 URL，使用 images 参数"""
+    """原始的 Wanx I2I 调用 — 通过 DashFiles 上传获取 URL，使用 images 参数
+
+    支持的响应模式:
+    1. 同步模式: response.output.results 直接包含结果
+    2. 异步模式: response.output.task_id 存在时，轮询获取结果
+    """
     if mock_mode():
         return _mock_image_restoration()
 
@@ -578,6 +582,7 @@ def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
         from dashscope import ImageSynthesis
         from dashscope import Files as DashFiles
         import random
+        import time as _time
 
         # 上传图片到 DashScope OSS 获取公网 URL
         upload_result = DashFiles.upload(image_path, purpose="inference")
@@ -611,7 +616,35 @@ def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
                 service="Wanx-I2I"
             )
 
-        # 记录 AI 用量 (Wanx I2I 无 token，按调用次数)
+        # 处理异步 task-based 响应 (wan2.5-i2i-preview 返回 task_id)
+        task_id = getattr(response.output, "task_id", None)
+        if task_id:
+            logger.info(f"Wanx I2I 异步任务: task_id={task_id}, 等待完成...")
+            for attempt in range(40):
+                _time.sleep(3)
+                fetch_response = ImageSynthesis.fetch(task_id, api_key=api_key)
+                if fetch_response.status_code != 200:
+                    logger.warning(f"Wanx I2I 轮询失败 (attempt {attempt+1}): {fetch_response.code}")
+                    continue
+                task_status = getattr(fetch_response.output, "task_status", "")
+                if task_status == "SUCCEEDED":
+                    response = fetch_response
+                    logger.info(f"Wanx I2I 异步任务完成: task_id={task_id}")
+                    break
+                elif task_status == "FAILED":
+                    raise AIServiceError(
+                        f"Wanx I2I 异步任务失败: task_id={task_id}, "
+                        f"code={getattr(fetch_response, 'code', 'N/A')}, "
+                        f"message={getattr(fetch_response, 'message', 'N/A')}",
+                        service="Wanx-I2I"
+                    )
+            else:
+                raise AIServiceError(
+                    f"Wanx I2I 异步任务超时: task_id={task_id}",
+                    service="Wanx-I2I"
+                )
+
+        # 记录 AI 用量
         from app.utils.ai_governance import log_ai_usage, get_ai_user
         log_ai_usage(
             user_id=get_ai_user(),
@@ -623,13 +656,22 @@ def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
             status="success",
         )
 
-        # 下载生成的图片
+        # 下载生成的图片 (使用 .url 属性访问)
         images = []
-        for img_result in response.output.results:
-            img_url = img_result.get("url", "")
+        results = getattr(response.output, "results", None) or []
+        for img_result in results:
+            img_url = getattr(img_result, "url", None) or (
+                img_result.get("url", "") if hasattr(img_result, "get") else ""
+            )
             if img_url:
-                local_path = _download_generated_image(img_url, f"restored_{os.path.basename(image_path)}")
+                safe_name = os.path.basename(image_path)
+                local_path = _download_generated_image(img_url, f"restored_{safe_name}")
                 images.append(f"/static/generated/{os.path.basename(local_path)}")
+
+        if not images:
+            logger.error(
+                f"Wanx I2I 返回空结果: status_code={response.status_code}"
+            )
 
         return {"images": images, "prompt_used": prompt}
 
