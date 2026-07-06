@@ -62,3 +62,8 @@ export async function getDetail(id: number): Promise<RecognitionResult> {
   const res = await api.get(`/api/recognition/${id}`)
   return res.data
 }
+
+export async function deleteRecognition(id: number) {
+  const res = await api.delete(`/api/recognition/${id}`)
+  return res.data
+}

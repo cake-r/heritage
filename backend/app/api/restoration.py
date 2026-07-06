@@ -1,6 +1,7 @@
 """文物数字修复 API"""
 
 import json
+import os
 import uuid
 import logging
 from pathlib import Path
@@ -16,7 +17,7 @@ from app.schemas.restoration import (
     RestorationResponse, RestorationListItem,
     PipelineStep,
 )
-from app.schemas.common import PaginatedResponse
+from app.schemas.common import PaginatedResponse, MessageResponse
 from app.api.deps import get_current_user
 from app.config import IMAGE_DIR, GENERATED_DIR, MAX_UPLOAD_SIZE_BYTES, ALLOWED_IMAGE_FORMATS, MIN_IMAGE_DIMENSION
 from app.utils.exceptions import AppException
@@ -191,6 +192,50 @@ def get_detail(
     restored_url = _get_restored_url(record)
 
     return _build_response(record, steps, restored_url)
+
+
+@router.delete("/{record_id}", response_model=MessageResponse)
+def delete_record(
+    record_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """删除修复记录（同时清理关联的磁盘文件，包括原图与生成的修复图）"""
+    record = db.query(RestorationRecord).filter(
+        RestorationRecord.id == record_id,
+        RestorationRecord.user_id == current_user.id,
+    ).first()
+    if not record:
+        raise AppException("修复记录不存在", code=404)
+
+    # 收集待清理的文件路径
+    files_to_clean: list[str] = []
+    if record.original_image_path and os.path.exists(record.original_image_path):
+        files_to_clean.append(record.original_image_path)
+
+    # 解析 restored_images_json，清理所有生成的修复图
+    if record.restored_images_json:
+        try:
+            images = json.loads(record.restored_images_json)
+            for img_url in images:
+                fp = GENERATED_DIR / Path(img_url).name
+                if os.path.exists(fp):
+                    files_to_clean.append(str(fp))
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+    db.delete(record)
+    db.commit()
+
+    # 清理磁盘文件（best-effort）
+    for fp in files_to_clean:
+        try:
+            os.remove(fp)
+            logger.info(f"已删除修复记录文件: {fp}")
+        except Exception as e:
+            logger.warning(f"删除修复记录文件失败: {fp}, {e}")
+
+    return MessageResponse(message="已删除")
 
 
 # === 内部工具函数 ===

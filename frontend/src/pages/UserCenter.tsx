@@ -15,9 +15,9 @@ import {
   getProfile, updateProfile, listFavorites, deleteFavorite,
   type UserProfile, type FavoriteItem,
 } from '../services/user'
-import { getHistory as getRecognitionHistory, type RecognitionListItem } from '../services/recognition'
+import { getHistory as getRecognitionHistory, deleteRecognition, type RecognitionListItem } from '../services/recognition'
 import { getHistory as getGenerationHistory, deleteWork, type GenerationItem } from '../services/generation'
-import { getHistory as getRestorationHistory, type RestorationListItem } from '../services/restoration'
+import { getHistory as getRestorationHistory, deleteRestoration, type RestorationListItem } from '../services/restoration'
 import { normalizeImageUrl } from '../utils/imageUrl'
 
 const { Sider, Content } = Layout
@@ -112,6 +112,14 @@ function RecordsTab() {
     finally { setLoading(false) }
   }
 
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteRecognition(id)
+      message.success('已删除')
+      setRecords(prev => prev.filter(r => r.id !== id))
+    } catch { message.error('删除失败') }
+  }
+
   if (loading) return <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
   if (records.length === 0) return <Empty description="暂无识别记录" />
 
@@ -121,9 +129,14 @@ function RecordsTab() {
       renderItem={item => (
         <List.Item
           extra={
-            <Button type="link" icon={<RightOutlined />} onClick={() => navigate(`/recognition?id=${item.id}`)}>
-              查看详情
-            </Button>
+            <Space>
+              <Button type="link" icon={<RightOutlined />} onClick={() => navigate(`/recognition?id=${item.id}`)}>
+                查看详情
+              </Button>
+              <Popconfirm title="确定删除？" onConfirm={() => handleDelete(item.id)}>
+                <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Space>
           }
         >
           <List.Item.Meta
@@ -238,6 +251,14 @@ function RestorationTab() {
     finally { setLoading(false) }
   }
 
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteRestoration(id)
+      message.success('已删除')
+      setRecords(prev => prev.filter(r => r.id !== id))
+    } catch { message.error('删除失败') }
+  }
+
   if (loading) return <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
   if (records.length === 0) return <Empty description="暂无修复记录" />
 
@@ -247,9 +268,14 @@ function RestorationTab() {
       renderItem={item => (
         <List.Item
           extra={
-            <Button type="link" icon={<RightOutlined />} onClick={() => navigate(`/restoration?id=${item.id}`)}>
-              查看详情
-            </Button>
+            <Space>
+              <Button type="link" icon={<RightOutlined />} onClick={() => navigate(`/restoration?id=${item.id}`)}>
+                查看详情
+              </Button>
+              <Popconfirm title="确定删除？" onConfirm={() => handleDelete(item.id)}>
+                <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Space>
           }
         >
           <List.Item.Meta

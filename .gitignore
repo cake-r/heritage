@@ -34,6 +34,8 @@ frontend/.env
 # Database
 *.sqlite
 *.sqlite3
+*.sqlite-shm
+*.sqlite-wal
 
 # Uploads
 backend/data/uploads/images/*

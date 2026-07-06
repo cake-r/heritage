@@ -91,3 +91,8 @@ export async function getDetail(id: number): Promise<RestorationResult> {
   const res = await api.get(`/api/restoration/${id}`)
   return res.data
 }
+
+export async function deleteRestoration(id: number) {
+  const res = await api.delete(`/api/restoration/${id}`)
+  return res.data
+}

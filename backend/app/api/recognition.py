@@ -1,6 +1,7 @@
 """模块① 非遗智能识别与讲解 API"""
 
 import json
+import os
 import uuid
 import logging
 from pathlib import Path
@@ -18,9 +19,9 @@ from app.schemas.recognition import (
     CategoryCandidate, Explanation, RelatedRecommendations,
     CreationLink, ExhibitLink, HeatmapFeature,
 )
-from app.schemas.common import PaginatedResponse
+from app.schemas.common import PaginatedResponse, MessageResponse
 from app.api.deps import get_current_user
-from app.config import IMAGE_DIR, MAX_UPLOAD_SIZE_BYTES, ALLOWED_IMAGE_FORMATS, MIN_IMAGE_DIMENSION
+from app.config import IMAGE_DIR, HEATMAP_DIR, VOICE_DIR, MAX_UPLOAD_SIZE_BYTES, ALLOWED_IMAGE_FORMATS, MIN_IMAGE_DIMENSION
 from app.utils.exceptions import AppException
 
 logger = logging.getLogger("recognition_api")
@@ -178,6 +179,47 @@ def get_detail(
 
     related = _get_related(record.category, db)
     return _build_response(record, record.voice_path, related)
+
+
+@router.delete("/{record_id}", response_model=MessageResponse)
+def delete_record(
+    record_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """删除识别记录（同时清理关联的磁盘文件）"""
+    record = db.query(RecognitionRecord).filter(
+        RecognitionRecord.id == record_id,
+        RecognitionRecord.user_id == current_user.id,
+    ).first()
+    if not record:
+        raise AppException("识别记录不存在", code=404)
+
+    # 收集待清理的文件路径（在删除DB记录前收集，ORM对象存活时访问属性）
+    files_to_clean: list[str] = []
+    if record.image_path and os.path.exists(record.image_path):
+        files_to_clean.append(record.image_path)
+    if record.heatmap_path:
+        fp = HEATMAP_DIR / Path(record.heatmap_path).name
+        if os.path.exists(fp):
+            files_to_clean.append(str(fp))
+    if record.voice_path:
+        fp = VOICE_DIR / Path(record.voice_path).name
+        if os.path.exists(fp):
+            files_to_clean.append(str(fp))
+
+    db.delete(record)
+    db.commit()
+
+    # 清理磁盘文件（best-effort，失败仅记录警告不抛异常）
+    for fp in files_to_clean:
+        try:
+            os.remove(fp)
+            logger.info(f"已删除识别记录文件: {fp}")
+        except Exception as e:
+            logger.warning(f"删除识别记录文件失败: {fp}, {e}")
+
+    return MessageResponse(message="已删除")
 
 
 # === 内部工具函数 ===

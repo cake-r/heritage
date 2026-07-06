@@ -12,6 +12,51 @@ logger = logging.getLogger("restoration_pipeline")
 
 MOCK_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "mock"
 
+# wan2.5-i2i-preview API 要求图片尺寸在 [384, 5000] 之间
+I2I_MIN_DIM = 384
+I2I_MAX_DIM = 5000
+
+
+def _resize_for_i2i(image_path: str) -> str:
+    """确保图片尺寸满足 wan2.5-i2i-preview 的 [384, 5000] 要求。
+    如果任一边不满足，等比缩放到 384（放大）或 5000（缩小）。
+    返回（可能已调整大小的）图片路径。"""
+    from PIL import Image
+
+    img = Image.open(image_path).convert("RGB")
+    orig_w, orig_h = img.size
+
+    # 等比缩放函数：确保较短边 >= I2I_MIN_DIM，较长边 <= I2I_MAX_DIM
+    need_resize = False
+    target_w, target_h = orig_w, orig_h
+
+    # 如果任一边 < 384，等比放大到短边=384
+    if orig_w < I2I_MIN_DIM or orig_h < I2I_MIN_DIM:
+        scale = I2I_MIN_DIM / min(orig_w, orig_h)
+        target_w = int(orig_w * scale)
+        target_h = int(orig_h * scale)
+        need_resize = True
+
+    # 如果任一边 > 5000，等比缩小到长边=5000
+    if target_w > I2I_MAX_DIM or target_h > I2I_MAX_DIM:
+        scale = I2I_MAX_DIM / max(target_w, target_h)
+        target_w = int(target_w * scale)
+        target_h = int(target_h * scale)
+        need_resize = True
+
+    if not need_resize:
+        return image_path
+
+    # 保存调整后的图片到临时路径
+    resized_path = str(Path(image_path).parent / f"_i2i_resized_{Path(image_path).name}")
+    img_resized = img.resize((target_w, target_h), Image.LANCZOS)
+    img_resized.save(resized_path, quality=95)
+    logger.info(
+        f"I2I 图片尺寸调整: {orig_w}x{orig_h} → {target_w}x{target_h} "
+        f"(API要求 [{I2I_MIN_DIM}, {I2I_MAX_DIM}])"
+    )
+    return resized_path
+
 
 def _log_dashscope_usage(response, model: str, endpoint: str) -> None:
     """从 DashScope 响应提取 usage 并记录 AI 用量"""
@@ -584,8 +629,20 @@ def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
         import random
         import time as _time
 
+        # 确保图片尺寸满足 API [384, 5000] 要求
+        resized_path = _resize_for_i2i(image_path)
+
+        # 校验参考图文件大小（<1KB 会被 API 拒绝）
+        ref_file_size = os.path.getsize(resized_path)
+        if ref_file_size < 1024:
+            raise AIServiceError(
+                f"参考图文件过小 ({ref_file_size} bytes, 最小 1KB)，无法进行 I2I 修复",
+                service="Wanx-I2I", retryable=False
+            )
+        logger.info(f"Wanx I2I 参考图: path={resized_path}, size={ref_file_size} bytes")
+
         # 上传图片到 DashScope OSS 获取公网 URL
-        upload_result = DashFiles.upload(image_path, purpose="inference")
+        upload_result = DashFiles.upload(resized_path, purpose="inference")
         if upload_result.status_code != 200 or not upload_result.output.get("uploaded_files"):
             raise AIServiceError(
                 f"上传参考图失败: {upload_result.code} - {upload_result.message}",
@@ -632,10 +689,20 @@ def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
                     logger.info(f"Wanx I2I 异步任务完成: task_id={task_id}")
                     break
                 elif task_status == "FAILED":
+                    # Dump full output dict to capture error details from API
+                    # (code/message at response level are empty when status_code=200;
+                    #  the real error info is in output's extra kwargs)
+                    output_dict = dict(fetch_response.output) if fetch_response.output else {}
+                    logger.error(
+                        f"Wanx I2I 异步任务失败: task_id={task_id}, "
+                        f"response_code={getattr(fetch_response, 'code', 'N/A')}, "
+                        f"response_message={getattr(fetch_response, 'message', 'N/A')}, "
+                        f"output_full={output_dict}"
+                    )
                     raise AIServiceError(
                         f"Wanx I2I 异步任务失败: task_id={task_id}, "
-                        f"code={getattr(fetch_response, 'code', 'N/A')}, "
-                        f"message={getattr(fetch_response, 'message', 'N/A')}",
+                        f"code={getattr(fetch_response, 'code', None) or output_dict.get('code', 'N/A')}, "
+                        f"message={getattr(fetch_response, 'message', None) or output_dict.get('message', 'N/A')}",
                         service="Wanx-I2I"
                     )
             else:
