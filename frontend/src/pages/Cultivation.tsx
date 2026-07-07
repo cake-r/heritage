@@ -47,14 +47,27 @@ export default function Cultivation() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: 120 }}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        style={{ textAlign: 'center', padding: 120 }}
+      >
         <Spin size="large" />
-      </div>
+      </motion.div>
     )
   }
 
   if (!status) {
-    return <Empty description="加载修习数据失败" style={{ padding: 80 }} />
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+      >
+        <Empty description="加载修习数据失败" style={{ padding: 80 }} />
+      </motion.div>
+    )
   }
 
   const handleComplete = async (questId: number) => {
@@ -110,9 +123,20 @@ export default function Cultivation() {
           <Row align="middle" gutter={[16, 16]} style={{ position: 'relative', zIndex: 1 }}>
             <Col xs={24} md={14}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 56 }}>
-                  {RANK_EMOJIS[status.rank_index] || '🥉'}
-                </span>
+                <div style={{
+                  animation: 'floatPulse 2s ease-in-out infinite',
+                  boxShadow: '0 0 20px rgba(196,162,101,0.2)',
+                  borderRadius: '50%',
+                  width: 80,
+                  height: 80,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <span style={{ fontSize: 56 }}>
+                    {RANK_EMOJIS[status.rank_index] || '🥉'}
+                  </span>
+                </div>
                 <div>
                   <Title level={2} style={{
                     margin: 0,
@@ -225,7 +249,7 @@ export default function Cultivation() {
                 <Empty description="今日暂无任务" image={Empty.PRESENTED_IMAGE_SIMPLE} />
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {quests.map(quest => {
+                  {quests.map((quest, index) => {
                     const isCompleted = quest.status === 'completed'
                     const auto = isAutoTrackable(quest)
                     const progressPct = quest.condition_threshold > 0
@@ -233,8 +257,13 @@ export default function Cultivation() {
                       : 0
 
                     return (
-                      <div
+                      <motion.div
                         key={quest.id}
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.06 }}
+                      >
+                      <div
                         style={{
                           padding: '10px 12px',
                           borderRadius: 'var(--radius-md)',
@@ -251,7 +280,7 @@ export default function Cultivation() {
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                           <span style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>
                             {isCompleted
-                              ? <CheckCircle style={{ color: 'var(--color-success)' }} />
+                              ? <CheckCircle style={{ color: 'var(--color-success)' }} className="animate-check-bounce" />
                               : (quest.icon || '📋')
                             }
                           </span>
@@ -317,6 +346,7 @@ export default function Cultivation() {
                           )}
                         </div>
                       </div>
+                      </motion.div>
                     )
                   })}
                 </div>

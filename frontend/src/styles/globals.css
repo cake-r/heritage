@@ -222,6 +222,13 @@ a:hover { color: var(--color-vermilion-hover); }
   100% { transform: scale(1.5); opacity: 0; }
 }
 
+@keyframes floatParticle {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+  25% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+  50% { transform: translateY(-10px) translateX(-5px); opacity: 0.4; }
+  75% { transform: translateY(-25px) translateX(8px); opacity: 0.5; }
+}
+
 /* ===== 闪烁光标（流式输出） ===== */
 .cursor-blink {
   display: inline-block;

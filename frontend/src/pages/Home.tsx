@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Row, Col, Card, Typography, Statistic, Space, Button, Grid, Skeleton, Tag } from 'antd'
 import {
   Camera, Image, MessageCircle,
   Building2, GitGraph, ChevronRight,
   ChevronDown, Trophy, Flame,
-  Gift,
+  Gift, Heart,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
@@ -19,32 +19,68 @@ import { normalizeImageUrl } from '../utils/imageUrl'
 const { Title, Text, Paragraph } = Typography
 const { useBreakpoint } = Grid
 
+// ===== Hero 粒子光点配置 =====
+const PARTICLE_COUNT = 20
+
+function HeroParticles() {
+  const particles = useMemo(() =>
+    Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      size: 2 + Math.random() * 4,
+      delay: Math.random() * 5,
+      duration: 3 + Math.random() * 4,
+      opacity: 0.15 + Math.random() * 0.35,
+    })),
+  [])
+  return (
+    <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+      {particles.map(p => (
+        <div
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: `${p.left}%`,
+            top: `${p.top}%`,
+            width: p.size,
+            height: p.size,
+            borderRadius: '50%',
+            background: `rgba(196,162,101,${p.opacity})`,
+            animation: `floatParticle ${p.duration}s ease-in-out ${p.delay}s infinite`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 // ===== 功能模块配置 =====
 const modules = [
   {
     key: 'recognition',
-    icon: <Camera style={{ fontSize: 40 }} />,
+    icon: <Camera size={40} />,
     title: '智能识别与讲解',
     desc: '上传非遗图片，AI 智能识别品类并生成文化讲解',
     color: 'var(--color-vermilion)',
   },
   {
     key: 'creative-studio',
-    icon: <Image style={{ fontSize: 40 }} />,
+    icon: <Image size={40} />,
     title: 'AI 文创生成',
     desc: '文生图 / 图生图，融合国风元素的创意设计',
     color: 'var(--color-gold)',
   },
   {
     key: 'virtual-inheritor',
-    icon: <MessageCircle style={{ fontSize: 40 }} />,
+    icon: <MessageCircle size={40} />,
     title: '传承人对话',
     desc: '与 AI 非遗传承人沉浸式对话交流',
     color: 'var(--color-info)',
   },
   {
     key: 'exhibition',
-    icon: <Building2 style={{ fontSize: 40 }} />,
+    icon: <Building2 size={40} />,
     title: '数字展厅',
     desc: '浏览 50+ 国家级非遗图文资料',
     color: 'var(--color-success)',
@@ -76,7 +112,7 @@ function ScrollHint() {
         animate={{ y: [0, 8, 0] }}
         transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
       >
-        <ChevronDown style={{ color: 'var(--color-gold)', fontSize: 20, opacity: 0.6 }} />
+        <ChevronDown size={20} color="var(--color-gold)" style={{ opacity: 0.6 }} />
       </motion.div>
     </motion.div>
   )
@@ -174,6 +210,9 @@ export default function Home() {
           width: 240, height: 240, borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(184,70,58,0.08) 0%, transparent 70%)',
         }} />
+
+        {/* 动态粒子光点 */}
+        <HeroParticles />
 
         {/* 中式纹样装饰条 */}
         <div style={{
@@ -303,7 +342,7 @@ export default function Home() {
             </Button>
             <Button
               size="large"
-              icon={<Flame />}
+              icon={<Flame size={18} />}
               onClick={() => navigate(isAuthenticated ? '/story-mode' : '/login')}
               style={{
                 height: 48,
@@ -316,9 +355,19 @@ export default function Home() {
                 border: 'none',
                 color: '#fff',
                 boxShadow: '0 4px 14px rgba(196, 162, 101, 0.45)',
+                position: 'relative',
+                overflow: 'hidden',
               }}
             >
               ✨ 开始探索
+              {/* 光效扫描 */}
+              <span style={{
+                position: 'absolute',
+                top: 0, left: '-100%',
+                width: '100%', height: '100%',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                animation: 'glowScan 3s ease-in-out infinite',
+              }} />
             </Button>
             <Button
               size="large"
@@ -362,7 +411,7 @@ export default function Home() {
             gap: 8,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Flame style={{ fontSize: 20, color: 'var(--color-vermilion)' }} />
+              <Flame size={20} color="var(--color-vermilion)" />
               <Text strong style={{ fontSize: 'var(--text-lg)', color: 'var(--color-ink)', fontFamily: 'var(--font-display)', letterSpacing: 2 }}>
                 热门非遗藏品
               </Text>
@@ -451,7 +500,7 @@ export default function Home() {
             gap: 8,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Gift style={{ fontSize: 20, color: 'var(--color-vermilion)' }} />
+              <Gift size={20} color="var(--color-vermilion)" />
               <Text strong style={{ fontSize: 'var(--text-lg)', color: 'var(--color-ink)', fontFamily: 'var(--font-display)', letterSpacing: 2 }}>
                 为你推荐
               </Text>
@@ -565,7 +614,7 @@ export default function Home() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <Trophy style={{ fontSize: 28, color: 'var(--color-gold)' }} />
+                <Trophy size={28} color="var(--color-gold)" />
                 <div>
                   <Text strong style={{ fontSize: 'var(--text-md)', color: 'var(--color-ink)' }}>
                     数字文博护照
@@ -619,8 +668,8 @@ export default function Home() {
             styles={{ body: { padding: 0 } }}
           >
             <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 140 }}>
-              {/* 左侧图片 */}
-              <div style={{
+              {/* 左侧图片 — 暗角遮罩 */}
+              <div className="vignette-overlay" style={{
                 width: isMobile ? '100%' : 200,
                 minHeight: isMobile ? 160 : 140,
                 background: dailyItem.images?.[0]
@@ -658,7 +707,7 @@ export default function Home() {
                 </Text>
                 <div style={{ marginTop: 8 }}>
                   <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
-                    查看详情 <ChevronRight style={{ fontSize: 'var(--text-xs)' }} />
+                    查看详情 <ChevronRight size={14} style={{ verticalAlign: 'middle' }} />
                   </Text>
                 </div>
               </div>
@@ -688,7 +737,7 @@ export default function Home() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Trophy style={{ fontSize: 24, color: 'var(--color-gold)' }} />
+                <Trophy size={24} color="var(--color-gold)" />
                 <div>
                   <Text strong style={{ fontSize: 'var(--text-md)', color: 'var(--color-ink)' }}>
                     非遗修习之路
@@ -736,7 +785,7 @@ export default function Home() {
             styles={{ body: { padding: '16px 20px' } }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-              <Flame style={{ color: 'var(--color-vermilion)', fontSize: 18 }} />
+              <Flame size={18} color="var(--color-vermilion)" />
               <Text strong style={{ fontSize: 'var(--text-md)', color: 'var(--color-ink)' }}>非遗探索旅程</Text>
             </div>
             <Row gutter={[16, 12]}>
@@ -822,6 +871,7 @@ export default function Home() {
               >
                 <Card
                   hoverable
+                  className="gradient-border-card"
                   onClick={() => navigate(`/${mod.key}`)}
                   style={{
                     textAlign: 'center',
@@ -829,18 +879,8 @@ export default function Home() {
                     height: '100%',
                     border: '1px solid var(--gray-200)',
                     boxShadow: 'var(--shadow-sm)',
-                    transition: `box-shadow var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)`,
                   }}
                   styles={{ body: { padding: '24px 18px' } }}
-                  // Card hover effect handled by CSS custom property on parent
-                  onMouseEnter={e => {
-                    e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                  }}
                 >
                   {/* Icon + decorative ring */}
                   <div style={{

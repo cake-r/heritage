@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Steps, Button, Card, Input, Select, Form, Spin, Tag, message, Space, Avatar, Row, Col } from 'antd'
 import {
   ChevronLeft, ChevronRight, Check,
@@ -164,9 +165,17 @@ export default function CustomInheritorWizard() {
         ]}
       />
 
-      {/* Step 1: 定基 */}
-      {current === 0 && (
-        <Card>
+      <AnimatePresence mode="wait">
+        {/* Step 1: 定基 */}
+        {current === 0 && (
+          <motion.div
+            key={0}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Card>
           <Form layout="vertical" size="large">
             <Form.Item label="传承人名称" required>
               <Input
@@ -211,12 +220,20 @@ export default function CustomInheritorWizard() {
               下一步：选器
             </Button>
           </div>
-        </Card>
-      )}
+            </Card>
+          </motion.div>
+        )}
 
-      {/* Step 2: 选器 */}
-      {current === 1 && (
-        <Card>
+        {/* Step 2: 选器 */}
+        {current === 1 && (
+          <motion.div
+            key={1}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Card>
           <p style={{ color: 'var(--color-ink-secondary, #6B5F52)', marginBottom: 16 }}>
             为传承人选择能力工具（至少一个）。选中的工具将出现在工坊右侧工具箱中。
           </p>
@@ -270,12 +287,20 @@ export default function CustomInheritorWizard() {
               生成人设
             </Button>
           </div>
-        </Card>
-      )}
+            </Card>
+          </motion.div>
+        )}
 
-      {/* Step 3: 生成 */}
-      {current === 2 && (
-        <Card>
+        {/* Step 3: 生成 */}
+        {current === 2 && (
+          <motion.div
+            key={2}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Card>
           {loading ? (
             <div style={{ textAlign: 'center', padding: 48 }}>
               <Spin size="large" />
@@ -343,8 +368,10 @@ export default function CustomInheritorWizard() {
               </div>
             </>
           ) : null}
-        </Card>
-      )}
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

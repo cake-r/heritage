@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Typography, Upload, Spin, Button, Row, Col, message, Empty, Steps, Tooltip, Card,
@@ -171,9 +172,17 @@ export default function PatternEngine() {
         ]}
       />
 
-      {/* === Step: Upload === */}
-      {step === 'upload' && (
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+      <AnimatePresence mode="wait">
+        {/* === Step: Upload === */}
+        {step === 'upload' && (
+          <motion.div
+            key="upload"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            style={{ maxWidth: 640, margin: '0 auto' }}
+          >
           <Card style={{ borderRadius: 12 }}>
             <Dragger
               accept=".jpg,.jpeg,.png,.webp"
@@ -221,12 +230,19 @@ export default function PatternEngine() {
               </Text>
             </div>
           </Card>
-        </div>
-      )}
+          </motion.div>
+        )}
 
-      {/* === Step: Analyzing === */}
-      {step === 'analyzing' && (
-        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+        {/* === Step: Analyzing === */}
+        {step === 'analyzing' && (
+          <motion.div
+            key="analyzing"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            style={{ textAlign: 'center', padding: '60px 0' }}
+          >
           {previewImage && (
             <img
               src={normalizeImageUrl(previewImage)}
@@ -247,12 +263,19 @@ export default function PatternEngine() {
               </Text>
             </div>
           )}
-        </div>
-      )}
+          </motion.div>
+        )}
 
-      {/* === Step: Genes === */}
-      {step === 'genes' && (
-        <GenesStep
+        {/* === Step: Genes === */}
+        {step === 'genes' && (
+          <motion.div
+            key="genes"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <GenesStep
           matchedGenes={matchedGenes}
           unmatchedNames={unmatchedNames}
           recognitionResult={recognitionResult}
@@ -271,15 +294,26 @@ export default function PatternEngine() {
           }}
           onRetry={() => setStep('upload')}
         />
-      )}
+          </motion.div>
+        )}
 
-      {/* === Step: Workbench === */}
-      {step === 'workbench' && (
-        <PatternWorkbench
+        {/* === Step: Workbench === */}
+        {step === 'workbench' && (
+          <motion.div
+            key="workbench"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="paper-texture"
+          >
+            <PatternWorkbench
           genes={genesForWorkbench}
           carrierKey={carrierKey}
         />
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

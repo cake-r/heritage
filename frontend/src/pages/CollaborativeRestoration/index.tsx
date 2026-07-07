@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import {
   Typography, Upload, Spin, Button, Card, message, Steps, Row, Col, Empty,
@@ -214,7 +215,13 @@ export default function CollaborativeRestoration() {
 
       {/* === Step: Upload === */}
       {(step === 'upload' || step === 'analyzing') && (
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          style={{ maxWidth: 640, margin: '0 auto' }}
+        >
           {step === 'upload' ? (
             <Card style={{ borderRadius: 12 }}>
               <Dragger
@@ -266,12 +273,17 @@ export default function CollaborativeRestoration() {
               <Text type="danger">{errorMsg}</Text>
             </Card>
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* === Step: Damage Report === */}
       {step === 'damage-report' && damageData && (
-        <div>
+        <motion.div
+          key="damage-report"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
           <DamageReportComponent
             data={damageData}
             onRegionClick={(region) => {
@@ -291,12 +303,18 @@ export default function CollaborativeRestoration() {
               进入修复工作台
             </Button>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* === Step: Repairing (Workbench) === */}
       {step === 'repairing' && (
-        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+        <motion.div
+          key="repairing"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}
+        >
           {/* Left: Tool Panel */}
           <div style={{ flexShrink: 0 }}>
             <ToolPanel selectedTool={activeTool} onSelect={setActiveTool} />
@@ -364,7 +382,14 @@ export default function CollaborativeRestoration() {
           </div>
 
           {/* Center: Canvas */}
-          <div style={{ flex: 1, minWidth: 400 }}>
+          <div style={{
+            flex: 1, minWidth: 400,
+            border: '2px solid var(--color-deep)',
+            boxShadow: 'var(--shadow-lg)',
+            borderRadius: 'var(--radius-lg)',
+            background: 'var(--color-paper-white)',
+            overflow: 'hidden',
+          }}>
             <RepairCanvas
               ref={repairCanvasRef}
               imageUrl={currentImageUrl}
@@ -372,12 +397,17 @@ export default function CollaborativeRestoration() {
               onRegionSelected={handleRegionSelected}
             />
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* === Step: Complete (Export) === */}
       {step === 'complete' && (
-        <div>
+        <motion.div
+          key="complete"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
           <ArchiveExport
             archiveData={{
               originalImageUrl: damageData?.image_url || currentImageUrl,
@@ -398,7 +428,7 @@ export default function CollaborativeRestoration() {
               返回工作台继续修复
             </Button>
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   )

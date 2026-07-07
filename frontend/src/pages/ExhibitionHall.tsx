@@ -12,6 +12,7 @@ import {
   MessageCircle, Maximize, Check, X,
   RefreshCw, Lock, Pencil,
 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import {
   getItems, getCategories, getRegions, getEras, uploadWork,
   startExpansion, getTaskStatus, getExpansionQueue,
@@ -583,7 +584,7 @@ export default function ExhibitionHall() {
         ) : (
           <>
             <Row gutter={[16, 16]}>
-              {(sortMode === 'recommended' ? recommendedItems : items).map((item: any) => (
+              {(sortMode === 'recommended' ? recommendedItems : items).map((item: any, i: number) => (
                 <Col
                   key={`${item.item_type || 'heritage'}-${item.id}`}
                   xs={viewMode === 'waterfall' ? 24 : 12}
@@ -591,6 +592,11 @@ export default function ExhibitionHall() {
                   md={viewMode === 'waterfall' ? 8 : 6}
                   lg={viewMode === 'waterfall' ? 6 : 6}
                 >
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                  >
                   <Card
                     hoverable
                     onClick={() => handleItemClick(item)}
@@ -650,6 +656,7 @@ export default function ExhibitionHall() {
                       </Space>
                     </div>
                   </Card>
+                  </motion.div>
                 </Col>
               ))}
             </Row>
