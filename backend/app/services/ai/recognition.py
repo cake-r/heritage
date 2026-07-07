@@ -7,6 +7,8 @@ import os
 from pathlib import Path
 
 from app.services.ai.base import with_retry, AIServiceError, mock_mode, load_mock
+from app.services.agent.execution_tracker import track_execution, track_step
+from app.services.agent.step_defs import RECOGNITION_STEPS
 
 logger = logging.getLogger("recognition")
 
@@ -16,6 +18,7 @@ CONFIDENCE_THRESHOLD = 0.35
 UNKNOWN_CATEGORY = "无法识别"
 
 
+@track_execution(module="recognition", steps=RECOGNITION_STEPS)
 @with_retry(max_retries=3, base_delay=1.0, timeout=60)
 def recognize(image_path: str) -> dict:
     """
@@ -36,14 +39,16 @@ def recognize(image_path: str) -> dict:
     # === Mock mode ===
     if mock_mode():
         logger.info(f"Mock mode: recognizing {image_path}")
-        # Try filename match first
+        track_step("recognize", "running")
         matched = _mock_response(image_path)
         filename = Path(image_path).stem.lower()
         known_keys = ["suxiu", "cixiu", "jianzhi", "taoci", "piying", "zishahu"]
         if any(k in filename for k in known_keys):
+            track_step("recognize", "completed", detail={"category": matched.get("category", "")})
             return matched
         # No match — return unknown instead of random guess
         logger.info("Mock mode: no match found, returning unknown")
+        track_step("recognize", "completed", detail={"category": UNKNOWN_CATEGORY})
         return {
             "category": UNKNOWN_CATEGORY,
             "confidence": 0.0,
@@ -65,6 +70,8 @@ def recognize(image_path: str) -> dict:
         with open(image_path, "rb") as f:
             image_b64 = base64.b64encode(f.read()).decode()
 
+        track_step("recognize", "running")
+
         messages = [{
             "role": "user",
             "content": [
@@ -80,6 +87,7 @@ def recognize(image_path: str) -> dict:
         )
 
         if response.status_code != 200:
+            track_step("recognize", "failed", error=f"API error: {response.code}")
             raise AIServiceError(
                 f"API error: {response.code} - {response.message}",
                 service="Qwen-VL"
@@ -100,13 +108,19 @@ def recognize(image_path: str) -> dict:
             status="success",
         )
 
-        return _parse_response(raw_text, image_path)
+        result = _parse_response(raw_text, image_path)
+        track_step("recognize", "completed", detail={
+            "category": result.get("category", ""),
+            "confidence": result.get("confidence", 0),
+        })
+        return result
 
     except ImportError:
         raise AIServiceError("dashscope SDK not installed: pip install dashscope", service="Qwen-VL", retryable=False)
     except AIServiceError:
         raise
     except Exception as e:
+        track_step("recognize", "failed", error=str(e))
         raise AIServiceError(str(e), service="Qwen-VL")
 
 

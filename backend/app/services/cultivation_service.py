@@ -399,7 +399,7 @@ def complete_quest(user_id: int, quest_id: int, db: Session) -> dict:
     bonus_xp = int(quest.xp_reward * bonus_pct)
     total_xp = quest.xp_reward + bonus_xp
 
-    cultivation.xp += total_xp
+    cultivation.xp = (cultivation.xp or 0) + total_xp
     old_rank = cultivation.rank
     new_rank, new_rank_idx, xp_to_next = determine_rank(cultivation.xp)
     cultivation.rank = new_rank
@@ -537,7 +537,7 @@ def award_xp(user_id: int, skill_tree: str, amount: int, db_session: Session = N
                 cultivation = UserCultivation(user_id=user_id, xp=0)
                 db.add(cultivation)
 
-            cultivation.xp += amount
+            cultivation.xp = (cultivation.xp or 0) + amount
             cultivation.rank = determine_rank(cultivation.xp)[0]
             cultivation.skill_tree_json = json.dumps(
                 get_skill_tree_progress(user_id, db), ensure_ascii=False
@@ -827,7 +827,7 @@ def check_and_auto_complete_quests(user_id: int, db: Session) -> dict:
         bonus_xp = int(xp_amount * bonus_pct)
         total_xp = xp_amount + bonus_xp
 
-        cultivation.xp += total_xp
+        cultivation.xp = (cultivation.xp or 0) + total_xp
         total_xp_gained += total_xp
 
         quests_completed.append({

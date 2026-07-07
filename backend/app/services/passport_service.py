@@ -384,3 +384,151 @@ def recalculate_stamps(user_id: int, db: Session) -> dict:
     ).count()
 
     return {"newly_earned": newly_earned, "total": total}
+
+
+# ── Passport 2.0: 地域进度追踪 ──
+
+def track_region(user_id: int, region_code: str, db: Session) -> bool:
+    """记录用户探索过的省份，返回是否为新解锁"""
+    from app.models.user_region_progress import UserRegionProgress
+
+    if not region_code:
+        return False
+
+    existing = db.query(UserRegionProgress).filter(
+        UserRegionProgress.user_id == user_id,
+        UserRegionProgress.region_code == region_code,
+    ).first()
+
+    if existing:
+        return False
+
+    record = UserRegionProgress(
+        user_id=user_id,
+        region_code=region_code,
+    )
+    db.add(record)
+    db.commit()
+    return True
+
+
+def get_user_regions(user_id: int, db: Session) -> list[dict]:
+    """获取用户已探索的地域列表"""
+    from app.models.user_region_progress import UserRegionProgress
+    from app.models.recognition import RecognitionRecord
+    from app.models.exhibition import HeritageItem
+
+    records = db.query(UserRegionProgress).filter(
+        UserRegionProgress.user_id == user_id
+    ).order_by(UserRegionProgress.unlocked_at.desc()).all()
+
+    # 中国省份名称映射
+    PROVINCE_NAMES: dict[str, str] = {
+        "北京": "北京市", "天津": "天津市", "上海": "上海市", "重庆": "重庆市",
+        "河北": "河北省", "山西": "山西省", "辽宁": "辽宁省", "吉林": "吉林省",
+        "黑龙江": "黑龙江省", "江苏": "江苏省", "浙江": "浙江省", "安徽": "安徽省",
+        "福建": "福建省", "江西": "江西省", "山东": "山东省", "河南": "河南省",
+        "湖北": "湖北省", "湖南": "湖南省", "广东": "广东省", "海南": "海南省",
+        "四川": "四川省", "贵州": "贵州省", "云南": "云南省", "陕西": "陕西省",
+        "甘肃": "甘肃省", "青海": "青海省", "台湾": "台湾省",
+        "内蒙古": "内蒙古自治区", "广西": "广西壮族自治区", "西藏": "西藏自治区",
+        "宁夏": "宁夏回族自治区", "新疆": "新疆维吾尔自治区",
+        "香港": "香港特别行政区", "澳门": "澳门特别行政区",
+    }
+
+    results = []
+    for r in records:
+        results.append({
+            "region_code": r.region_code,
+            "region_name": PROVINCE_NAMES.get(r.region_code, r.region_code),
+            "unlocked_at": r.unlocked_at,
+            "item_count": 0,  # simplified; full count would need cross-table aggregation
+        })
+    return results
+
+
+def build_timeline(user_id: int, db: Session) -> list[dict]:
+    """构建用户探索时间轴：从各表提取首次里程碑"""
+    from app.models.recognition import RecognitionRecord
+    from app.models.generation import GeneratedWork
+    from app.models.restoration import RestorationRecord
+    from app.models.passport import PassportStamp
+    from app.models.cultivation import UserCultivation
+
+    milestones = []
+
+    # 首次识别
+    first_rec = db.query(RecognitionRecord).filter(
+        RecognitionRecord.user_id == user_id
+    ).order_by(RecognitionRecord.created_at.asc()).first()
+    if first_rec:
+        milestones.append({
+            "type": "first_recognition",
+            "title": "首次识宝",
+            "description": f"识别了第一件非遗文物：{first_rec.category or '未知品类'}",
+            "date": first_rec.created_at,
+            "icon": "🔍",
+            "module": "recognition",
+        })
+
+    # 首次创作
+    first_gen = db.query(GeneratedWork).filter(
+        GeneratedWork.user_id == user_id
+    ).order_by(GeneratedWork.created_at.asc()).first()
+    if first_gen:
+        milestones.append({
+            "type": "first_creation",
+            "title": "首次创作",
+            "description": "生成了第一件 AI 文创作品",
+            "date": first_gen.created_at,
+            "icon": "🎨",
+            "module": "generation",
+        })
+
+    # 首次修复
+    first_rest = db.query(RestorationRecord).filter(
+        RestorationRecord.user_id == user_id
+    ).order_by(RestorationRecord.created_at.asc()).first()
+    if first_rest:
+        milestones.append({
+            "type": "first_restoration",
+            "title": "首次修复",
+            "description": "完成了第一次文物数字修复",
+            "date": first_rest.created_at,
+            "icon": "💎",
+            "module": "restoration",
+        })
+
+    # 首枚印章
+    first_stamp = db.query(PassportStamp).filter(
+        PassportStamp.user_id == user_id
+    ).order_by(PassportStamp.earned_at.asc()).first()
+    if first_stamp:
+        config = get_stamp_config(first_stamp.stamp_type)
+        stamp_name = config["name"] if config else first_stamp.stamp_type
+        milestones.append({
+            "type": "first_stamp",
+            "title": "首枚印章",
+            "description": f"获得了第一枚护照印章：{stamp_name}",
+            "date": first_stamp.earned_at,
+            "icon": "🏅",
+            "module": "passport",
+        })
+
+    # 首次修习（达到初窥门径段位）
+    first_cult = db.query(UserCultivation).filter(
+        UserCultivation.user_id == user_id
+    ).first()
+    if first_cult and first_cult.rank:
+        milestones.append({
+            "type": "first_cultivation",
+            "title": "修习之路启程",
+            "description": f"达到修习段位：{first_cult.rank}",
+            "date": first_cult.updated_at,
+            "icon": "📚",
+            "module": "cultivation",
+        })
+
+    # 按日期排序
+    milestones.sort(key=lambda m: m["date"] or datetime.min)
+    return milestones

@@ -1,42 +1,51 @@
-/** 数字文博护照页面 */
-import { useEffect, useState } from 'react'
+/** 数字文博护照页面 — Passport 2.0 */
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Spin, Empty, Progress, Card, Button, Tag, Tooltip, Row, Col } from 'antd'
+import { Spin, Empty, Progress, Card, Button, Tag, Tooltip, Row, Col, Timeline, message } from 'antd'
 import {
   ReloadOutlined,
   RightOutlined,
   CrownOutlined,
   StarOutlined,
   FireOutlined,
+  DownloadOutlined,
+  EnvironmentOutlined,
 } from '@ant-design/icons'
 import { motion } from 'framer-motion'
+import ReactECharts from 'echarts-for-react'
+import * as echarts from 'echarts/core'
 import {
   getPassportStatus,
   listEarnedStamps,
+  fetchTimeline,
+  fetchRegions,
+  fetchStampConfig,
   type PassportStatus,
   type EarnedStamp,
+  type TimelineMilestone,
+  type RegionProgress,
+  type StampConfig,
 } from '../../services/passport'
 
-// 22枚印章的完整定义（含未获得时的占位信息）
-const ALL_STAMPS_DEF: Record<string, { icon: string; name: string; description: string; rarity: string; module: string }> = {
-  first_recognition: { icon: '🔍', name: '初识非遗', description: '完成第一次图像识别', rarity: 'common', module: 'recognition' },
-  category_explorer: { icon: '🧭', name: '品类探索者', description: '识别过5种不同品类的非遗项目', rarity: 'rare', module: 'recognition' },
-  master_observer: { icon: '🔬', name: '鉴宝大师', description: '单次识别置信度达到95%以上', rarity: 'epic', module: 'recognition' },
-  first_creation: { icon: '🎨', name: '初试文创', description: '完成第一次AI文创作品生成', rarity: 'common', module: 'generation' },
-  style_collector: { icon: '🎭', name: '风格收藏家', description: '使用过5种以上不同的创作风格', rarity: 'rare', module: 'generation' },
-  prolific_creator: { icon: '🏭', name: '多产创作者', description: '累计生成20件以上文创作品', rarity: 'epic', module: 'generation' },
-  first_dialogue: { icon: '💬', name: '初会话知音', description: '与非遗传承人完成第一次对话', rarity: 'common', module: 'workshop' },
-  tool_master: { icon: '🛠️', name: '工具大师', description: '使用过全部4种工具', rarity: 'rare', module: 'workshop' },
-  deep_conversationalist: { icon: '📜', name: '深谈知己', description: '与传承人累计对话超过100条', rarity: 'epic', module: 'workshop' },
-  first_visit: { icon: '🏛️', name: '初探展馆', description: '首次浏览数字展厅', rarity: 'common', module: 'exhibition' },
-  category_collector: { icon: '📚', name: '品类藏家', description: '浏览过8种以上不同品类的藏品', rarity: 'rare', module: 'exhibition' },
-  century_witness: { icon: '👁️', name: '千年见证', description: '收藏30件以上的藏品或作品', rarity: 'epic', module: 'exhibition' },
-  graph_explorer: { icon: '🗺️', name: '图谱探险家', description: '首次探索文化知识图谱', rarity: 'common', module: 'knowledge_graph' },
-  region_explorer: { icon: '🌏', name: '地域游历者', description: '探索过5个以上不同省份的非遗分布', rarity: 'rare', module: 'knowledge_graph' },
-  technique_scholar: { icon: '🎓', name: '技法学士', description: '深入了解10种以上非遗技法', rarity: 'epic', module: 'knowledge_graph' },
-  first_restoration: { icon: '💎', name: '初试修复', description: '完成第一次文物数字修复', rarity: 'common', module: 'restoration' },
-  master_restorer: { icon: '⚒️', name: '修复大师', description: '累计完成5次以上文物修复', rarity: 'rare', module: 'restoration' },
-  perfectionist: { icon: '⭐', name: '至臻修复', description: '修复质量评分达到90分以上', rarity: 'epic', module: 'restoration' },
+// ===== 硬编码色值（Canvas 兼容） =====
+const INK = '#2C241A'
+const INK_SECONDARY = '#6B5F52'
+const GOLD = '#C4A265'
+const VERMILION = '#B8463A'
+const GOLD_LIGHT = '#E8D5B0'
+const PAPER = '#FFFDF9'
+
+// 四档地域色阶
+const REGION_COLOR_0 = '#F7F4ED'
+const REGION_COLOR_LOW = '#E8D5B0'
+const REGION_COLOR_MID = '#C4A265'
+const REGION_COLOR_HIGH = '#B8463A'
+
+function getRegionColor(value: number): string {
+  if (value === 0) return REGION_COLOR_0
+  if (value <= 2) return REGION_COLOR_LOW
+  if (value <= 5) return REGION_COLOR_MID
+  return REGION_COLOR_HIGH
 }
 
 const RARITY_CONFIG: Record<string, { color: string; bg: string; label: string; icon: React.ReactNode }> = {
@@ -52,24 +61,65 @@ const MODULE_LABELS: Record<string, string> = {
   exhibition: '数字展厅',
   knowledge_graph: '文化图谱',
   restoration: '文物修复',
+  passport: '数字护照',
+  cultivation: '修习之路',
 }
+
+// 省份短名→全名映射（用于 DataV GeoJSON 桥接）
+const SUFFIXES = ['省', '市', '自治区', '壮族自治区', '回族自治区', '维吾尔自治区', '特别行政区']
+function toShortName(fullName: string): string {
+  for (const s of SUFFIXES) {
+    if (fullName.endsWith(s) && fullName.length > s.length) {
+      return fullName.slice(0, -s.length)
+    }
+  }
+  return fullName
+}
+
+let chinaGeo: any = null
 
 export default function PassportPage() {
   const [status, setStatus] = useState<PassportStatus | null>(null)
+  const [allEarned, setAllEarned] = useState<EarnedStamp[]>([])
+  const [timeline, setTimeline] = useState<TimelineMilestone[]>([])
+  const [regions, setRegions] = useState<RegionProgress[]>([])
+  const [stampConfigs, setStampConfigs] = useState<StampConfig[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [geoLoaded, setGeoLoaded] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const passportRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
-    loadStatus()
+    loadAll()
   }, [])
 
-  const loadStatus = async () => {
+  // 加载 GeoJSON
+  useEffect(() => {
+    if (chinaGeo) { setGeoLoaded(true); return }
+    fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+      .then(r => r.json())
+      .then(geo => { chinaGeo = geo; setGeoLoaded(true) })
+      .catch(() => setGeoLoaded(true))
+  }, [])
+
+  const loadAll = async () => {
     setLoading(true)
     setError(false)
     try {
-      const data = await getPassportStatus()
-      setStatus(data)
+      const [statusData, stampsData, timelineData, regionsData, configData] = await Promise.all([
+        getPassportStatus(),
+        listEarnedStamps(),
+        fetchTimeline(),
+        fetchRegions(),
+        fetchStampConfig(),
+      ])
+      setStatus(statusData)
+      setAllEarned(stampsData)
+      setTimeline(timelineData)
+      setRegions(regionsData)
+      setStampConfigs(configData)
     } catch {
       setError(true)
     } finally {
@@ -77,17 +127,98 @@ export default function PassportPage() {
     }
   }
 
-  // 从后端获取真正的已获得列表
-  const [allEarned, setAllEarned] = useState<EarnedStamp[]>([])
-
-  useEffect(() => {
-    if (status) {
-      listEarnedStamps().then(setAllEarned).catch(() => setAllEarned([]))
+  // 构建短名→全名 nameMap
+  const nameMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    if (!chinaGeo) return map
+    for (const feature of chinaGeo.features || []) {
+      const fullName = feature.properties?.name || ''
+      const shortName = toShortName(fullName)
+      if (shortName && shortName !== fullName) {
+        map[shortName] = fullName
+      }
     }
-  }, [status?.earned_count])
+    return map
+  }, [geoLoaded])
+
+  // 地域热力图数据
+  const regionMapData = useMemo(() => {
+    const regionSet = new Set(regions.map(r => r.region_code))
+    const data: { name: string; value: number }[] = []
+    if (!chinaGeo) return data
+    for (const feature of chinaGeo.features || []) {
+      const fullName = feature.properties?.name || ''
+      const shortName = toShortName(fullName)
+      data.push({
+        name: fullName,
+        value: regionSet.has(shortName) ? 1 : 0,
+      })
+    }
+    return data
+  }, [regions, geoLoaded])
 
   const earnedTypeSet = new Set(allEarned.map((s: EarnedStamp) => s.type))
   const stampMap = new Map(allEarned.map((s: EarnedStamp) => [s.type, s]))
+
+  // 地域热力图配置
+  const mapOption = useMemo(() => ({
+    tooltip: {
+      trigger: 'item',
+      formatter: (params: any) => {
+        const short = toShortName(params.name || '')
+        const hasExplored = params.value > 0
+        return `<strong>${short}</strong><br/>${hasExplored ? '✅ 已探索' : '⏳ 尚未探索'}`
+      },
+    },
+    visualMap: {
+      min: 0, max: 1,
+      inRange: { color: [REGION_COLOR_0, GOLD] },
+      show: false,
+    },
+    geo: {
+      map: 'china',
+      roam: false,
+      label: { show: false },
+      itemStyle: {
+        areaColor: REGION_COLOR_0,
+        borderColor: '#D5CFC0',
+        borderWidth: 0.5,
+      },
+      emphasis: {
+        label: { show: true, color: INK },
+        itemStyle: { areaColor: GOLD_LIGHT },
+      },
+    },
+    series: [{
+      type: 'map',
+      map: 'china',
+      geoIndex: 0,
+      data: regionMapData,
+    }],
+  }), [regionMapData])
+
+  // 导出护照
+  const handleExport = async () => {
+    if (!passportRef.current) return
+    setExporting(true)
+    try {
+      const html2canvas = (await import('html2canvas')).default
+      const canvas = await html2canvas(passportRef.current, {
+        backgroundColor: PAPER,
+        scale: 2,
+        useCORS: true,
+      })
+      const link = document.createElement('a')
+      link.download = `非遗数字护照_${new Date().toISOString().slice(0, 10)}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+      message.success('护照已导出！')
+    } catch {
+      message.error('导出失败，请重试')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   // loading
   if (loading) {
@@ -103,23 +234,23 @@ export default function PassportPage() {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <Empty description="加载失败">
-          <Button icon={<ReloadOutlined />} onClick={loadStatus}>重试</Button>
+          <Button icon={<ReloadOutlined />} onClick={loadAll}>重试</Button>
         </Empty>
       </div>
     )
   }
 
-  // empty (new user with 0 stamps)
   const isEmpty = status.earned_count === 0
+  const stampDefs = stampConfigs.length > 0 ? stampConfigs : []
 
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 24px' }}>
+    <div ref={passportRef} style={{ maxWidth: 960, margin: '0 auto', padding: '32px 24px 48px' }}>
       {/* 标题区域 */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ textAlign: 'center', marginBottom: 40 }}
+        style={{ textAlign: 'center', marginBottom: 32, position: 'relative' }}
       >
         <h1 style={{
           fontFamily: 'var(--font-display)',
@@ -133,6 +264,21 @@ export default function PassportPage() {
         <p style={{ color: 'var(--color-ink-secondary)', fontSize: 'var(--text-sm)' }}>
           探索非遗世界，集齐所有印章，成为真正的文化守护者
         </p>
+        {/* 导出按钮 */}
+        <Button
+          icon={<DownloadOutlined />}
+          onClick={handleExport}
+          loading={exporting}
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            borderColor: GOLD,
+            color: GOLD,
+          }}
+        >
+          导出护照
+        </Button>
       </motion.div>
 
       {/* 完成度圆环 + 稀有度统计 */}
@@ -140,7 +286,7 @@ export default function PassportPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        style={{ marginBottom: 40 }}
+        style={{ marginBottom: 32 }}
       >
         <Row gutter={24} align="middle">
           <Col xs={24} md={10} style={{ textAlign: 'center' }}>
@@ -149,8 +295,8 @@ export default function PassportPage() {
               percent={status.completion_percentage}
               size={180}
               strokeColor={{
-                '0%': '#C4A265',
-                '100%': '#B8463A',
+                '0%': GOLD,
+                '100%': VERMILION,
               }}
               format={(pct) => (
                 <div>
@@ -210,7 +356,7 @@ export default function PassportPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          style={{ textAlign: 'center', marginBottom: 40 }}
+          style={{ textAlign: 'center', marginBottom: 32 }}
         >
           <Empty description="尚无印章，开始你的非遗探索之旅吧！">
             <Button type="primary" icon={<RightOutlined />} onClick={() => navigate('/recognition')}>
@@ -219,6 +365,88 @@ export default function PassportPage() {
           </Empty>
         </motion.div>
       )}
+
+      {/* ── Passport 2.0: 探索时间轴 ── */}
+      {timeline.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{ marginBottom: 32 }}
+        >
+          <h3 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--text-lg)',
+            color: 'var(--color-ink)',
+            marginBottom: 16,
+            paddingBottom: 8,
+            borderBottom: '2px solid var(--color-border-light)',
+          }}>
+            📜 探索旅程
+          </h3>
+          <Timeline
+            items={timeline.map((m) => ({
+              dot: <span style={{ fontSize: 20 }}>{m.icon}</span>,
+              children: (
+                <div>
+                  <div style={{ fontWeight: 600, color: INK, marginBottom: 2 }}>{m.title}</div>
+                  <div style={{ fontSize: 'var(--text-xs)', color: INK_SECONDARY }}>{m.description}</div>
+                  {m.date && (
+                    <div style={{ fontSize: 'var(--text-xs)', color: GOLD, marginTop: 2 }}>
+                      {new Date(m.date).toLocaleDateString('zh-CN')}
+                    </div>
+                  )}
+                </div>
+              ),
+            }))}
+          />
+        </motion.div>
+      )}
+
+      {/* ── Passport 2.0: 地域探索热力图 ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.25 }}
+        style={{ marginBottom: 32 }}
+      >
+        <h3 style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'var(--text-lg)',
+          color: 'var(--color-ink)',
+          marginBottom: 16,
+          paddingBottom: 8,
+          borderBottom: '2px solid var(--color-border-light)',
+        }}>
+          <EnvironmentOutlined style={{ marginRight: 8 }} />
+          地域探索
+          {regions.length > 0 && (
+            <Tag color={GOLD} style={{ marginLeft: 8 }}>{regions.length} 个省份</Tag>
+          )}
+        </h3>
+        {geoLoaded ? (
+          <ReactECharts
+            echarts={echarts}
+            option={mapOption}
+            style={{ height: 360 }}
+            opts={{ renderer: 'canvas' }}
+          />
+        ) : (
+          <Card style={{ textAlign: 'center', padding: 40 }}>
+            <Spin tip="加载地图数据..." />
+          </Card>
+        )}
+        {/* 已探索地域标签 */}
+        {regions.length > 0 && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
+            {regions.map((r) => (
+              <Tag key={r.region_code} color={GOLD} style={{ margin: 0 }}>
+                📍 {r.region_code}
+              </Tag>
+            ))}
+          </div>
+        )}
+      </motion.div>
 
       {/* 印章网格 */}
       <motion.div
@@ -242,13 +470,13 @@ export default function PassportPage() {
           gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
           gap: 16,
         }}>
-          {Object.entries(ALL_STAMPS_DEF).map(([type, def], idx) => {
-            const earned = stampMap.get(type)
-            const isEarned = earnedTypeSet.has(type)
+          {stampDefs.map((def, idx) => {
+            const earned = stampMap.get(def.type)
+            const isEarned = earnedTypeSet.has(def.type)
 
             return (
               <Tooltip
-                key={type}
+                key={def.type}
                 title={
                   <div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>{def.name}</div>
@@ -280,7 +508,7 @@ export default function PassportPage() {
                     gap: 6,
                     cursor: 'default',
                     border: isEarned
-                      ? `2px solid ${RARITY_CONFIG[def.rarity]?.color || '#C4A265'}`
+                      ? `2px solid ${RARITY_CONFIG[def.rarity]?.color || GOLD}`
                       : '2px dashed var(--color-border-medium)',
                     background: isEarned
                       ? (RARITY_CONFIG[def.rarity]?.bg || '#FDF8EF')
@@ -310,7 +538,7 @@ export default function PassportPage() {
                       {RARITY_CONFIG[def.rarity]?.label}
                     </Tag>
                   )}
-                  {/* earned glow effect */}
+                  {/* epic glow */}
                   {isEarned && def.rarity === 'epic' && (
                     <div style={{
                       position: 'absolute',

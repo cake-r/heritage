@@ -13,6 +13,7 @@ from sqlalchemy import desc
 from app.models.database import get_db
 from app.models.user import User
 from app.models.recognition import RecognitionRecord
+from app.services.agent.execution_tracker import get_last_execution_id, get_last_execution_steps
 from app.models.exhibition import HeritageItem
 from app.schemas.recognition import (
     RecognitionResponse, RecognitionListItem,
@@ -121,7 +122,10 @@ def upload_and_recognize(
     award_xp(current_user.id, "鉴宝", 10)
 
     # 8. 构建响应
-    return _build_response(record, voice_url, related, heatmap_data)
+    response = _build_response(record, voice_url, related, heatmap_data)
+    response.execution_id = get_last_execution_id()
+    response.agent_steps = get_last_execution_steps()
+    return response
 
 
 @router.get("/history", response_model=PaginatedResponse[RecognitionListItem])

@@ -1,5 +1,6 @@
 """数字文博护照 API"""
 import logging
+from datetime import datetime
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -7,12 +8,17 @@ from app.models.database import get_db
 from app.models.user import User
 from app.models.passport import PassportStamp
 from app.api.deps import get_current_user
-from app.schemas.passport import PassportStatus, EarnedStamp, StampEarnResponse
+from app.schemas.passport import (
+    PassportStatus, EarnedStamp, StampEarnResponse,
+    TimelineMilestone, RegionProgress, PassportExport,
+)
 from app.services.passport_service import (
     load_stamps_config,
     get_stamp_config,
     compute_all_earned_stamps,
     check_and_earn_stamps,
+    build_timeline,
+    get_user_regions,
 )
 
 logger = logging.getLogger("passport_api")
@@ -132,3 +138,119 @@ def trigger_earn_stamp(
         )
 
     return StampEarnResponse(earned=False)
+
+
+# ── Passport 2.0 新增端点 ──
+
+@router.get("/timeline", response_model=list[TimelineMilestone])
+def get_timeline(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """获取用户探索时间轴：核心里程碑（首次识别/修复/创作/修习/首枚印章）"""
+    milestones = build_timeline(current_user.id, db)
+    return [
+        TimelineMilestone(
+            type=m["type"],
+            title=m["title"],
+            description=m["description"],
+            date=m["date"],
+            icon=m["icon"],
+            module=m["module"],
+        )
+        for m in milestones
+    ]
+
+
+@router.get("/regions", response_model=list[RegionProgress])
+def get_regions(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """获取用户已探索的地域列表"""
+    regions = get_user_regions(current_user.id, db)
+    return [
+        RegionProgress(
+            region_code=r["region_code"],
+            region_name=r["region_name"],
+            unlocked_at=r["unlocked_at"],
+            item_count=r.get("item_count", 0),
+        )
+        for r in regions
+    ]
+
+
+@router.get("/export", response_model=PassportExport)
+def export_passport(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """导出完整护照数据（含印章、时间轴、地域进度）"""
+    all_earned = compute_all_earned_stamps(current_user.id, db, compute_read_stamps=True)
+    all_configs = load_stamps_config()
+    timeline = build_timeline(current_user.id, db)
+    regions = get_user_regions(current_user.id, db)
+
+    total = len(all_configs)
+    earned_count = len(all_earned)
+
+    return PassportExport(
+        user_name=current_user.nickname or current_user.username,
+        total_stamps=total,
+        earned_count=earned_count,
+        completion_percentage=round(earned_count / total * 100, 1) if total > 0 else 0.0,
+        stamps=[
+            EarnedStamp(
+                type=s["type"],
+                module=s["module"],
+                name=s["name"],
+                description=s["description"],
+                icon=s["icon"],
+                rarity=s["rarity"],
+                earned_at=s.get("earned_at", datetime.utcnow()),
+                progress=s.get("progress", 1),
+            )
+            for s in all_earned
+        ],
+        timeline=[
+            TimelineMilestone(
+                type=m["type"],
+                title=m["title"],
+                description=m["description"],
+                date=m["date"],
+                icon=m["icon"],
+                module=m["module"],
+            )
+            for m in timeline
+        ],
+        regions=[
+            RegionProgress(
+                region_code=r["region_code"],
+                region_name=r["region_name"],
+                unlocked_at=r["unlocked_at"],
+                item_count=r.get("item_count", 0),
+            )
+            for r in regions
+        ],
+        exported_at=datetime.utcnow(),
+    )
+
+
+@router.get("/config")
+def get_passport_config(
+    current_user: User = Depends(get_current_user),
+):
+    """返回 stamps.json 完整配置（供前端动态渲染）"""
+    return {"stamps": load_stamps_config()}
+
+
+@router.post("/regions/track")
+def track_region_visit(
+    region_code: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """记录用户对某个省份的探索（由知识图谱/展厅页面触发）"""
+    from app.services.passport_service import track_region
+    is_new = track_region(current_user.id, region_code, db)
+    return {"region_code": region_code, "is_new": is_new}

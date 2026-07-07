@@ -1,5 +1,17 @@
 import api from './api'
 
+export interface AgentStepInfo {
+  id: string
+  title: string
+  icon: string
+  status: 'pending' | 'running' | 'completed' | 'failed'
+  progress: number
+  start_time: string | null
+  end_time: string | null
+  detail: Record<string, unknown> | null
+  error: string | null
+}
+
 export interface RecognitionResult {
   id: number
   image_url: string
@@ -22,6 +34,8 @@ export interface RecognitionResult {
     exhibits: { id: number; name: string }[]
   }
   created_at: string
+  execution_id: string | null
+  agent_steps: AgentStepInfo[] | null
 }
 
 export interface RecognitionListItem {

@@ -53,6 +53,8 @@ class RecognitionResponse(BaseModel):
     pattern_names: list[str] = []
     related: RelatedRecommendations
     created_at: datetime
+    execution_id: str | None = None  # Agent 执行追踪 ID
+    agent_steps: list[dict] | None = None  # Agent 执行步骤列表
 
     model_config = {"from_attributes": True}
 

@@ -18,6 +18,7 @@ from app.schemas.restoration import (
     PipelineStep,
 )
 from app.schemas.common import PaginatedResponse, MessageResponse
+from app.services.agent.execution_tracker import get_last_execution_id, get_last_execution_steps
 from app.api.deps import get_current_user
 from app.config import IMAGE_DIR, GENERATED_DIR, MAX_UPLOAD_SIZE_BYTES, ALLOWED_IMAGE_FORMATS, MIN_IMAGE_DIMENSION
 from app.utils.exceptions import AppException
@@ -103,7 +104,10 @@ def upload_and_restore(
     _trigger_stamp_check(current_user.id, "restoration", record.verification_score or 0, db)
 
     # 7. 构建响应
-    return _build_response(record, pipeline_steps_raw, restored_image_url)
+    response = _build_response(record, pipeline_steps_raw, restored_image_url)
+    response.execution_id = get_last_execution_id()
+    response.agent_steps = get_last_execution_steps()
+    return response
 
 
 @router.post("/upload-async")

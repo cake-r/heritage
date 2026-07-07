@@ -71,7 +71,7 @@ def update_interest_profile(user_id: int, action_type: str, action_data: dict, d
     profile.category_weights_json = json.dumps(cat_weights, ensure_ascii=False)
     profile.technique_weights_json = json.dumps(tech_weights, ensure_ascii=False)
     profile.region_weights_json = json.dumps(region_weights, ensure_ascii=False)
-    profile.interaction_count += 1
+    profile.interaction_count = (profile.interaction_count or 0) + 1
     profile.updated_at = datetime.utcnow()
 
     db.commit()

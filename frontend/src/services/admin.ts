@@ -96,3 +96,58 @@ export async function updateConfig(updates: Record<string, any>) {
   const { data } = await api.put('/api/admin/config', { updates })
   return data
 }
+
+// ── Admin Dashboard 2.0: 数据驾驶舱 ──
+
+export interface DashboardOverview {
+  total_users: number
+  total_recognitions: number
+  total_restorations: number
+  total_generations: number
+  total_chat_sessions: number
+  total_stamps_earned: number
+  active_users_today: number
+  ai_cost_today: number
+  ai_cost_month: number
+  task_pending: number
+  task_running: number
+  knowledge_base_size: number
+  pattern_genes_count: number
+}
+
+export interface DailyTrend {
+  date: string
+  active_users: number
+  recognitions: number
+  restorations: number
+  generations: number
+  cost: number
+  new_users: number
+}
+
+export interface LeaderboardEntry {
+  name: string
+  value: number
+}
+
+export interface DashboardLeaderboard {
+  top_categories: LeaderboardEntry[]
+  top_regions: LeaderboardEntry[]
+  top_eras: LeaderboardEntry[]
+  top_users: LeaderboardEntry[]
+}
+
+export async function fetchDashboardOverview(): Promise<DashboardOverview> {
+  const { data } = await api.get('/api/admin/dashboard/overview')
+  return data
+}
+
+export async function fetchDashboardTrends(days: number = 7): Promise<{ days: number; trends: DailyTrend[] }> {
+  const { data } = await api.get('/api/admin/dashboard/trends', { params: { days } })
+  return data
+}
+
+export async function fetchDashboardLeaderboard(limit: number = 10): Promise<DashboardLeaderboard> {
+  const { data } = await api.get('/api/admin/dashboard/leaderboard', { params: { limit } })
+  return data
+}

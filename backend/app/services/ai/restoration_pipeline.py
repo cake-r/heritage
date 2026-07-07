@@ -7,6 +7,8 @@ import logging
 from pathlib import Path
 
 from app.services.ai.base import mock_mode, load_mock, AIServiceError
+from app.services.agent.execution_tracker import track_execution, track_step, update_progress
+from app.services.agent.step_defs import RESTORATION_STEPS
 
 logger = logging.getLogger("restoration_pipeline")
 
@@ -73,6 +75,7 @@ def _log_dashscope_usage(response, model: str, endpoint: str) -> None:
     )
 
 
+@track_execution(module="restoration", steps=RESTORATION_STEPS)
 def run_restoration_pipeline(image_path: str) -> dict:
     """
     运行完整的4步修复管道
@@ -96,6 +99,7 @@ def run_restoration_pipeline(image_path: str) -> dict:
 
     # === Step 1: 损伤分析 ===
     logger.info(f"[Step 1/4] 损伤分析: {image_path}")
+    track_step("damage_analysis", "running")
     try:
         damage_result = _run_damage_analysis(image_path)
         pipeline_steps.append({
@@ -105,24 +109,33 @@ def run_restoration_pipeline(image_path: str) -> dict:
             "status": "completed",
             "result": damage_result,
         })
+        track_step("damage_analysis", "completed", detail={
+            "category": damage_result.get("category", ""),
+            "severity": damage_result.get("severity", ""),
+        })
     except Exception as e:
         logger.error(f"Step 1 失败: {e}")
         pipeline_steps.append({
             "step": 1, "name": "损伤分析", "model": "qwen-vl-max",
             "status": "failed", "result": {"error": str(e)},
         })
+        track_step("damage_analysis", "failed", error=str(e))
         return {"pipeline_steps": pipeline_steps, "restored_image_url": None}
 
     # === Step 1.5: 纹样轮廓提取 (新增) ===
     contour_result = None
     try:
+        track_step("contour_extraction", "running")
         contour_result = _run_contour_extraction(image_path)
         logger.info(f"[Step 1.5/5] 轮廓提取完成")
+        track_step("contour_extraction", "completed")
     except Exception as e:
         logger.warning(f"Step 1.5 轮廓提取失败 (非致命): {e}")
+        track_step("contour_extraction", "failed", error=str(e))
 
     # === Step 2: 修复方案生成 (RAG 增强) ===
     logger.info(f"[Step 2/5] 修复方案生成 for: {damage_result.get('category')}")
+    track_step("prompt_generation", "running")
     try:
         prompt_result = _run_prompt_generation(damage_result)
         pipeline_steps.append({
@@ -132,16 +145,19 @@ def run_restoration_pipeline(image_path: str) -> dict:
             "status": "completed",
             "result": prompt_result,
         })
+        track_step("prompt_generation", "completed")
     except Exception as e:
         logger.error(f"Step 2 失败: {e}")
         pipeline_steps.append({
             "step": 2, "name": "修复方案生成", "model": "deepseek-chat",
             "status": "failed", "result": {"error": str(e)},
         })
+        track_step("prompt_generation", "failed", error=str(e))
         return {"pipeline_steps": pipeline_steps, "restored_image_url": None}
 
     # === Step 3: AI图像修复 (轮廓约束增强) ===
     logger.info(f"[Step 3/5] 图像修复: {image_path}")
+    track_step("image_restoration", "running")
     try:
         gen_result = _run_image_restoration(image_path, prompt_result["prompt"], contour_result)
         pipeline_steps.append({
@@ -152,18 +168,23 @@ def run_restoration_pipeline(image_path: str) -> dict:
             "result": gen_result,
         })
         restored_image_url = gen_result["images"][0] if gen_result.get("images") else None
+        track_step("image_restoration", "completed", detail={
+            "images_count": len(gen_result.get("images", [])),
+        })
     except Exception as e:
         logger.error(f"Step 3 失败: {e}")
         pipeline_steps.append({
             "step": 3, "name": "AI图像修复", "model": "wan2.5-i2i-preview",
             "status": "failed", "result": {"error": str(e)},
         })
+        track_step("image_restoration", "failed", error=str(e))
         return {"pipeline_steps": pipeline_steps, "restored_image_url": None}
 
     # === Step 4: 修复验证 (增强维度) ===
     if restored_image_url:
         restored_local_path = _url_to_local_path(restored_image_url)
         logger.info(f"[Step 4/5] 修复验证: {image_path} vs {restored_local_path}")
+        track_step("verification", "running")
         try:
             verify_result = _run_verification_enhanced(
                 image_path, restored_local_path, damage_result["category"], contour_result
@@ -175,17 +196,23 @@ def run_restoration_pipeline(image_path: str) -> dict:
                 "status": "completed",
                 "result": verify_result,
             })
+            track_step("verification", "completed", detail={
+                "overall_score": verify_result.get("overall_score", 0),
+                "verdict": verify_result.get("verdict", ""),
+            })
         except Exception as e:
             logger.error(f"Step 4 失败: {e}")
             pipeline_steps.append({
                 "step": 4, "name": "修复验证", "model": "qwen-vl-max",
                 "status": "failed", "result": {"error": str(e)},
             })
+            track_step("verification", "failed", error=str(e))
     else:
         pipeline_steps.append({
             "step": 4, "name": "修复验证", "model": "qwen-vl-max",
             "status": "failed", "result": {"error": "无修复图像可验证"},
         })
+        track_step("verification", "failed", error="无修复图像可验证")
 
     return {"pipeline_steps": pipeline_steps, "restored_image_url": restored_image_url}
 

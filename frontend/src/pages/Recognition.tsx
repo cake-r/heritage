@@ -11,10 +11,13 @@ import {
 } from '@ant-design/icons'
 import ReactMarkdown from 'react-markdown'
 import AudioPlayer from '../components/recognition/AudioPlayer'
+import AgentTimeline from '../components/common/AgentTimeline'
+import ExplainPanel from '../components/common/ExplainPanel'
 import {
   uploadAndRecognize, getDetail, getHistory,
   type RecognitionResult, type RecognitionListItem,
 } from '../services/recognition'
+import { getItems, type HeritageItem } from '../services/exhibition'
 import { normalizeImageUrl } from '../utils/imageUrl'
 import { getCategoryColor } from '../utils/categoryColors'
 
@@ -65,28 +68,18 @@ function getDailyFact() {
   return ICH_FACTS[dayOfYear % ICH_FACTS.length]
 }
 
-// ==================== 快速体验示例 ====================
+// ==================== 快速体验示例（从展厅 API 动态获取） ====================
 
-const SAMPLE_IMAGES = [
-  {
-    url: '/static/knowledge/剪纸_1.jpg',
-    label: '剪纸',
-    icon: '✂️',
-    desc: '传统民间剪纸艺术',
-  },
-  {
-    url: '/static/knowledge/苏绣_1.jpg',
-    label: '苏绣',
-    icon: '🧵',
-    desc: '精细雅洁的刺绣工艺',
-  },
-  {
-    url: '/static/knowledge/景德镇手工制瓷_1.jpg',
-    label: '景德镇瓷器',
-    icon: '🏺',
-    desc: '千年瓷都的匠心之作',
-  },
-]
+const SAMPLE_CATEGORIES: Record<string, { icon: string; desc: string }> = {
+  '剪纸': { icon: '✂️', desc: '传统民间剪纸艺术' },
+  '苏绣': { icon: '🧵', desc: '精细雅洁的刺绣工艺' },
+  '陶瓷': { icon: '🏺', desc: '千年瓷都的匠心之作' },
+  '皮影': { icon: '🎭', desc: '光影中的千年故事' },
+  '织锦': { icon: '🧶', desc: '寸锦寸金的织造技艺' },
+  '金属': { icon: '🔔', desc: '精雕细琢的金属工艺' },
+  '漆器': { icon: '🪔', desc: '传承千年的髹漆技艺' },
+  'default': { icon: '🏛️', desc: '探索非遗文化瑰宝' },
+}
 
 // ==================== 主页面 ====================
 
@@ -102,6 +95,10 @@ export default function Recognition() {
   // 最近识别记录
   const [recentRecords, setRecentRecords] = useState<RecognitionListItem[]>([])
   const [recordsLoading, setRecordsLoading] = useState(false)
+
+  // 快速体验示例（从展厅 API 动态获取）
+  const [sampleImages, setSampleImages] = useState<{ url: string; label: string; icon: string; desc: string; id: number }[]>([])
+  const [samplesLoading, setSamplesLoading] = useState(false)
 
   // 每日冷知识
   const dailyFact = getDailyFact()
@@ -141,6 +138,32 @@ export default function Recognition() {
         .finally(() => setRecordsLoading(false))
     }
   }, [step])
+
+  // 获取展厅数据作为快速体验示例（与数字展厅同步）
+  useEffect(() => {
+    if (step === 'upload' && sampleImages.length === 0) {
+      setSamplesLoading(true)
+      getItems({ page_size: 6, page: 1 })
+        .then(data => {
+          const items = (data?.items || []).filter((it: HeritageItem) => it.images && it.images.length > 0)
+          const samples = items.slice(0, 3).map((it: HeritageItem) => {
+            const meta = SAMPLE_CATEGORIES[it.category] || SAMPLE_CATEGORIES['default']
+            return {
+              url: it.images[0],
+              label: it.name.length > 8 ? it.name.slice(0, 8) + '...' : it.name,
+              icon: meta.icon,
+              desc: meta.desc,
+              id: it.id,
+            }
+          })
+          if (samples.length > 0) setSampleImages(samples)
+        })
+        .catch(() => {
+          // 静默失败，不影响主流程
+        })
+        .finally(() => setSamplesLoading(false))
+    }
+  }, [step, sampleImages.length])
 
   // 加载识别详情（复用公共跳转逻辑）
   const loadDetail = async (id: number) => {
@@ -208,7 +231,7 @@ export default function Recognition() {
   }
 
   // 快速体验：点击示例图片直接识别
-  const handleSampleClick = async (sample: typeof SAMPLE_IMAGES[number]) => {
+  const handleSampleClick = async (sample: { url: string; label: string; icon: string; desc: string }) => {
     setPreviewImage(sample.url)
     setStep('loading')
     setError('')
@@ -361,39 +384,48 @@ export default function Recognition() {
             <Text type="secondary" style={{ display: 'block', marginBottom: 12, fontSize: 'var(--text-sm)' }}>
               没有合适的非遗图片？点击下方示例，一键体验 AI 智能识别
             </Text>
-            <Row gutter={12}>
-              {SAMPLE_IMAGES.map(sample => (
-                <Col key={sample.label} xs={24} sm={8}>
-                  <Tooltip title={`点击识别：${sample.label}`}>
-                    <Card
-                      hoverable
-                      size="small"
-                      style={{ borderRadius: 8, textAlign: 'center' }}
-                      onClick={() => handleSampleClick(sample)}
-                    >
-                      <img
-                        src={sample.url}
-                        alt={sample.label}
-                        style={{
-                          width: '100%', height: 120, objectFit: 'cover',
-                          borderRadius: 6, background: '#f5f0e8',
-                        }}
-                      />
-                      <div style={{ marginTop: 8 }}>
-                        <Text strong style={{ fontSize: 'var(--text-sm)' }}>
-                          {sample.icon} {sample.label}
-                        </Text>
-                      </div>
-                      <div>
-                        <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
-                          {sample.desc}
-                        </Text>
-                      </div>
-                    </Card>
-                  </Tooltip>
-                </Col>
-              ))}
-            </Row>
+            {samplesLoading ? (
+              <div style={{ textAlign: 'center', padding: 20 }}>
+                <Spin size="small" />
+                <Text type="secondary" style={{ display: 'block', marginTop: 8, fontSize: 12 }}>加载示例中...</Text>
+              </div>
+            ) : sampleImages.length > 0 ? (
+              <Row gutter={12}>
+                {sampleImages.map(sample => (
+                  <Col key={sample.url} xs={24} sm={8}>
+                    <Tooltip title={`点击识别：${sample.label}`}>
+                      <Card
+                        hoverable
+                        size="small"
+                        style={{ borderRadius: 8, textAlign: 'center' }}
+                        onClick={() => handleSampleClick(sample)}
+                      >
+                        <img
+                          src={normalizeImageUrl(sample.url)}
+                          alt={sample.label}
+                          style={{
+                            width: '100%', height: 120, objectFit: 'cover',
+                            borderRadius: 6, background: '#f5f0e8',
+                          }}
+                        />
+                        <div style={{ marginTop: 8 }}>
+                          <Text strong style={{ fontSize: 'var(--text-sm)' }}>
+                            {sample.icon} {sample.label}
+                          </Text>
+                        </div>
+                        <div>
+                          <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
+                            {sample.desc}
+                          </Text>
+                        </div>
+                      </Card>
+                    </Tooltip>
+                  </Col>
+                ))}
+              </Row>
+            ) : (
+              <Empty description="暂无示例，请手动上传图片" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            )}
           </Card>
 
           {/* === 非遗冷知识 === */}
@@ -482,6 +514,14 @@ function ResultDisplay({
 }) {
   return (
     <div>
+      {/* Agent 执行追踪 */}
+      <AgentTimeline
+        steps={result.agent_steps}
+        executionId={result.execution_id}
+        compact
+        maxHeight={300}
+      />
+
       {/* 上方: 图片区 */}
       <Card style={{ borderRadius: 12, marginBottom: 16 }}>
         <Tabs
@@ -617,6 +657,9 @@ function ResultDisplay({
           </Card>
         </Col>
       </Row>
+
+      {/* Phase C: XAI 推理路径可视化 */}
+      <ExplainPanel module="recognition" recordId={result.id} compact />
     </div>
   )
 }

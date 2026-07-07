@@ -17,6 +17,7 @@ import {
   type PipelineStep,
 } from '../../services/restoration'
 import { normalizeImageUrl } from '../../utils/imageUrl'
+import ExplainPanel from '../../components/common/ExplainPanel'
 
 const { Dragger } = Upload
 const { Title, Text, Paragraph } = Typography
@@ -799,6 +800,9 @@ export default function DigitalRestoration() {
           >
             <Tabs defaultActiveKey="overlay" items={comparisonTabs} />
           </Card>
+
+          {/* Phase C: XAI 推理路径可视化 */}
+          <ExplainPanel module="restoration" recordId={result.id} compact />
         </>
       )}
     </div>

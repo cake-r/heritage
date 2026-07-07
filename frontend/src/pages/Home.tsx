@@ -303,6 +303,25 @@ export default function Home() {
             </Button>
             <Button
               size="large"
+              icon={<FireOutlined />}
+              onClick={() => navigate(isAuthenticated ? '/story-mode' : '/login')}
+              style={{
+                height: 48,
+                fontSize: 'var(--text-base)',
+                borderRadius: 'var(--radius-md)',
+                paddingLeft: 28,
+                paddingRight: 28,
+                fontWeight: 500,
+                background: 'linear-gradient(135deg, #C4A265, #B8463A)',
+                border: 'none',
+                color: '#fff',
+                boxShadow: '0 4px 14px rgba(196, 162, 101, 0.45)',
+              }}
+            >
+              ✨ 开始探索
+            </Button>
+            <Button
+              size="large"
               ghost
               icon={<NodeIndexOutlined />}
               onClick={() => navigate('/knowledge-graph')}

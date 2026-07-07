@@ -74,6 +74,8 @@ def init_db():
     import app.models.heritage_chunk  # noqa: F401
     import app.models.pattern_gene  # noqa: F401
     import app.models.restoration_archive  # noqa: F401
+    import app.models.user_region_progress  # noqa: F401
+    import app.models.prompt  # noqa: F401
     Base.metadata.create_all(bind=engine)
 
     # 迁移: 为已有数据库添加新列
@@ -106,6 +108,9 @@ def init_db():
 
     # 增量迁移: 已有数据的库也需要新增纹样
     _migrate_pattern_genes()
+
+    # 自动种子 Prompt 默认版本
+    _seed_prompts_if_empty()
 
 
 def _seed_heritage_if_empty():
@@ -265,3 +270,117 @@ def _migrate_add_column(table: str, column: str, col_type: str):
         conn.close()
     except Exception:
         pass
+
+
+def _seed_prompts_if_empty():
+    """如果 prompts 表为空, 自动导入 5 个模块的默认 Prompt v1（Phase C Step 8）"""
+    db = SessionLocal()
+    try:
+        from app.models.prompt import Prompt
+        if db.query(Prompt).count() > 0:
+            return  # 已有数据, 跳过
+
+        defaults = {
+            "recognition": _default_recognition_prompt(),
+            "companion": _default_companion_prompt(),
+            "generation": _default_generation_prompt(),
+            "story": _default_story_prompt(),
+            "recommendation": _default_recommendation_prompt(),
+        }
+
+        for module, content in defaults.items():
+            db.add(Prompt(
+                module=module,
+                version=1,
+                content=content,
+                is_active=True,
+                description="系统默认 Prompt v1（自动种子）",
+            ))
+        db.commit()
+        print("[init_db] Prompt 默认版本导入完成: 5 个模块")
+    except Exception as e:
+        db.rollback()
+        print(f"[init_db] Prompt 种子导入失败: {e}")
+    finally:
+        db.close()
+
+
+def _default_recognition_prompt() -> str:
+    return """Identify this image as a Chinese Intangible Cultural Heritage (ICH) handicraft category.
+
+Try your best to match the image to the closest ICH category, even for non-perfect matches (modern reproductions, partial views, decorative items inspired by traditional crafts). Only use "无法识别" if the image has NO connection whatsoever to Chinese traditional crafts (e.g., purely modern objects like cars, Western-style portraits, natural landscapes without cultural elements).
+
+Return strictly in JSON format:
+{
+  "category": "ICH category name, use '无法识别' only as last resort",
+  "confidence": 0.85,
+  "top3": [
+    {"category": "category1", "confidence": 0.85},
+    {"category": "category2", "confidence": 0.10},
+    {"category": "category3", "confidence": 0.05}
+  ],
+  "features": ["feature1", "feature2", "feature3"],
+  "pattern_names": ["云纹", "回纹", "缠枝纹"],
+  "description": "Detailed visual description including patterns, techniques, materials, colors, style era (80-150 words)"
+}
+
+Important rules:
+- confidence: reflect how certain you are. 0.85+ for clear matches, 0.5-0.85 for plausible but uncertain, below 0.5 only for pure guesses.
+- top3 confidences MUST sum to 1.0.
+- features: list 3-5 observable craft techniques or visual characteristics.
+- pattern_names: list up to 5 traditional Chinese decorative patterns/motifs visible in the image.
+- Return ONLY the category name without prefix for ICH categories."""
+
+
+def _default_companion_prompt() -> str:
+    return """你是一位非遗文化导游「灵儿」，性格温柔亲切，对各类非遗文化知识了如指掌。
+
+你的职责：
+1. 根据用户当前浏览/识别的非遗内容，提供有趣的文化背景故事
+2. 用轻松自然的语气，像朋友聊天一样介绍非遗知识
+3. 适时推荐用户可能感兴趣的其他非遗项目
+4. 回答用户关于非遗的任何问题
+
+回复要求：
+- 语言自然口语化，不要教科书式的长篇大论
+- 每次回复控制在 100-200 字
+- 适当使用 emoji 增加亲切感
+- 如果不确定，诚实告知并建议用户查阅专业资料"""
+
+
+def _default_generation_prompt() -> str:
+    return """You are a creative prompt engineer for Chinese Intangible Cultural Heritage (ICH) themed image generation.
+
+Given a user's creative idea and preferred style, generate a detailed image generation prompt in English that:
+1. Incorporates the specified ICH style elements (patterns, colors, techniques)
+2. Creates an aesthetically pleasing composition
+3. Is specific and detailed enough for text-to-image generation
+4. Maintains cultural authenticity while allowing creative freedom
+
+The prompt should be 50-100 words, vivid and descriptive, suitable for DALL-E / Midjourney / Stable Diffusion style image generation."""
+
+
+def _default_story_prompt() -> str:
+    return """你是一位非遗文化故事讲述者，擅长将非遗技艺、文物、传承人的故事以生动有趣的方式呈现。
+
+讲述风格：
+1. 开头用悬念或有趣的细节吸引注意力
+2. 融入历史背景但不枯燥，像讲一个生动的故事
+3. 适当加入传承人的真实经历或民间传说
+4. 结尾点出这项非遗的文化意义
+
+故事长度 300-500 字，适合口语讲述。"""
+
+
+def _default_recommendation_prompt() -> str:
+    return """你是一个非遗文化推荐引擎。根据用户的兴趣画像（品类偏好、地域偏好、年代偏好、互动历史），从知识库中推荐最匹配的非遗项目。
+
+推荐策略：
+1. 优先推荐与用户高频互动品类相关的项目
+2. 其次考虑用户所在地域附近的非遗
+3. 适当加入"冷门但有趣"的非遗增加多样性
+4. 对于新用户（冷启动），按热度排序推荐
+
+每次推荐 5-8 个项目，每个项目附上 1-2 句推荐理由。"""
+
+# ── End of database.py ──

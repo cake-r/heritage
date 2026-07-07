@@ -24,6 +24,7 @@ const DigitalRestoration = lazy(() => import('./pages/DigitalRestoration'))
 const CollaborativeRestoration = lazy(() => import('./pages/CollaborativeRestoration'))
 const PatternEngine = lazy(() => import('./pages/PatternEngine'))
 const Passport = lazy(() => import('./pages/Passport'))
+const StoryMode = lazy(() => import('./pages/StoryMode'))
 const Cultivation = lazy(() => import('./pages/Cultivation'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
@@ -34,6 +35,8 @@ const AdminUserManagement = lazy(() => import('./pages/admin/UserManagement'))
 const AdminTaskMonitor = lazy(() => import('./pages/admin/TaskMonitor'))
 const AdminCostDashboard = lazy(() => import('./pages/admin/CostDashboard'))
 const AdminConfigPanel = lazy(() => import('./pages/admin/ConfigPanel'))
+const AdminDataCockpit = lazy(() => import('./pages/admin/DataCockpit'))
+const AdminPromptManager = lazy(() => import('./pages/admin/PromptManager'))
 
 function PageLoader() {
   return (
@@ -97,6 +100,9 @@ function App() {
           <Route path="/passport" element={
             <Suspense fallback={<PageLoader />}><Passport /></Suspense>
           } />
+          <Route path="/story-mode" element={
+            <Suspense fallback={<PageLoader />}><StoryMode /></Suspense>
+          } />
           <Route path="/cultivation" element={
             <Suspense fallback={<PageLoader />}><Cultivation /></Suspense>
           } />
@@ -125,6 +131,12 @@ function App() {
           } />
           <Route path="/admin/config" element={
             <Suspense fallback={<PageLoader />}><AdminConfigPanel /></Suspense>
+          } />
+          <Route path="/admin/cockpit" element={
+            <Suspense fallback={<PageLoader />}><AdminDataCockpit /></Suspense>
+          } />
+          <Route path="/admin/prompts" element={
+            <Suspense fallback={<PageLoader />}><AdminPromptManager /></Suspense>
           } />
         </Route>
       </Route>

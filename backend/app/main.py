@@ -57,6 +57,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 async def lifespan(app: FastAPI):
     """应用启动/关闭生命周期"""
     init_db()
+    # 加载 Prompt 缓存（Phase C Step 8）
+    from app.api.admin_prompts import load_prompts_from_db
+    load_prompts_from_db()
     # 注册任务处理器 + 启动调度器（Mock 模式跳过，避免与测试 DB 清理冲突）
     if not MOCK_MODE:
         from app.services.task_handlers import register_all_handlers
@@ -165,8 +168,8 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # === 路由注册 ===
 from app.api import auth, recognition, generation, exhibition, user, chat, knowledge_graph, tools, inheritor, restoration, passport, expansion, recommendation, cultivation, companion, task
-from app.api import admin_users, admin_tasks, admin_costs, admin_config
-from app.api import pattern_engine, restoration_workbench
+from app.api import admin_users, admin_tasks, admin_costs, admin_config, admin_dashboard
+from app.api import pattern_engine, restoration_workbench, agent, story_mode, explain, admin_prompts
 app.include_router(auth.router, prefix="/api/auth", tags=["鉴权"])
 app.include_router(recognition.router, prefix="/api/recognition", tags=["识别讲解"])
 app.include_router(generation.router, prefix="/api/generation", tags=["文创生成"])
@@ -187,5 +190,10 @@ app.include_router(admin_users.router, tags=["管理后台-用户"])
 app.include_router(admin_tasks.router, tags=["管理后台-任务"])
 app.include_router(admin_costs.router, tags=["管理后台-成本"])
 app.include_router(admin_config.router, tags=["管理后台-配置"])
+app.include_router(admin_dashboard.router, tags=["管理后台-驾驶舱"])
 app.include_router(pattern_engine.router, prefix="/api/pattern-engine", tags=["纹样基因引擎"])
 app.include_router(restoration_workbench.router, prefix="/api/restoration-workbench", tags=["协同修复"])
+app.include_router(agent.router)
+app.include_router(story_mode.router)
+app.include_router(explain.router)
+app.include_router(admin_prompts.router)

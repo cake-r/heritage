@@ -1,5 +1,6 @@
 """数字文博护照相关 Pydantic Schema"""
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -41,3 +42,35 @@ class StampEarnResponse(BaseModel):
     earned: bool
     stamp: EarnedStamp | None = None
     is_new: bool = False  # True = 首次获得此印章
+
+
+# ── Passport 2.0 新增 ──
+
+class TimelineMilestone(BaseModel):
+    """探索时间轴里程碑"""
+    type: str           # first_recognition / first_restoration / first_creation / first_stamp / first_cultivation
+    title: str
+    description: str
+    date: Optional[datetime] = None
+    icon: str
+    module: str
+
+
+class RegionProgress(BaseModel):
+    """地域探索进度"""
+    region_code: str
+    region_name: str
+    unlocked_at: Optional[datetime] = None
+    item_count: int = 0
+
+
+class PassportExport(BaseModel):
+    """护照导出"""
+    user_name: str
+    total_stamps: int
+    earned_count: int
+    completion_percentage: float
+    stamps: list[EarnedStamp] = []
+    timeline: list[TimelineMilestone] = []
+    regions: list[RegionProgress] = []
+    exported_at: datetime
