@@ -3,7 +3,8 @@ import { lazy, Suspense } from 'react'
 import Live2DTest from './pages/Live2DTest'
 import Live2DBlank from './pages/Live2DBlank'
 import { Routes, Route } from 'react-router-dom'
-import { Spin } from 'antd'
+import { Skeleton } from 'antd'
+import { motion } from 'framer-motion'
 import MainLayout from './components/layout/MainLayout'
 import ProtectedRoute from './components/common/ProtectedRoute'
 
@@ -40,14 +41,33 @@ const AdminPromptManager = lazy(() => import('./pages/admin/PromptManager'))
 
 function PageLoader() {
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '60vh',
-    }}>
-      <Spin size="large" tip="加载中..." />
-    </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '60vh',
+        gap: 24,
+        padding: 40,
+      }}
+    >
+      {/* 模拟页面布局骨架 */}
+      <Skeleton.Input active size="large" style={{ width: 280, height: 40, borderRadius: 8 }} />
+      <Skeleton active paragraph={{ rows: 1 }} style={{ width: 400 }} />
+      <div style={{ display: 'flex', gap: 16, marginTop: 16 }}>
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} style={{ width: 200 }}>
+            <Skeleton.Image active style={{ width: 200, height: 140, borderRadius: 12 }} />
+            <Skeleton active paragraph={{ rows: 2 }} style={{ marginTop: 8 }} />
+          </div>
+        ))}
+      </div>
+    </motion.div>
   )
 }
 

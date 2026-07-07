@@ -204,18 +204,20 @@ export default function CompanionFloatButton() {
         width: currentSize,
         height: currentSize,
         borderRadius: '50%',
-        border: 'none',
+        border: hovering ? '1px solid var(--glass-border)' : '1px solid transparent',
         padding: 0,
         cursor: cursorStyle,
-        background: 'transparent',
+        background: hovering ? 'var(--glass-bg)' : 'transparent',
+        backdropFilter: hovering ? 'blur(var(--glass-blur))' : 'none',
+        WebkitBackdropFilter: hovering ? 'blur(var(--glass-blur))' : 'none',
         boxShadow: showIndicator
-          ? '0 0 40px rgba(184, 70, 58, 0.25)'
+          ? 'var(--shadow-glow-vermilion)'
           : hovering
-            ? '0 0 30px rgba(196, 162, 101, 0.12)'
+            ? 'var(--shadow-glow-gold)'
             : 'none',
         transition: isDragging || isResizing
           ? 'none'
-          : 'box-shadow 0.5s',
+          : 'box-shadow 0.5s, background 0.3s, border 0.3s',
         overflow: 'hidden',
         display: 'flex',
         alignItems: 'center',
@@ -281,9 +283,10 @@ export default function CompanionFloatButton() {
           width: Math.max(8, currentSize * 0.1),
           height: Math.max(8, currentSize * 0.1),
           borderRadius: '50%',
-          background: '#B8463A',
-          border: '2px solid #fff',
+          background: 'var(--color-vermilion)',
+          border: '2px solid var(--color-paper-white)',
           zIndex: 2,
+          animation: 'floatPulse 2s ease-in-out infinite',
         }} />
       )}
     </button>

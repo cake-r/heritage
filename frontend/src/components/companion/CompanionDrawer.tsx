@@ -39,6 +39,7 @@ function SuggestionInline({
   return (
     <div
       onClick={onClick}
+      className="card-hover"
       style={{
         display: 'flex',
         gap: 10,
@@ -48,10 +49,7 @@ function SuggestionInline({
         border: '1px solid var(--color-paper, #F7F4ED)',
         borderRadius: 'var(--radius-md, 8px)',
         cursor: 'pointer',
-        transition: 'box-shadow 0.2s',
       }}
-      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-sm)' }}
-      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
     >
       <span style={{ fontSize: 20, flexShrink: 0, lineHeight: '22px' }}>{item.icon}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -132,7 +130,13 @@ function ChatBubble({
         maxWidth: '82%',
         padding: '10px 14px',
         borderRadius: 10,
-        background: isUser ? 'var(--color-vermilion, #B8463A)' : 'var(--color-paper, #F7F4ED)',
+        background: isUser
+          ? 'var(--color-vermilion, #B8463A)'
+          : 'var(--glass-bg)',
+        backdropFilter: isUser ? 'none' : 'blur(var(--glass-blur))',
+        WebkitBackdropFilter: isUser ? 'none' : 'blur(var(--glass-blur))',
+        border: isUser ? 'none' : '1px solid var(--glass-border)',
+        borderLeft: isUser ? 'none' : '3px solid var(--color-gold, #C4A265)',
         color: isUser ? '#fff' : 'var(--color-ink, #2C241A)',
         fontSize: 'var(--text-sm)',
         lineHeight: 1.65,
@@ -352,10 +356,21 @@ export default function CompanionDrawer() {
       placement="right"
       width={400}
       styles={{
-        body: { padding: 0, display: 'flex', flexDirection: 'column', height: '100%' },
+        body: {
+          padding: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(var(--glass-blur))',
+          WebkitBackdropFilter: 'blur(var(--glass-blur))',
+        },
         header: {
           padding: '12px 20px',
-          borderBottom: '1px solid var(--color-paper, #F7F4ED)',
+          borderBottom: '1px solid var(--glass-border)',
+          background: 'var(--glass-bg-strong)',
+          backdropFilter: 'blur(var(--glass-blur-strong))',
+          WebkitBackdropFilter: 'blur(var(--glass-blur-strong))',
         },
       }}
       title={
@@ -463,9 +478,11 @@ export default function CompanionDrawer() {
 
       {/* 输入区域 */}
       <div style={{
-        borderTop: '1px solid var(--color-paper, #F7F4ED)',
+        borderTop: '1px solid var(--glass-border)',
         padding: '12px 20px',
-        background: 'var(--color-paper-white, #FFFDF9)',
+        background: 'var(--glass-bg-strong)',
+        backdropFilter: 'blur(var(--glass-blur-strong))',
+        WebkitBackdropFilter: 'blur(var(--glass-blur-strong))',
         display: 'flex',
         gap: 8,
         alignItems: 'flex-end',
