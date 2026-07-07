@@ -1,18 +1,18 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Menu, Drawer } from 'antd'
 import {
-  CameraOutlined,
-  PictureOutlined,
-  MessageOutlined,
-  BankOutlined,
-  NodeIndexOutlined,
-  UserOutlined,
-  HomeOutlined,
-  ToolOutlined,
-  IdcardOutlined,
-  TrophyOutlined,
-  SettingOutlined,
-} from '@ant-design/icons'
+  Camera,
+  Image,
+  MessageCircle,
+  Building2,
+  GitGraph,
+  User,
+  Home,
+  Wrench,
+  IdCard,
+  Trophy,
+  Settings,
+} from 'lucide-react'
 
 interface Props {
   collapsed?: boolean
@@ -24,22 +24,22 @@ interface Props {
 
 function getMenuItems(): Array<{ key: string; icon: React.ReactNode; label: string }> {
   const items = [
-    { key: '/', icon: <HomeOutlined />, label: '首页' },
-    { key: '/recognition', icon: <CameraOutlined />, label: '智能识别' },
-    { key: '/creative-studio', icon: <PictureOutlined />, label: '文创生成' },
-    { key: '/workshop', icon: <MessageOutlined />, label: '技艺工坊' },
-    { key: '/restoration', icon: <ToolOutlined />, label: '文物修复' },
-    { key: '/exhibition', icon: <BankOutlined />, label: '数字展厅' },
-    { key: '/knowledge-graph', icon: <NodeIndexOutlined />, label: '文化图谱' },
-    { key: '/passport', icon: <IdcardOutlined />, label: '数字护照' },
-    { key: '/cultivation', icon: <TrophyOutlined />, label: '修习之路' },
-    { key: '/user-center', icon: <UserOutlined />, label: '个人中心' },
+    { key: '/', icon: <Home size={18} />, label: '首页' },
+    { key: '/recognition', icon: <Camera size={18} />, label: '智能识别' },
+    { key: '/creative-studio', icon: <Image size={18} />, label: '文创生成' },
+    { key: '/workshop', icon: <MessageCircle size={18} />, label: '技艺工坊' },
+    { key: '/restoration', icon: <Wrench size={18} />, label: '文物修复' },
+    { key: '/exhibition', icon: <Building2 size={18} />, label: '数字展厅' },
+    { key: '/knowledge-graph', icon: <GitGraph size={18} />, label: '文化图谱' },
+    { key: '/passport', icon: <IdCard size={18} />, label: '数字护照' },
+    { key: '/cultivation', icon: <Trophy size={18} />, label: '修习之路' },
+    { key: '/user-center', icon: <User size={18} />, label: '个人中心' },
   ]
 
   try {
     const user = JSON.parse(localStorage.getItem('user') || '{}')
     if (user.role === 'admin') {
-      items.push({ key: '/admin', icon: <SettingOutlined />, label: '管理后台' })
+      items.push({ key: '/admin', icon: <Settings size={18} />, label: '管理后台' })
     }
   } catch {
     // ignore

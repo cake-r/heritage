@@ -6,10 +6,10 @@ import {
   Upload, Tooltip,
 } from 'antd'
 import {
-  PictureOutlined, DownloadOutlined, HeartOutlined,
-  SendOutlined, LoadingOutlined,
-  EyeOutlined, UploadOutlined, LeftOutlined,
-} from '@ant-design/icons'
+  ImageIcon, Download, Heart,
+  Send, Loader2,
+  Eye, UploadIcon, ChevronLeft,
+} from 'lucide-react'
 import {
   textToImage, imageToImage, getGallery, getDetail,
   type GenerationResult, type GenerationItem,
@@ -54,8 +54,8 @@ export default function CreativeStudio() {
         activeKey={activeTab}
         onChange={k => setActiveTab(k as 'create' | 'gallery')}
         items={[
-          { key: 'create', label: <span><PictureOutlined /> 创作</span> },
-          { key: 'gallery', label: <span><EyeOutlined /> 画廊</span> },
+          { key: 'create', label: <span><ImageIcon size={18} /> 创作</span> },
+          { key: 'gallery', label: <span><Eye /> 画廊</span> },
         ]}
         style={{ marginBottom: 16 }}
       />
@@ -136,7 +136,7 @@ function CreationPanel() {
                 }}
                 style={{ marginTop: 8 }}
               >
-                <Button icon={<UploadOutlined />} block>
+                <Button icon={<UploadIcon size={18} />} block>
                   {refFile ? refFile.name : '点击上传参考图'}
                 </Button>
               </Upload>
@@ -227,7 +227,7 @@ function CreationPanel() {
           <Button
             type="primary"
             size="large"
-            icon={loading ? <LoadingOutlined /> : <SendOutlined />}
+            icon={loading ? <Loader2 /> : <Send />}
             loading={loading}
             onClick={handleGenerate}
             block
@@ -312,8 +312,8 @@ function ResultCard({ image, index, result }: { image: string; index: number; re
         background: 'var(--color-deep, rgba(30,27,24,0.85))', padding: '6px 8px',
         display: 'flex', justifyContent: 'center', gap: 8,
       }}>
-        <Tooltip title="下载"><Button size="small" type="text" ghost icon={<DownloadOutlined />} onClick={handleDownload} /></Tooltip>
-        <Tooltip title="收藏"><Button size="small" type="text" ghost icon={<HeartOutlined />} /></Tooltip>
+        <Tooltip title="下载"><Button size="small" type="text" ghost icon={<Download />} onClick={handleDownload} /></Tooltip>
+        <Tooltip title="收藏"><Button size="small" type="text" ghost icon={<Heart />} /></Tooltip>
       </div>
     </div>
   )
@@ -422,7 +422,7 @@ function WorkDetailView({ workId }: { workId: number }) {
   return (
     <div style={{ maxWidth: 1300, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <Button icon={<LeftOutlined />} onClick={() => window.history.back()}>返回</Button>
+        <Button icon={<ChevronLeft />} onClick={() => window.history.back()}>返回</Button>
         <Title level={3} style={{ margin: 0 }}>🎨 作品详情</Title>
       </div>
 

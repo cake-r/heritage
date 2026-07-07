@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { Progress, Typography, Spin, Result, Button, theme } from 'antd'
-import { LoadingOutlined, CheckCircleOutlined, WifiOutlined } from '@ant-design/icons'
+import { Loader2, CheckCircle, Wifi } from 'lucide-react'
 import api from '../../services/api'
 import { connectTaskWS } from '../../services/websocket'
 
@@ -118,7 +118,7 @@ export default function TaskProgress({
   if (loading && !task) {
     return (
       <div style={{ textAlign: 'center', padding: 40 }}>
-        <Spin indicator={<LoadingOutlined style={{ fontSize: 32 }} spin />} />
+        <Spin indicator={<Loader2 style={{ fontSize: 32 }} className="animate-spin" />} />
         <div style={{ marginTop: 16 }}>
           <Text type="secondary">正在创建任务...</Text>
         </div>
@@ -154,7 +154,7 @@ export default function TaskProgress({
       <Result
         status="success"
         title={`${title}完成`}
-        icon={<CheckCircleOutlined style={{ color: token.colorSuccess }} />}
+        icon={<CheckCircle style={{ color: token.colorSuccess }} />}
       />
     )
   }
@@ -175,7 +175,7 @@ export default function TaskProgress({
         </Text>
         {wsStatus === 'connected' && (
           <Text type="secondary" style={{ display: 'block', fontSize: 12 }}>
-            <WifiOutlined style={{ marginRight: 4, color: token.colorSuccess }} />
+            <Wifi style={{ marginRight: 4, color: token.colorSuccess }} />
             实时连接
           </Text>
         )}

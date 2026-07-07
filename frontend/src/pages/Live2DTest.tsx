@@ -14,9 +14,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Card, Button, Space, Tag, Typography, Divider, Alert, Input, Switch } from 'antd'
 import {
-  CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined,
-  PlayCircleOutlined, FileTextOutlined,
-} from '@ant-design/icons'
+  CheckCircle, XCircle, Loader2,
+  Play, FileText,
+} from 'lucide-react'
 import Live2DCanvas from '../components/companion/Live2DCanvas'
 import type { Live2DCanvasHandle } from '../components/companion/Live2DCanvas'
 
@@ -224,7 +224,7 @@ export default function Live2DTest() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 20, alignItems: 'center' }}>
         <Button
           type="primary"
-          icon={<PlayCircleOutlined />}
+          icon={<Play />}
           onClick={runDiagnostics}
           size="large"
           style={{ background: 'var(--color-vermilion, #B8463A)' }}
@@ -286,9 +286,9 @@ export default function Live2DTest() {
             }}
           >
             <span style={{ width: 24, textAlign: 'center', flexShrink: 0 }}>
-              {step.status === 'running' && <LoadingOutlined style={{ color: 'var(--color-gold, #C4A265)' }} />}
-              {step.status === 'ok' && <CheckCircleOutlined style={{ color: 'var(--color-success, #4A8C5C)' }} />}
-              {step.status === 'fail' && <CloseCircleOutlined style={{ color: 'var(--color-vermilion, #B8463A)' }} />}
+              {step.status === 'running' && <Loader2 style={{ color: 'var(--color-gold, #C4A265)' }} />}
+              {step.status === 'ok' && <CheckCircle style={{ color: 'var(--color-success, #4A8C5C)' }} />}
+              {step.status === 'fail' && <XCircle style={{ color: 'var(--color-vermilion, #B8463A)' }} />}
               {step.status === 'idle' && <span style={{ color: 'var(--gray-300, #ccc)' }}>—</span>}
             </span>
             <strong style={{ minWidth: 180, flexShrink: 0 }}>{step.label}</strong>

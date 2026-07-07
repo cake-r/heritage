@@ -1,8 +1,8 @@
 import React from 'react'
 import { Card, Tag, Progress, Collapse, Typography, Space, Tooltip } from 'antd'
 import {
-  WarningOutlined, AimOutlined, InfoCircleOutlined,
-} from '@ant-design/icons'
+  AlertTriangle, Crosshair, Info,
+} from 'lucide-react'
 import type { DamageRegion, DamageDetectResponse } from '../../services/restorationWorkbench'
 import { normalizeImageUrl } from '../../utils/imageUrl'
 
@@ -120,7 +120,7 @@ const DamageReport: React.FC<Props> = ({ data, onRegionClick, selectedRegionInde
           ))}
         </div>
         <Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 8, textAlign: 'center' }}>
-          <InfoCircleOutlined /> AI 检测的损伤区域为估算位置，可在工作台中调整选区后再执行修复
+          <Info /> AI 检测的损伤区域为估算位置，可在工作台中调整选区后再执行修复
         </Text>
       </Card>
 
@@ -128,7 +128,7 @@ const DamageReport: React.FC<Props> = ({ data, onRegionClick, selectedRegionInde
       <Card size="small" style={{ borderRadius: 10 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <Text strong style={{ fontSize: 15 }}>
-            <WarningOutlined style={{ marginRight: 6, color: 'var(--color-vermilion, #B8463A)' }} />
+            <AlertTriangle style={{ marginRight: 6, color: 'var(--color-vermilion, #B8463A)' }} />
             损伤分析报告
           </Text>
           <Space>
@@ -184,7 +184,7 @@ const DamageReport: React.FC<Props> = ({ data, onRegionClick, selectedRegionInde
                         transition: 'all 0.2s',
                       }}
                     >
-                      <AimOutlined style={{
+                      <Crosshair style={{
                         color: i === selectedRegionIndex ? '#B8463A' : '#999',
                         fontSize: 14,
                       }} />

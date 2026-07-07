@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { Table, Button, Tag, Input, Select, Space, Modal, Typography, message } from 'antd'
-import { SearchOutlined, StopOutlined, SafetyOutlined } from '@ant-design/icons'
+import { Search, Square, Shield } from 'lucide-react'
 import type { ColumnsType } from 'antd/es/table'
 import { fetchUsers, updateUserRole, banUser, unbanUser, type UserItem } from '../../services/admin'
 
@@ -64,7 +64,7 @@ export default function UserManagement() {
           style={{ width: 200 }}
         />
       ),
-      filterIcon: <SearchOutlined />,
+      filterIcon: <Search />,
     },
     { title: '昵称', dataIndex: 'nickname', render: (v) => v || '-' },
     {

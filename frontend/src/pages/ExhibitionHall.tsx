@@ -6,12 +6,12 @@ import {
   Form, Spin, Empty, Space, message, Segmented, Collapse, AutoComplete, Checkbox,
 } from 'antd'
 import {
-  SearchOutlined, UploadOutlined, HeartOutlined,
-  HeartFilled, AppstoreOutlined, UnorderedListOutlined,
-  PictureOutlined, EnvironmentOutlined, FieldTimeOutlined,
-  MessageOutlined, ExpandOutlined, CheckOutlined, CloseOutlined,
-  ReloadOutlined, LockOutlined, EditOutlined,
-} from '@ant-design/icons'
+  Search, UploadIcon, Heart,
+  LayoutGrid, List,
+  ImageIcon, MapPin, Clock,
+  MessageCircle, Maximize, Check, X,
+  RefreshCw, Lock, Pencil,
+} from 'lucide-react'
 import {
   getItems, getCategories, getRegions, getEras, uploadWork,
   startExpansion, getTaskStatus, getExpansionQueue,
@@ -463,7 +463,7 @@ export default function ExhibitionHall() {
             <Col xs={24} sm={6}>
               <Input
                 placeholder="搜索藏品名称或描述..."
-                prefix={<SearchOutlined />}
+                prefix={<Search />}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 onPressEnter={handleSearch}
@@ -493,8 +493,8 @@ export default function ExhibitionHall() {
             <Col xs={12} sm={3}>
               <Segmented
                 options={[
-                  { value: 'grid', icon: <AppstoreOutlined /> },
-                  { value: 'waterfall', icon: <UnorderedListOutlined /> },
+                  { value: 'grid', icon: <LayoutGrid /> },
+                  { value: 'waterfall', icon: <List /> },
                 ]}
                 value={viewMode}
                 onChange={v => setViewMode(v as 'grid' | 'waterfall')}
@@ -539,7 +539,7 @@ export default function ExhibitionHall() {
             <Col xs={12} sm={9} style={{ textAlign: 'right' }}>
               <Space wrap>
                 <Button
-                  icon={<ExpandOutlined />}
+                  icon={<Maximize />}
                   onClick={() => setExpandOpen(true)}
                   disabled={!isAuthenticated || taskRunning}
                   title="AI 扩充知识库"
@@ -549,7 +549,7 @@ export default function ExhibitionHall() {
                 {reviewTotal > 0 && (
                   <Badge count={reviewTotal} size="small" offset={[-4, 4]}>
                     <Button
-                      icon={<CheckOutlined />}
+                      icon={<Check />}
                       onClick={handleOpenReview}
                       type="default"
                     >
@@ -557,14 +557,14 @@ export default function ExhibitionHall() {
                     </Button>
                   </Badge>
                 )}
-                <Button icon={<UploadOutlined />} onClick={() => setUploadOpen(true)} disabled={!isAuthenticated}>
+                <Button icon={<UploadIcon />} onClick={() => setUploadOpen(true)} disabled={!isAuthenticated}>
                   {isAuthenticated ? '上传作品' : '登录后上传'}
                 </Button>
                 {adminMode ? (
                   <Button danger onClick={handleExitAdminMode}>退出管理</Button>
                 ) : (
                   <Button
-                    icon={<LockOutlined />}
+                    icon={<Lock />}
                     onClick={() => setPasswordModalOpen(true)}
                   >
                     管理员
@@ -613,7 +613,7 @@ export default function ExhibitionHall() {
                             <Button
                               type="primary"
                               size="small"
-                              icon={<EditOutlined />}
+                              icon={<Pencil />}
                               onClick={e => handleOpenEdit(item, e)}
                               style={{ position: 'absolute', bottom: 8, right: 8, zIndex: 2, opacity: 0.9 }}
                             >
@@ -622,7 +622,7 @@ export default function ExhibitionHall() {
                           ) : (
                             <Button
                               type="text"
-                              icon={favIds.has(`${item.item_type || 'heritage'}:${item.id}`) ? <HeartFilled style={{ color: '#C41E3A' }} /> : <HeartOutlined />}
+                              icon={favIds.has(`${item.item_type || 'heritage'}:${item.id}`) ? <Heart fill="#C41E3A" color="#C41E3A" /> : <Heart />}
                               onClick={e => { e.stopPropagation(); handleToggleFavorite(item) }}
                               style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.8)' }}
                             />
@@ -635,7 +635,7 @@ export default function ExhibitionHall() {
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           borderTopLeftRadius: 12, borderTopRightRadius: 12,
                         }}>
-                          <PictureOutlined style={{ fontSize: 48, color: '#ccc' }} />
+                          <ImageIcon size={48} style={{ color: 'var(--color-border-medium)' }} />
                         </div>
                       )
                     }
@@ -645,8 +645,8 @@ export default function ExhibitionHall() {
                     <div style={{ marginTop: 4 }}>
                       <Space size={4} wrap>
                         <Tag color="gold">{item.category}</Tag>
-                        {item.region && <Tag icon={<EnvironmentOutlined />} color="blue">{item.region}</Tag>}
-                        {item.era && <Tag icon={<FieldTimeOutlined />}>{item.era}</Tag>}
+                        {item.region && <Tag icon={<MapPin />} color="blue">{item.region}</Tag>}
+                        {item.era && <Tag icon={<Clock />}>{item.era}</Tag>}
                       </Space>
                     </div>
                   </Card>
@@ -671,7 +671,7 @@ export default function ExhibitionHall() {
             selectedItem && (
               <Button
                 type={favIds.has(`${selectedItem.item_type || 'heritage'}:${selectedItem.id}`) ? 'primary' : 'default'}
-                icon={favIds.has(`${selectedItem.item_type || 'heritage'}:${selectedItem.id}`) ? <HeartFilled /> : <HeartOutlined />}
+                icon={favIds.has(`${selectedItem.item_type || 'heritage'}:${selectedItem.id}`) ? <Heart fill="var(--color-vermilion)" color="var(--color-vermilion)" /> : <Heart />}
                 onClick={() => handleToggleFavorite(selectedItem)}
                 danger={favIds.has(`${selectedItem.item_type || 'heritage'}:${selectedItem.id}`)}
               >
@@ -713,7 +713,7 @@ export default function ExhibitionHall() {
                 }}
                 onRemove={(file) => { setUploadFiles(prev => prev.filter(f => f.name !== file.name)) }}
               >
-                <div><UploadOutlined /><div style={{ marginTop: 8 }}>上传</div></div>
+                <div><UploadIcon /><div style={{ marginTop: 8 }}>上传</div></div>
               </Upload>
             </Form.Item>
             <Form.Item label="分类">
@@ -859,7 +859,7 @@ export default function ExhibitionHall() {
           width={680}
           extra={
             <Button
-              icon={<ReloadOutlined />}
+              icon={<RefreshCw />}
               onClick={() => handleLoadReviewQueue(reviewPage)}
               loading={reviewLoading}
             >
@@ -890,7 +890,7 @@ export default function ExhibitionHall() {
                       <Button
                         type="primary"
                         size="small"
-                        icon={<CheckOutlined />}
+                        icon={<Check />}
                         loading={approving === item.id}
                         onClick={() => handleApproveItem(item.id, item.name)}
                       >
@@ -899,7 +899,7 @@ export default function ExhibitionHall() {
                       <Button
                         danger
                         size="small"
-                        icon={<CloseOutlined />}
+                        icon={<X />}
                         onClick={() => handleRejectItem(item.id, item.name)}
                         disabled={approving === item.id}
                       >
@@ -984,7 +984,7 @@ export default function ExhibitionHall() {
                             return false
                           }}
                         >
-                          <Button size="small" icon={<UploadOutlined />}>替换图片</Button>
+                          <Button size="small" icon={<UploadIcon />}>替换图片</Button>
                         </Upload>
                       </div>
                     </Col>
@@ -1026,7 +1026,7 @@ export default function ExhibitionHall() {
           <div style={{ padding: '8px 0' }}>
             <Text type="secondary">请输入管理员密码以进入编辑模式</Text>
             <Input.Password
-              prefix={<LockOutlined />}
+              prefix={<Lock />}
               value={adminPassword}
               onChange={e => setAdminPassword(e.target.value)}
               onPressEnter={handleAdminVerify}
@@ -1123,7 +1123,7 @@ export default function ExhibitionHall() {
                   onRemove={(file) => { setEditFiles(prev => prev.filter(f => f.name !== file.name)) }}
                 >
                   {editFiles.length < 5 && (
-                    <div><UploadOutlined /><div style={{ marginTop: 8 }}>上传新图片</div></div>
+                    <div><UploadIcon /><div style={{ marginTop: 8 }}>上传新图片</div></div>
                   )}
                 </Upload>
                 {editFiles.length > 0 && (
@@ -1182,15 +1182,15 @@ function ItemDetail({ item }: { item: HeritageItem }) {
       {/* 基础信息 */}
       <Space wrap size={4} style={{ marginBottom: 16 }}>
         <Tag color="#C41E3A" style={{ fontSize: 'var(--text-sm)' }}>{item.category}</Tag>
-        {item.region && <Tag icon={<EnvironmentOutlined />}>{item.region}</Tag>}
-        {item.era && <Tag icon={<FieldTimeOutlined />}>{item.era}</Tag>}
+        {item.region && <Tag icon={<MapPin />}>{item.region}</Tag>}
+        {item.era && <Tag icon={<Clock />}>{item.era}</Tag>}
       </Space>
 
       {/* 与传承人对话按钮 */}
       {isAuthenticated && inheritorId && (
         <div style={{ marginBottom: 16 }}>
           <Button
-            icon={<MessageOutlined />}
+            icon={<MessageCircle />}
             onClick={() => navigate(`/workshop?persona=${inheritorId}`)}
             style={{
               borderColor: 'var(--color-gold)',

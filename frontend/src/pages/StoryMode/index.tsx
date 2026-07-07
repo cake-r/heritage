@@ -3,15 +3,15 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Progress, Card, Tag, Typography, Result, Spin, message, Collapse } from 'antd'
 import {
-  PlayCircleOutlined,
-  PauseCircleOutlined,
-  ReloadOutlined,
-  HomeOutlined,
-  TrophyOutlined,
-  PictureOutlined,
-  ExperimentOutlined,
-  ThunderboltOutlined,
-} from '@ant-design/icons'
+  Play,
+  Pause,
+  RefreshCw,
+  Home,
+  Trophy,
+  Image,
+  FlaskConical,
+  Zap,
+} from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import AgentTimeline from '../../components/common/AgentTimeline'
 import {
@@ -211,7 +211,7 @@ export default function StoryModePage() {
             <Button
               type="primary"
               size="large"
-              icon={<PlayCircleOutlined />}
+              icon={<Play />}
               onClick={handleStart}
               style={{
                 height: 56,
@@ -228,7 +228,7 @@ export default function StoryModePage() {
             <div style={{ marginTop: 16 }}>
               <Button
                 type="link"
-                icon={<HomeOutlined />}
+                icon={<Home />}
                 onClick={() => navigate('/')}
                 style={{ color: DARK_TEXT, opacity: 0.6 }}
               >
@@ -256,7 +256,7 @@ export default function StoryModePage() {
                 </Text>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <Tag color="processing">{overallProgress}%</Tag>
-                  <Button danger size="small" icon={<PauseCircleOutlined />} onClick={handleStop} ghost>
+                  <Button danger size="small" icon={<Pause />} onClick={handleStop} ghost>
                     停止
                   </Button>
                 </div>
@@ -380,13 +380,13 @@ export default function StoryModePage() {
 
             {/* 操作按钮 */}
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Button icon={<ReloadOutlined />} onClick={handleStart} style={{ borderColor: GOLD, color: GOLD }}>
+              <Button icon={<RefreshCw />} onClick={handleStart} style={{ borderColor: GOLD, color: GOLD }}>
                 再来一次
               </Button>
-              <Button icon={<TrophyOutlined />} onClick={() => navigate('/passport')} style={{ borderColor: GOLD, color: GOLD }}>
+              <Button icon={<Trophy />} onClick={() => navigate('/passport')} style={{ borderColor: GOLD, color: GOLD }}>
                 查看护照
               </Button>
-              <Button icon={<HomeOutlined />} onClick={() => navigate('/')} style={{ color: DARK_TEXT }} type="link">
+              <Button icon={<Home />} onClick={() => navigate('/')} style={{ color: DARK_TEXT }} type="link">
                 返回首页
               </Button>
             </div>
@@ -413,7 +413,7 @@ function StepVisualPreview({ step }: { step?: StepState }) {
         justifyContent: 'center',
       }}>
         <div style={{ textAlign: 'center', opacity: 0.6 }}>
-          <ThunderboltOutlined style={{ fontSize: 48, color: GOLD }} />
+          <Zap style={{ fontSize: 48, color: GOLD }} />
           <Paragraph style={{ color: DARK_TEXT, marginTop: 16 }}>等待 AI 执行...</Paragraph>
         </div>
       </Card>
@@ -691,7 +691,7 @@ function GenerationOutput({ data }: { data: any }) {
         </div>
       ) : (
         <div style={{ textAlign: 'center', padding: 32 }}>
-          <PictureOutlined style={{ fontSize: 48, color: GOLD, opacity: 0.5 }} />
+          <Image style={{ fontSize: 48, color: GOLD, opacity: 0.5 }} />
           <Paragraph style={{ color: DARK_TEXT, marginTop: 12 }}>
             AI 文创作品生成中...
           </Paragraph>

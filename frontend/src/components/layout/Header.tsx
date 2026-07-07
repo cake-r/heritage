@@ -1,15 +1,15 @@
 import { useNavigate } from 'react-router-dom'
 import { Layout, Button, Dropdown, Space, Tag } from 'antd'
 import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  MenuOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  LoginOutlined,
-  SunOutlined,
-  MoonOutlined,
-} from '@ant-design/icons'
+  PanelLeftClose,
+  PanelLeftOpen,
+  Menu,
+  User,
+  LogOut,
+  LogIn,
+  Sun,
+  Moon,
+} from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useApp } from '../../contexts/AppContext'
 import { useTheme } from '../../contexts/ThemeContext'
@@ -30,8 +30,8 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
   const navigate = useNavigate()
 
   const userMenuItems = [
-    { key: 'profile', icon: <UserOutlined />, label: '个人中心', onClick: () => navigate('/user-center') },
-    { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: logout },
+    { key: 'profile', icon: <User size={18} />, label: '个人中心', onClick: () => navigate('/user-center') },
+    { key: 'logout', icon: <LogOut size={18} />, label: '退出登录', onClick: logout },
   ]
 
   return (
@@ -56,14 +56,14 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
         {isMobile ? (
           <Button
             type="text"
-            icon={<MenuOutlined />}
+            icon={<Menu />}
             onClick={onMobileMenuClick}
             aria-label="打开菜单"
           />
         ) : (
           <Button
             type="text"
-            icon={sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            icon={sidebarCollapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
             onClick={toggleSidebar}
             aria-label={sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
           />
@@ -90,7 +90,7 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
         {/* Dark mode toggle */}
         <Button
           type="text"
-          icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
+          icon={theme === 'dark' ? <Sun /> : <Moon />}
           onClick={toggleTheme}
           aria-label={theme === 'dark' ? '切换亮色模式' : '切换暗色模式'}
           title={theme === 'dark' ? '亮色模式' : '暗色模式'}
@@ -104,14 +104,14 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
 
         {isAuthenticated ? (
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <Button type="text" icon={<UserOutlined />}>
+            <Button type="text" icon={<User />}>
               {!isMobile && (user?.nickname || user?.username)}
             </Button>
           </Dropdown>
         ) : (
           <Button
             type="primary"
-            icon={<LoginOutlined />}
+            icon={<LogIn />}
             onClick={() => navigate('/login')}
             style={{
               background: 'var(--color-vermilion)',

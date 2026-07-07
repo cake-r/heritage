@@ -1,7 +1,7 @@
 /** Header 段位徽章 — 显示段位图标 + 紧凑 XP 进度条 */
 
 import { Progress } from 'antd'
-import { TrophyOutlined } from '@ant-design/icons'
+import { Trophy } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useCultivation } from '../../contexts/CultivationContext'
 

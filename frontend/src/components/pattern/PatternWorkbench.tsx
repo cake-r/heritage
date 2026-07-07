@@ -5,10 +5,10 @@ import {
 } from '@dnd-kit/core'
 import { Button, Slider, Space, Tooltip, message, Spin } from 'antd'
 import {
-  DeleteOutlined, DownloadOutlined, ZoomInOutlined,
-  ZoomOutOutlined, RotateRightOutlined, EyeOutlined,
-  VerticalAlignTopOutlined, VerticalAlignBottomOutlined,
-} from '@ant-design/icons'
+  Trash2, Download, ZoomIn,
+  ZoomOut, RotateCw, Eye,
+  AlignStartVertical, AlignEndVertical,
+} from 'lucide-react'
 import html2canvas from 'html2canvas'
 import type { PatternGene } from '../../services/patternEngine'
 import { CARRIER_TEMPLATES, type CarrierTemplate } from './CarrierTemplate'
@@ -317,19 +317,19 @@ const PatternWorkbench: React.FC<Props> = ({ genes, carrierKey }) => {
           {/* Canvas controls */}
           <div style={{ marginBottom: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
             <Tooltip title="缩小画布">
-              <Button size="small" icon={<ZoomOutOutlined />}
+              <Button size="small" icon={<ZoomOut />}
                 onClick={() => setCanvasScale(s => Math.max(0.2, s - 0.1))} />
             </Tooltip>
             <span style={{ fontSize: 14, color: '#666', minWidth: 44, textAlign: 'center', fontWeight: 500 }}>
               {Math.round(canvasScale * 100)}%
             </span>
             <Tooltip title="放大画布">
-              <Button size="small" icon={<ZoomInOutlined />}
+              <Button size="small" icon={<ZoomIn />}
                 onClick={() => setCanvasScale(s => Math.min(1.5, s + 0.1))} />
             </Tooltip>
             <div style={{ width: 1, height: 20, background: '#e0d8c8', margin: '0 4px' }} />
             <Tooltip title="导出PNG">
-              <Button size="small" type="primary" icon={<DownloadOutlined />}
+              <Button size="small" type="primary" icon={<Download />}
                 onClick={handleExport} loading={exporting}>
                 导出
               </Button>
@@ -425,13 +425,13 @@ const PatternWorkbench: React.FC<Props> = ({ genes, carrierKey }) => {
 
               {/* Actions */}
               <Space direction="vertical" style={{ width: '100%' }}>
-                <Button block size="small" icon={<VerticalAlignTopOutlined />} onClick={bringForward}>
+                <Button block size="small" icon={<AlignStartVertical />} onClick={bringForward}>
                   上移一层
                 </Button>
-                <Button block size="small" icon={<VerticalAlignBottomOutlined />} onClick={sendBackward}>
+                <Button block size="small" icon={<AlignEndVertical />} onClick={sendBackward}>
                   下移一层
                 </Button>
-                <Button block size="small" danger icon={<DeleteOutlined />} onClick={deleteSelected}>
+                <Button block size="small" danger icon={<Trash2 />} onClick={deleteSelected}>
                   删除
                 </Button>
               </Space>

@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Steps, Button, Card, Input, Select, Form, Spin, Tag, message, Space, Avatar, Row, Col } from 'antd'
 import {
-  ArrowLeftOutlined, ArrowRightOutlined, CheckOutlined,
-  UserOutlined, ReloadOutlined,
-} from '@ant-design/icons'
+  ChevronLeft, ChevronRight, Check,
+  User, RefreshCw,
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import {
   getCatalog, generatePersona, createInheritor, generateAvatar,
@@ -207,7 +207,7 @@ export default function CustomInheritorWizard() {
             </Form.Item>
           </Form>
           <div style={{ textAlign: 'right', marginTop: 16 }}>
-            <Button type="primary" onClick={next} disabled={!step1Valid} icon={<ArrowRightOutlined />}>
+            <Button type="primary" onClick={next} disabled={!step1Valid} icon={<ChevronRight />}>
               下一步：选器
             </Button>
           </div>
@@ -245,7 +245,7 @@ export default function CustomInheritorWizard() {
                       <span style={{ fontSize: 24 }}>{tool.icon}</span>
                       <div>
                         <div style={{ fontWeight: 600, fontSize: 14 }}>
-                          {checked && <CheckOutlined style={{ color: 'var(--color-vermilion, #B8463A)', marginRight: 4 }} />}
+                          {checked && <Check style={{ color: 'var(--color-vermilion, #B8463A)', marginRight: 4 }} />}
                           {tool.name}
                         </div>
                         <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)' }}>
@@ -259,13 +259,13 @@ export default function CustomInheritorWizard() {
             })}
           </Row>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
-            <Button onClick={prev} icon={<ArrowLeftOutlined />}>上一步</Button>
+            <Button onClick={prev} icon={<ChevronLeft />}>上一步</Button>
             <Button
               type="primary"
               onClick={handleGenerate}
               disabled={!step2Valid}
               loading={loading}
-              icon={<ArrowRightOutlined />}
+              icon={<ChevronRight />}
             >
               生成人设
             </Button>
@@ -285,17 +285,17 @@ export default function CustomInheritorWizard() {
             </div>
           ) : createdId ? (
             <div style={{ textAlign: 'center', padding: 24 }}>
-              <CheckOutlined style={{ fontSize: 48, color: 'var(--color-success, #4A8C5C)' }} />
+              <Check style={{ fontSize: 48, color: 'var(--color-success, #4A8C5C)' }} />
               <h3 style={{ margin: '16px 0 8px' }}>创建成功！</h3>
               {avatarUrl && (
-                <Avatar size={80} src={avatarUrl} icon={<UserOutlined />} style={{ marginBottom: 16 }} />
+                <Avatar size={80} src={avatarUrl} icon={<User />} style={{ marginBottom: 16 }} />
               )}
               <p style={{ color: 'var(--color-ink-secondary, #6B5F52)' }}>
                 「{name}」已加入你的传承人列表
               </p>
               <Space style={{ marginTop: 16 }}>
                 {!avatarUrl && (
-                  <Button loading={avatarLoading} icon={<ReloadOutlined />} onClick={handleGenerateAvatar}>
+                  <Button loading={avatarLoading} icon={<RefreshCw />} onClick={handleGenerateAvatar}>
                     生成头像
                   </Button>
                 )}
@@ -336,8 +336,8 @@ export default function CustomInheritorWizard() {
                 </Form.Item>
               </Form>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
-                <Button onClick={prev} icon={<ArrowLeftOutlined />}>返回修改</Button>
-                <Button type="primary" onClick={handleCreate} loading={loading} icon={<CheckOutlined />}>
+                <Button onClick={prev} icon={<ChevronLeft />}>返回修改</Button>
+                <Button type="primary" onClick={handleCreate} loading={loading} icon={<Check />}>
                   创建传承人
                 </Button>
               </div>

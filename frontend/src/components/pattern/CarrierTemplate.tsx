@@ -1,9 +1,9 @@
 import React from 'react'
 import { Card, Row, Col, Typography } from 'antd'
 import {
-  BookOutlined, PictureOutlined, FileImageOutlined,
-  MobileOutlined, FileTextOutlined,
-} from '@ant-design/icons'
+  Book, Image, FileImage,
+  Smartphone, FileText,
+} from 'lucide-react'
 
 const { Text } = Typography
 
@@ -23,7 +23,7 @@ export const CARRIER_TEMPLATES: CarrierTemplate[] = [
     name: '书签',
     width: 150,
     height: 450,
-    icon: <BookOutlined />,
+    icon: <Book />,
     description: '文创书签，150×450',
     borderStyle: {
       borderTop: '3px dashed #C4A265',
@@ -35,7 +35,7 @@ export const CARRIER_TEMPLATES: CarrierTemplate[] = [
     name: '方巾',
     width: 500,
     height: 500,
-    icon: <PictureOutlined />,
+    icon: <Image />,
     description: '丝巾图案，500×500',
     borderStyle: {
       border: '12px solid #FAF7F2',
@@ -47,7 +47,7 @@ export const CARRIER_TEMPLATES: CarrierTemplate[] = [
     name: '海报',
     width: 595,
     height: 842,
-    icon: <FileImageOutlined />,
+    icon: <FileImage />,
     description: '国风海报，A4比例',
     borderStyle: {
       borderTop: '6px solid #B8463A',
@@ -59,7 +59,7 @@ export const CARRIER_TEMPLATES: CarrierTemplate[] = [
     name: '手机壁纸',
     width: 390,
     height: 844,
-    icon: <MobileOutlined />,
+    icon: <Smartphone />,
     description: '手机壁纸，390×844',
     borderStyle: {},
   },
@@ -68,7 +68,7 @@ export const CARRIER_TEMPLATES: CarrierTemplate[] = [
     name: '笔记本封面',
     width: 400,
     height: 560,
-    icon: <FileTextOutlined />,
+    icon: <FileText />,
     description: '笔记本封面，400×560',
     borderStyle: {
       borderLeft: '8px solid #1E1B18',

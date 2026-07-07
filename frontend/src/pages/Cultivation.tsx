@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { Card, Typography, Progress, Row, Col, Button, Empty, Spin, Grid, message, Tag } from 'antd'
 import {
-  TrophyOutlined, FireOutlined, ClockCircleOutlined, CheckCircleFilled,
-  LoadingOutlined,
-} from '@ant-design/icons'
+  Trophy, Flame, Clock, CheckCircle,
+  Loader2,
+} from 'lucide-react'
 import { motion } from 'framer-motion'
 
 import { useCultivation } from '../contexts/CultivationContext'
@@ -209,7 +209,7 @@ export default function Cultivation() {
             <Card
               title={
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <FireOutlined style={{ color: 'var(--color-vermilion)' }} />
+                  <Flame style={{ color: 'var(--color-vermilion)' }} />
                   <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2 }}>今日任务</span>
                   {streak && streak.streak_bonus_active && (
                     <Tag color="gold" style={{ fontSize: 10, marginLeft: 4 }}>
@@ -251,7 +251,7 @@ export default function Cultivation() {
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                           <span style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>
                             {isCompleted
-                              ? <CheckCircleFilled style={{ color: 'var(--color-success)' }} />
+                              ? <CheckCircle style={{ color: 'var(--color-success)' }} />
                               : (quest.icon || '📋')
                             }
                           </span>
@@ -295,7 +295,7 @@ export default function Cultivation() {
                                 {MODULE_LABELS[quest.module] || quest.module}
                               </Text>
                               {auto && !isCompleted && (
-                                <LoadingOutlined style={{ fontSize: 12, color: 'var(--color-ink-secondary)', marginLeft: 'auto' }} />
+                                <Loader2 style={{ fontSize: 12, color: 'var(--color-ink-secondary)', marginLeft: 'auto' }} />
                               )}
                             </div>
                           </div>
@@ -334,7 +334,7 @@ export default function Cultivation() {
               <Card
                 title={
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <TrophyOutlined style={{ color: 'var(--color-gold)' }} />
+                    <Trophy style={{ color: 'var(--color-gold)' }} />
                     <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2 }}>每周挑战</span>
                   </div>
                 }
@@ -377,7 +377,7 @@ export default function Cultivation() {
                     </Text>
                     <br />
                     <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
-                      <ClockCircleOutlined /> 截止 {weeklyChallenge.expires_at}
+                      <Clock /> 截止 {weeklyChallenge.expires_at}
                     </Text>
                   </div>
                 </div>

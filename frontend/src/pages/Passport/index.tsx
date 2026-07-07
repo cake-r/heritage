@@ -3,14 +3,14 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Spin, Empty, Progress, Card, Button, Tag, Tooltip, Row, Col, Timeline, message } from 'antd'
 import {
-  ReloadOutlined,
-  RightOutlined,
-  CrownOutlined,
-  StarOutlined,
-  FireOutlined,
-  DownloadOutlined,
-  EnvironmentOutlined,
-} from '@ant-design/icons'
+  RefreshCw,
+  ChevronRight,
+  Crown,
+  Star,
+  Flame,
+  Download,
+  MapPin,
+} from 'lucide-react'
 import { motion } from 'framer-motion'
 import ReactECharts from 'echarts-for-react'
 import * as echarts from 'echarts/core'
@@ -49,9 +49,9 @@ function getRegionColor(value: number): string {
 }
 
 const RARITY_CONFIG: Record<string, { color: string; bg: string; label: string; icon: React.ReactNode }> = {
-  common: { color: '#6B5F52', bg: '#F5F2EC', label: '普通', icon: <StarOutlined /> },
-  rare: { color: '#4A7FB5', bg: '#EEF4FA', label: '稀有', icon: <FireOutlined /> },
-  epic: { color: '#C4A265', bg: '#FDF8EF', label: '传说', icon: <CrownOutlined /> },
+  common: { color: '#6B5F52', bg: '#F5F2EC', label: '普通', icon: <Star /> },
+  rare: { color: '#4A7FB5', bg: '#EEF4FA', label: '稀有', icon: <Flame /> },
+  epic: { color: '#C4A265', bg: '#FDF8EF', label: '传说', icon: <Crown /> },
 }
 
 const MODULE_LABELS: Record<string, string> = {
@@ -234,7 +234,7 @@ export default function PassportPage() {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <Empty description="加载失败">
-          <Button icon={<ReloadOutlined />} onClick={loadAll}>重试</Button>
+          <Button icon={<RefreshCw />} onClick={loadAll}>重试</Button>
         </Empty>
       </div>
     )
@@ -266,7 +266,7 @@ export default function PassportPage() {
         </p>
         {/* 导出按钮 */}
         <Button
-          icon={<DownloadOutlined />}
+          icon={<Download />}
           onClick={handleExport}
           loading={exporting}
           style={{
@@ -315,7 +315,7 @@ export default function PassportPage() {
               <Col span={8}>
                 <Card size="small" styles={{ body: { padding: '16px', textAlign: 'center' } }}>
                   <div style={{ fontSize: 24, color: RARITY_CONFIG.common.color, marginBottom: 4 }}>
-                    <StarOutlined />
+                    <Star />
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-ink)' }}>
                     {status.common_count}
@@ -326,7 +326,7 @@ export default function PassportPage() {
               <Col span={8}>
                 <Card size="small" styles={{ body: { padding: '16px', textAlign: 'center' } }}>
                   <div style={{ fontSize: 24, color: RARITY_CONFIG.rare.color, marginBottom: 4 }}>
-                    <FireOutlined />
+                    <Flame />
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-ink)' }}>
                     {status.rare_count}
@@ -337,7 +337,7 @@ export default function PassportPage() {
               <Col span={8}>
                 <Card size="small" styles={{ body: { padding: '16px', textAlign: 'center' } }}>
                   <div style={{ fontSize: 24, color: RARITY_CONFIG.epic.color, marginBottom: 4 }}>
-                    <CrownOutlined />
+                    <Crown />
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-ink)' }}>
                     {status.epic_count}
@@ -359,7 +359,7 @@ export default function PassportPage() {
           style={{ textAlign: 'center', marginBottom: 32 }}
         >
           <Empty description="尚无印章，开始你的非遗探索之旅吧！">
-            <Button type="primary" icon={<RightOutlined />} onClick={() => navigate('/recognition')}>
+            <Button type="primary" icon={<ChevronRight />} onClick={() => navigate('/recognition')}>
               去识别第一件非遗
             </Button>
           </Empty>
@@ -418,7 +418,7 @@ export default function PassportPage() {
           paddingBottom: 8,
           borderBottom: '2px solid var(--color-border-light)',
         }}>
-          <EnvironmentOutlined style={{ marginRight: 8 }} />
+          <MapPin style={{ marginRight: 8 }} />
           地域探索
           {regions.length > 0 && (
             <Tag color={GOLD} style={{ marginLeft: 8 }}>{regions.length} 个省份</Tag>

@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar, Tag, Button, Card, Spin, Empty, Popconfirm } from 'antd'
-import { UserOutlined, RobotOutlined, NodeIndexOutlined, ReloadOutlined } from '@ant-design/icons'
+import { User, Bot, GitGraph, RefreshCw } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import AudioPlayer from '../../components/recognition/AudioPlayer'
 import type { WorkshopMessage, InheritorInfo } from './index'
@@ -42,7 +42,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
             <Avatar
               size={80}
               src={inheritor.avatar}
-              icon={<UserOutlined />}
+              icon={<User />}
               style={{ marginBottom: 16, border: '3px solid var(--color-gold, #C4A265)' }}
             />
             <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 4px', color: 'var(--color-ink, #2C241A)' }}>
@@ -143,7 +143,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
             <Avatar
               size={32}
               src={msg.role === 'assistant' ? inheritor?.avatar : undefined}
-              icon={msg.role === 'user' ? <UserOutlined /> : <RobotOutlined />}
+              icon={msg.role === 'user' ? <User /> : <Bot />}
               style={{ flexShrink: 0 }}
             />
 
@@ -226,7 +226,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                   <Button
                     type="link"
                     size="small"
-                    icon={<NodeIndexOutlined />}
+                    icon={<GitGraph />}
                     onClick={() => navigate('/knowledge-graph')}
                     style={{ padding: 0, color: 'var(--color-gold, #C4A265)' }}
                   >
@@ -369,7 +369,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                     <Button
                       type="text"
                       size="small"
-                      icon={<ReloadOutlined />}
+                      icon={<RefreshCw />}
                       style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)' }}
                     >
                       重新生成
@@ -385,7 +385,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
       {/* 流式输出 */}
       {streaming && streamingContent && (
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-          <Avatar size={32} src={inheritor?.avatar} icon={<RobotOutlined />} />
+          <Avatar size={32} src={inheritor?.avatar} icon={<Bot />} />
           <div style={{
             maxWidth: '70%',
             padding: '12px 16px',

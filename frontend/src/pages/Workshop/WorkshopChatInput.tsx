@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { Input, Button, Upload, Segmented, Space } from 'antd'
-import { SendOutlined, PictureOutlined, CloseOutlined } from '@ant-design/icons'
+import { Send, Image, X } from 'lucide-react'
 import { TOOL_NAMES, type InheritorInfo } from './index'
 
 interface Props {
@@ -140,7 +140,7 @@ const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function Wo
           <Button
             type="text"
             size="small"
-            icon={<CloseOutlined />}
+            icon={<X />}
             onClick={() => { setUploadedImage(null); setPreviewUrl('') }}
             style={{
               position: 'absolute',
@@ -168,7 +168,7 @@ const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function Wo
         >
           <Button
             type="text"
-            icon={<PictureOutlined />}
+            icon={<Image />}
             disabled={streaming}
             style={{ color: 'var(--color-ink-secondary, #6B5F52)', fontSize: 'var(--text-sm)' }}
           >
@@ -195,7 +195,7 @@ const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function Wo
         {streaming ? (
           <Button
             danger
-            icon={<CloseOutlined />}
+            icon={<X />}
             onClick={handleCancel}
           >
             取消
@@ -203,7 +203,7 @@ const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function Wo
         ) : (
           <Button
             type="primary"
-            icon={<SendOutlined />}
+            icon={<Send />}
             onClick={handleSend}
             disabled={!inputValue.trim() && !uploadedImage}
             style={{

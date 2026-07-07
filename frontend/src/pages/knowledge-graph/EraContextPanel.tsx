@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card, Typography, Spin, Empty, Tag, Divider } from 'antd'
-import { HistoryOutlined, BankOutlined, GlobalOutlined, ToolOutlined } from '@ant-design/icons'
+import { History, Building2, Globe, Wrench } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getEraContext, type EraContext } from '../../services/knowledgeGraph'
 
@@ -11,10 +11,10 @@ interface EraContextPanelProps {
 }
 
 const SECTION_ICONS: Record<string, React.ReactNode> = {
-  politics: <BankOutlined />,
-  economy: <GlobalOutlined />,
-  culture: <HistoryOutlined />,
-  craft_relevance: <ToolOutlined />,
+  politics: <Building2 />,
+  economy: <Globe />,
+  culture: <History />,
+  craft_relevance: <Wrench />,
 }
 
 const SECTION_LABELS: Record<string, string> = {

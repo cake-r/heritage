@@ -8,12 +8,12 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, Card, Collapse, Empty, Spin, Tag, Typography } from 'antd'
 import {
-  NodeIndexOutlined,
-  BulbOutlined,
-  SearchOutlined,
-  SettingOutlined,
-  InfoCircleOutlined,
-} from '@ant-design/icons'
+  GitGraph,
+  Lightbulb,
+  Search,
+  Settings,
+  Info,
+} from 'lucide-react'
 import ReactEChartsCore from 'echarts-for-react/esm/core'
 import * as echarts from 'echarts/core'
 import { TreeChart } from 'echarts/charts'
@@ -145,7 +145,7 @@ const ExplainPanel: React.FC<ExplainPanelProps> = ({ module, recordId, compact =
       size="small"
       title={
         <span>
-          <NodeIndexOutlined style={{ marginRight: 8, color: '#1890ff' }} />
+          <GitGraph style={{ marginRight: 8, color: '#1890ff' }} />
           AI 输出结果分解
         </span>
       }
@@ -164,7 +164,7 @@ const ExplainPanel: React.FC<ExplainPanelProps> = ({ module, recordId, compact =
       <Alert
         type="info"
         showIcon
-        icon={<InfoCircleOutlined />}
+        icon={<Info />}
         message="诚实声明"
         description={trace.disclaimer}
         style={{ marginBottom: 12 }}

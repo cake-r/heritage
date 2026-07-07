@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Card, Button, Tag, Typography, Spin, Empty, Space, message, Descriptions } from 'antd'
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
+import { Check, X } from 'lucide-react'
 import api from '../../services/api'
 import { normalizeImageUrl } from '../../utils/imageUrl'
 
@@ -67,10 +67,10 @@ export default function ContentReview() {
             title={<span>{item.name} <Tag color="blue">{item.category}</Tag></span>}
             extra={
               <Space>
-                <Button type="primary" icon={<CheckOutlined />} onClick={() => handleApprove(item.id)}>
+                <Button type="primary" icon={<Check />} onClick={() => handleApprove(item.id)}>
                   通过
                 </Button>
-                <Button danger icon={<CloseOutlined />} onClick={() => handleReject(item.id)}>
+                <Button danger icon={<X />} onClick={() => handleReject(item.id)}>
                   驳回
                 </Button>
               </Space>

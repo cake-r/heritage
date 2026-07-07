@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Card, InputNumber, Slider, Switch, Button, Typography, message, Spin, Divider } from 'antd'
-import { SaveOutlined } from '@ant-design/icons'
+import { Save } from 'lucide-react'
 import { fetchConfig, updateConfig } from '../../services/admin'
 
 const { Title, Text } = Typography
@@ -51,7 +51,7 @@ export default function ConfigPanel() {
             />
           </div>
         ))}
-        <Button icon={<SaveOutlined />} type="primary" loading={saving}
+        <Button icon={<Save />} type="primary" loading={saving}
           onClick={() => handleSave('rate_limits', rateLimits)}>保存限流配额</Button>
       </Card>
 
@@ -70,7 +70,7 @@ export default function ConfigPanel() {
             onChange={(v) => setConfig({ ...config, circuit_breaker: { ...circuitBreaker, recovery_time: v } })}
           />
         </div>
-        <Button icon={<SaveOutlined />} type="primary" loading={saving}
+        <Button icon={<Save />} type="primary" loading={saving}
           onClick={() => handleSave('circuit_breaker', circuitBreaker)}>保存熔断器</Button>
       </Card>
 
@@ -85,7 +85,7 @@ export default function ConfigPanel() {
           <Slider min={15} max={300} step={15} value={companion.cooldown_high_value || 45}
             onChange={(v) => setConfig({ ...config, companion: { ...companion, cooldown_high_value: v } })} />
         </div>
-        <Button icon={<SaveOutlined />} type="primary" loading={saving}
+        <Button icon={<Save />} type="primary" loading={saving}
           onClick={() => handleSave('companion', companion)}>保存伴游配置</Button>
       </Card>
 
@@ -100,7 +100,7 @@ export default function ConfigPanel() {
           <Slider min={1} max={20} value={recommendation.cold_start_threshold || 5}
             onChange={(v) => setConfig({ ...config, recommendation: { ...recommendation, cold_start_threshold: v } })} />
         </div>
-        <Button icon={<SaveOutlined />} type="primary" loading={saving}
+        <Button icon={<Save />} type="primary" loading={saving}
           onClick={() => handleSave('recommendation', recommendation)}>保存推荐配置</Button>
       </Card>
     </div>

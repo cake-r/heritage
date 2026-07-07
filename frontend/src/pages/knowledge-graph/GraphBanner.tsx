@@ -1,5 +1,5 @@
 import { Typography, Tag, Button, Space } from 'antd'
-import { CloseOutlined } from '@ant-design/icons'
+import { X } from 'lucide-react'
 import { useFilters } from './FilterContext'
 
 const { Title, Text } = Typography
@@ -33,7 +33,7 @@ export default function GraphBanner({ drilledCategory, techniqueName }: Props) {
             key={tag.key}
             closable
             onClose={tag.onClose}
-            closeIcon={<CloseOutlined />}
+            closeIcon={<X />}
             color={tag.key === 'region' ? 'blue' : 'gold'}
           >
             {tag.key === 'region' ? '📍 ' : '📅 '}{tag.label}

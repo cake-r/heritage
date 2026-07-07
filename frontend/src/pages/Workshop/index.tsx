@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { message, Button, Popconfirm, Drawer, Grid } from 'antd'
-import { DeleteOutlined, ToolOutlined } from '@ant-design/icons'
+import { Trash2, Wrench } from 'lucide-react'
 import {
   getCharacters, createSession, listSessions, getSessionDetail,
   deleteSession, sendMessageSSE,
@@ -530,7 +530,7 @@ export default function Workshop() {
                 <Button
                   type="text"
                   size="small"
-                  icon={<ToolOutlined />}
+                  icon={<Wrench />}
                   onClick={() => setToolboxOpen(true)}
                   style={{ fontSize: 'var(--text-xs)' }}
                 >
@@ -548,7 +548,7 @@ export default function Workshop() {
                   <Button
                     type="text"
                     size="small"
-                    icon={<DeleteOutlined />}
+                    icon={<Trash2 />}
                     danger
                     style={{ fontSize: 'var(--text-xs)' }}
                   >

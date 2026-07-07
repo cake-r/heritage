@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Row, Col, Card, Typography, Statistic, Space, Button, Grid, Skeleton, Tag } from 'antd'
 import {
-  CameraOutlined, PictureOutlined, MessageOutlined,
-  BankOutlined, NodeIndexOutlined, RightOutlined,
-  ArrowDownOutlined, TrophyOutlined, FireOutlined,
-  GiftOutlined,
-} from '@ant-design/icons'
+  Camera, Image, MessageCircle,
+  Building2, GitGraph, ChevronRight,
+  ChevronDown, Trophy, Flame,
+  Gift,
+} from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -23,28 +23,28 @@ const { useBreakpoint } = Grid
 const modules = [
   {
     key: 'recognition',
-    icon: <CameraOutlined style={{ fontSize: 40 }} />,
+    icon: <Camera style={{ fontSize: 40 }} />,
     title: '智能识别与讲解',
     desc: '上传非遗图片，AI 智能识别品类并生成文化讲解',
     color: 'var(--color-vermilion)',
   },
   {
     key: 'creative-studio',
-    icon: <PictureOutlined style={{ fontSize: 40 }} />,
+    icon: <Image style={{ fontSize: 40 }} />,
     title: 'AI 文创生成',
     desc: '文生图 / 图生图，融合国风元素的创意设计',
     color: 'var(--color-gold)',
   },
   {
     key: 'virtual-inheritor',
-    icon: <MessageOutlined style={{ fontSize: 40 }} />,
+    icon: <MessageCircle style={{ fontSize: 40 }} />,
     title: '传承人对话',
     desc: '与 AI 非遗传承人沉浸式对话交流',
     color: 'var(--color-info)',
   },
   {
     key: 'exhibition',
-    icon: <BankOutlined style={{ fontSize: 40 }} />,
+    icon: <Building2 style={{ fontSize: 40 }} />,
     title: '数字展厅',
     desc: '浏览 50+ 国家级非遗图文资料',
     color: 'var(--color-success)',
@@ -76,7 +76,7 @@ function ScrollHint() {
         animate={{ y: [0, 8, 0] }}
         transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
       >
-        <ArrowDownOutlined style={{ color: 'var(--color-gold)', fontSize: 20, opacity: 0.6 }} />
+        <ChevronDown style={{ color: 'var(--color-gold)', fontSize: 20, opacity: 0.6 }} />
       </motion.div>
     </motion.div>
   )
@@ -287,7 +287,7 @@ export default function Home() {
             <Button
               type="primary"
               size="large"
-              icon={<CameraOutlined />}
+              icon={<Camera />}
               onClick={() => navigate(isAuthenticated ? '/recognition' : '/login')}
               style={{
                 height: 48,
@@ -303,7 +303,7 @@ export default function Home() {
             </Button>
             <Button
               size="large"
-              icon={<FireOutlined />}
+              icon={<Flame />}
               onClick={() => navigate(isAuthenticated ? '/story-mode' : '/login')}
               style={{
                 height: 48,
@@ -323,7 +323,7 @@ export default function Home() {
             <Button
               size="large"
               ghost
-              icon={<NodeIndexOutlined />}
+              icon={<GitGraph />}
               onClick={() => navigate('/knowledge-graph')}
               style={{
                 height: 48,
@@ -362,14 +362,14 @@ export default function Home() {
             gap: 8,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <FireOutlined style={{ fontSize: 20, color: 'var(--color-vermilion)' }} />
+              <Flame style={{ fontSize: 20, color: 'var(--color-vermilion)' }} />
               <Text strong style={{ fontSize: 'var(--text-lg)', color: 'var(--color-ink)', fontFamily: 'var(--font-display)', letterSpacing: 2 }}>
                 热门非遗藏品
               </Text>
             </div>
             <Button
               type="link"
-              icon={<RightOutlined />}
+              icon={<ChevronRight />}
               onClick={() => navigate('/exhibition')}
               style={{ color: 'var(--color-vermilion)', fontSize: 'var(--text-sm)' }}
             >
@@ -451,7 +451,7 @@ export default function Home() {
             gap: 8,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <GiftOutlined style={{ fontSize: 20, color: 'var(--color-vermilion)' }} />
+              <Gift style={{ fontSize: 20, color: 'var(--color-vermilion)' }} />
               <Text strong style={{ fontSize: 'var(--text-lg)', color: 'var(--color-ink)', fontFamily: 'var(--font-display)', letterSpacing: 2 }}>
                 为你推荐
               </Text>
@@ -565,7 +565,7 @@ export default function Home() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <TrophyOutlined style={{ fontSize: 28, color: 'var(--color-gold)' }} />
+                <Trophy style={{ fontSize: 28, color: 'var(--color-gold)' }} />
                 <div>
                   <Text strong style={{ fontSize: 'var(--text-md)', color: 'var(--color-ink)' }}>
                     数字文博护照
@@ -586,7 +586,7 @@ export default function Home() {
               </div>
               <Button
                 type="link"
-                icon={<RightOutlined />}
+                icon={<ChevronRight />}
                 onClick={() => navigate('/passport')}
                 style={{ color: 'var(--color-gold)', fontWeight: 500 }}
               >
@@ -632,7 +632,7 @@ export default function Home() {
                 flexShrink: 0,
               }}>
                 {!dailyItem.images?.[0] && (
-                  <BankOutlined style={{ fontSize: 40, color: 'var(--color-border-medium)' }} />
+                  <Building2 style={{ fontSize: 40, color: 'var(--color-border-medium)' }} />
                 )}
               </div>
               {/* 右侧内容 */}
@@ -658,7 +658,7 @@ export default function Home() {
                 </Text>
                 <div style={{ marginTop: 8 }}>
                   <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
-                    查看详情 <RightOutlined style={{ fontSize: 'var(--text-xs)' }} />
+                    查看详情 <ChevronRight style={{ fontSize: 'var(--text-xs)' }} />
                   </Text>
                 </div>
               </div>
@@ -688,7 +688,7 @@ export default function Home() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <TrophyOutlined style={{ fontSize: 24, color: 'var(--color-gold)' }} />
+                <Trophy style={{ fontSize: 24, color: 'var(--color-gold)' }} />
                 <div>
                   <Text strong style={{ fontSize: 'var(--text-md)', color: 'var(--color-ink)' }}>
                     非遗修习之路
@@ -702,7 +702,7 @@ export default function Home() {
               <Button
                 type="primary"
                 ghost
-                icon={<RightOutlined />}
+                icon={<ChevronRight />}
                 onClick={() => navigate('/cultivation')}
                 style={{
                   borderColor: 'var(--color-gold)',
@@ -736,7 +736,7 @@ export default function Home() {
             styles={{ body: { padding: '16px 20px' } }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-              <FireOutlined style={{ color: 'var(--color-vermilion)', fontSize: 18 }} />
+              <Flame style={{ color: 'var(--color-vermilion)', fontSize: 18 }} />
               <Text strong style={{ fontSize: 'var(--text-md)', color: 'var(--color-ink)' }}>非遗探索旅程</Text>
             </div>
             <Row gutter={[16, 12]}>
@@ -865,7 +865,7 @@ export default function Home() {
                   </Paragraph>
                   <Button
                     type="link"
-                    icon={<RightOutlined />}
+                    icon={<ChevronRight />}
                     style={{ color: mod.color, fontWeight: 500 }}
                   >
                     了解更多
@@ -904,7 +904,7 @@ export default function Home() {
           <Space size={16}>
             <Button
               type="link"
-              icon={<NodeIndexOutlined />}
+              icon={<GitGraph />}
               onClick={() => navigate('/knowledge-graph')}
               style={{ color: 'var(--color-gold)' }}
             >
@@ -912,7 +912,7 @@ export default function Home() {
             </Button>
             <Button
               type="link"
-              icon={<BankOutlined />}
+              icon={<Building2 />}
               onClick={() => navigate('/exhibition')}
               style={{ color: 'var(--color-gold)' }}
             >

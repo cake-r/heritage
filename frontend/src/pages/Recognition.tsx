@@ -5,10 +5,10 @@ import {
   Row, Col, Space, message, Empty, Progress, Tooltip,
 } from 'antd'
 import {
-  InboxOutlined, ReloadOutlined, PictureOutlined,
-  ExperimentOutlined, SoundOutlined, RightOutlined,
-  HistoryOutlined, ThunderboltOutlined, BulbOutlined,
-} from '@ant-design/icons'
+  Inbox, RefreshCw, Image,
+  FlaskConical, Volume2, ChevronRight,
+  History, Zap, Lightbulb,
+} from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import AudioPlayer from '../components/recognition/AudioPlayer'
 import AgentTimeline from '../components/common/AgentTimeline'
@@ -274,13 +274,13 @@ export default function Recognition() {
         {step === 'result' && (
           <Space>
             <Button
-              icon={<ExperimentOutlined />}
+              icon={<FlaskConical />}
               onClick={() => navigate(`/pattern-engine?recognition_id=${result?.id}`)}
               disabled={!result?.pattern_names || result.pattern_names.length === 0}
             >
               纹样基因重组
             </Button>
-            <Button icon={<ReloadOutlined />} onClick={handleRetry}>重新识别</Button>
+            <Button icon={<RefreshCw />} onClick={handleRetry}>重新识别</Button>
           </Space>
         )}
       </div>
@@ -311,7 +311,7 @@ export default function Recognition() {
               style={{ padding: 48 }}
             >
               <p className="ant-upload-drag-icon">
-                <InboxOutlined style={{ fontSize: 64, color: 'var(--color-vermilion, #B8463A)' }} />
+                <Inbox style={{ fontSize: 64, color: 'var(--color-vermilion, #B8463A)' }} />
               </p>
               <p style={{ fontSize: 18, marginTop: 16 }}>点击或拖拽上传非遗手工艺品图片</p>
               <p style={{ color: '#999' }}>支持 JPG / PNG / WebP · 最大 10MB · 图片尺寸 ≥ 200px</p>
@@ -320,7 +320,7 @@ export default function Recognition() {
 
           {/* === 最近识别记录 === */}
           <Card
-            title={<span><HistoryOutlined style={{ marginRight: 8 }} />最近识别</span>}
+            title={<span><History style={{ marginRight: 8 }} />最近识别</span>}
             extra={
               recentRecords.length > 0 && (
                 <Button type="link" size="small" onClick={() => navigate('/user-center/recognition')}>
@@ -336,7 +336,7 @@ export default function Recognition() {
               </div>
             ) : recentRecords.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 20 }}>
-                <PictureOutlined style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
+                <Image style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
                 <div>
                   <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
                     还没有识别记录，上传第一张图片开始体验吧
@@ -378,7 +378,7 @@ export default function Recognition() {
 
           {/* === 快速体验区 === */}
           <Card
-            title={<span><ThunderboltOutlined style={{ marginRight: 8 }} />快速体验</span>}
+            title={<span><Zap style={{ marginRight: 8 }} />快速体验</span>}
             style={{ borderRadius: 12, marginTop: 16 }}
           >
             <Text type="secondary" style={{ display: 'block', marginBottom: 12, fontSize: 'var(--text-sm)' }}>
@@ -438,7 +438,7 @@ export default function Recognition() {
                 fontSize: 22, flexShrink: 0,
                 boxShadow: `0 2px 8px rgba(${parseInt(getCategoryColor(dailyFact.category).slice(1, 3), 16)}, ${parseInt(getCategoryColor(dailyFact.category).slice(3, 5), 16)}, ${parseInt(getCategoryColor(dailyFact.category).slice(5, 7), 16)}, 0.25)`,
               }}>
-                <BulbOutlined style={{ color: '#fff' }} />
+                <Lightbulb style={{ color: '#fff' }} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
@@ -483,13 +483,13 @@ export default function Recognition() {
           <p style={{ marginTop: 24, fontSize: 18, fontWeight: 500 }}>AI 正在深度分析中...</p>
           <div style={{ color: 'var(--color-ink-secondary, #6B5F52)', marginTop: 12 }}>
             <p style={{ margin: 4 }}>
-              <ExperimentOutlined /> 分析纹样特征与技法细节
+              <FlaskConical /> 分析纹样特征与技法细节
             </p>
             <p style={{ margin: 4 }}>
-              <PictureOutlined /> 匹配非遗品类数据库
+              <Image /> 匹配非遗品类数据库
             </p>
             <p style={{ margin: 4 }}>
-              <SoundOutlined /> 生成文化讲解与语音
+              <Volume2 /> 生成文化讲解与语音
             </p>
           </div>
         </Card>
@@ -541,7 +541,7 @@ function ResultDisplay({
             },
             {
               key: 'heatmap',
-              label: <span><ExperimentOutlined /> 特征热力图</span>,
+              label: <span><FlaskConical /> 特征热力图</span>,
               children: result.heatmap_url ? (
                 <HeatmapViewer
                   src={result.heatmap_url}
@@ -630,7 +630,7 @@ function ResultDisplay({
                   key={c.style}
                   type="link"
                   size="small"
-                  icon={<RightOutlined />}
+                  icon={<ChevronRight />}
                   onClick={() => navigate(`/creative-studio?style=${encodeURIComponent(c.style)}`)}
                 >
                   {c.label}
@@ -645,7 +645,7 @@ function ResultDisplay({
                   key={e.id}
                   type="link"
                   size="small"
-                  icon={<RightOutlined />}
+                  icon={<ChevronRight />}
                   onClick={() => navigate(`/exhibition?id=${e.id}`)}
                 >
                   {e.name}

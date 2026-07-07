@@ -5,11 +5,11 @@ import {
   List, Image, Tag, Space, Input, Form, message, Popconfirm, Tabs, Tooltip,
 } from 'antd'
 import {
-  CameraOutlined, PictureOutlined, MessageOutlined,
-  HeartOutlined, SettingOutlined, ToolOutlined,
-  DeleteOutlined, RightOutlined,
-  UserOutlined,
-} from '@ant-design/icons'
+  Camera, ImageIcon, MessageCircle,
+  Heart, Settings, Wrench,
+  Trash2, ChevronRight,
+  User,
+} from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import {
   getProfile, updateProfile, listFavorites, deleteFavorite,
@@ -24,12 +24,12 @@ const { Sider, Content } = Layout
 const { Title, Text } = Typography
 
 const tabs = [
-  { key: 'records', icon: <CameraOutlined />, label: '识别记录' },
-  { key: 'works', icon: <PictureOutlined />, label: '生成作品' },
-  { key: 'chats', icon: <MessageOutlined />, label: '对话历史' },
-  { key: 'restoration', icon: <ToolOutlined />, label: '修复记录' },
-  { key: 'favorites', icon: <HeartOutlined />, label: '我的收藏' },
-  { key: 'settings', icon: <SettingOutlined />, label: '个人设置' },
+  { key: 'records', icon: <Camera />, label: '识别记录' },
+  { key: 'works', icon: <ImageIcon size={18} />, label: '生成作品' },
+  { key: 'chats', icon: <MessageCircle />, label: '对话历史' },
+  { key: 'restoration', icon: <Wrench />, label: '修复记录' },
+  { key: 'favorites', icon: <Heart />, label: '我的收藏' },
+  { key: 'settings', icon: <Settings />, label: '个人设置' },
 ]
 
 export default function UserCenter() {
@@ -66,7 +66,7 @@ export default function UserCenter() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontSize: 24, fontWeight: 'bold',
           }}>
-            {profile?.nickname?.[0] || user?.username?.[0] || <UserOutlined />}
+            {profile?.nickname?.[0] || user?.username?.[0] || <User />}
           </div>
           <Text strong>{profile?.nickname || user?.username || '用户'}</Text>
         </div>
@@ -130,11 +130,11 @@ function RecordsTab() {
         <List.Item
           extra={
             <Space>
-              <Button type="link" icon={<RightOutlined />} onClick={() => navigate(`/recognition?id=${item.id}`)}>
+              <Button type="link" icon={<ChevronRight />} onClick={() => navigate(`/recognition?id=${item.id}`)}>
                 查看详情
               </Button>
               <Popconfirm title="确定删除？" onConfirm={() => handleDelete(item.id)}>
-                <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+                <Button type="text" size="small" danger icon={<Trash2 />} />
               </Popconfirm>
             </Space>
           }
@@ -143,7 +143,7 @@ function RecordsTab() {
             avatar={
               item.image_url
                 ? <Image src={normalizeImageUrl(item.image_url)} width={80} height={60} style={{ borderRadius: 6, objectFit: 'cover' }} preview={false} />
-                : <PictureOutlined style={{ fontSize: 36, color: '#ccc' }} />
+                : <ImageIcon size={48} style={{ color: 'var(--color-border-medium)' }} />
             }
             title={<Text strong>{item.category}</Text>}
             description={
@@ -203,18 +203,18 @@ function WorksTab() {
               />
             ) : (
               <div style={{ height: 160, background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <PictureOutlined style={{ fontSize: 32, color: '#ccc' }} />
+                <ImageIcon size={48} style={{ color: 'var(--color-border-medium)' }} />
               </div>
             )
           }
           bodyStyle={{ padding: '8px 12px' }}
           actions={[
             <Tooltip title="查看详情" key="view">
-              <Button type="text" size="small" icon={<RightOutlined />}
+              <Button type="text" size="small" icon={<ChevronRight />}
                 onClick={() => navigate(`/creative-studio?work=${w.id}`)} />
             </Tooltip>,
             <Popconfirm key="del" title="确定删除？" onConfirm={() => handleDelete(w.id)}>
-              <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+              <Button type="text" size="small" danger icon={<Trash2 />} />
             </Popconfirm>,
           ]}
         >
@@ -269,11 +269,11 @@ function RestorationTab() {
         <List.Item
           extra={
             <Space>
-              <Button type="link" icon={<RightOutlined />} onClick={() => navigate(`/restoration?id=${item.id}`)}>
+              <Button type="link" icon={<ChevronRight />} onClick={() => navigate(`/restoration?id=${item.id}`)}>
                 查看详情
               </Button>
               <Popconfirm title="确定删除？" onConfirm={() => handleDelete(item.id)}>
-                <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+                <Button type="text" size="small" danger icon={<Trash2 />} />
               </Popconfirm>
             </Space>
           }
@@ -282,7 +282,7 @@ function RestorationTab() {
             avatar={
               item.original_image_url
                 ? <Image src={normalizeImageUrl(item.original_image_url)} width={80} height={60} style={{ borderRadius: 6, objectFit: 'cover' }} preview={false} />
-                : <PictureOutlined style={{ fontSize: 36, color: '#ccc' }} />
+                : <ImageIcon size={48} style={{ color: 'var(--color-border-medium)' }} />
             }
             title={
               <Space>
@@ -365,7 +365,7 @@ function FavoritesTab() {
               avatar={
                 item.image_url
                   ? <Image src={normalizeImageUrl(item.image_url)} width={80} height={60} style={{ borderRadius: 6, objectFit: 'cover' }} preview={false} />
-                  : <PictureOutlined style={{ fontSize: 36, color: '#ccc' }} />
+                  : <ImageIcon size={48} style={{ color: 'var(--color-border-medium)' }} />
               }
               title={<Text strong>{item.title}</Text>}
               description={
@@ -421,7 +421,7 @@ function SettingsTab({
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#fff', fontSize: 28, fontWeight: 'bold',
             }}>
-              {profile.nickname?.[0] || profile.username[0] || <UserOutlined />}
+              {profile.nickname?.[0] || profile.username[0] || <User />}
             </div>
             <div>
               <Text strong style={{ fontSize: 16 }}>{profile.nickname || '未设置昵称'}</Text>

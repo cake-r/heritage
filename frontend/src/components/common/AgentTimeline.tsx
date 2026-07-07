@@ -13,12 +13,12 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Typography, Progress, Tag, Collapse } from 'antd'
 import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  ClockCircleOutlined,
-  LoadingOutlined,
-  CaretRightOutlined,
-} from '@ant-design/icons'
+  CheckCircle,
+  XCircle,
+  Clock,
+  Loader2,
+  ChevronRight,
+} from 'lucide-react'
 import { subscribeExecution, type AgentStepEvent, type AgentFinishEvent } from '../../services/agent'
 
 const { Text } = Typography
@@ -34,13 +34,13 @@ function formatDuration(ms: number): string {
 function getStatusIcon(status: string) {
   switch (status) {
     case 'completed':
-      return <CheckCircleOutlined style={{ color: '#52c41a' }} />
+      return <CheckCircle style={{ color: '#52c41a' }} />
     case 'failed':
-      return <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+      return <XCircle style={{ color: '#ff4d4f' }} />
     case 'running':
-      return <LoadingOutlined style={{ color: '#1890ff' }} spin />
+      return <Loader2 style={{ color: '#1890ff' }} className="animate-spin" />
     default:
-      return <ClockCircleOutlined style={{ color: '#d9d9d9' }} />
+      return <Clock style={{ color: '#d9d9d9' }} />
   }
 }
 
@@ -189,7 +189,7 @@ function StepItem({ step, isLast, compact }: StepItemProps) {
               style={{ fontSize: 11, cursor: 'pointer', userSelect: 'none' }}
               onClick={() => setExpanded(!expanded)}
             >
-              <CaretRightOutlined
+              <ChevronRight
                 rotate={expanded ? 90 : 0}
                 style={{ marginRight: 4, transition: 'transform 0.2s' }}
               />
@@ -328,7 +328,7 @@ export default function AgentTimeline({
       {/* 步骤列表 */}
       {steps.length === 0 && !finished && (
         <div style={{ textAlign: 'center', padding: 20 }}>
-          <LoadingOutlined style={{ fontSize: 18, color: '#1890ff' }} spin />
+          <Loader2 style={{ fontSize: 18, color: '#1890ff' }} className="animate-spin" />
           <Text type="secondary" style={{ display: 'block', marginTop: 8, fontSize: 12 }}>
             等待 Agent 执行...
           </Text>

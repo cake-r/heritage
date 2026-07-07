@@ -1,5 +1,5 @@
 import { Drawer, Image, Tag, Typography, Space, Collapse, Row, Col, Card, Button, Empty, Tabs } from 'antd'
-import { HeartOutlined, HeartFilled, LinkOutlined, ToolOutlined, ClockCircleOutlined } from '@ant-design/icons'
+import { Heart, Link, Wrench, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { getCategoryColor } from '../../utils/categoryColors'
@@ -120,7 +120,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <ToolOutlined style={{ color: 'var(--color-vermilion, #B8463A)', fontSize: 20 }} />
+            <Wrench style={{ color: 'var(--color-vermilion, #B8463A)', fontSize: 20 }} />
             <div style={{ flex: 1 }}>
               <Text strong style={{ color: 'var(--color-ink, #2C241A)' }}>该藏品年代久远（{item.era}），可能存在损伤？</Text>
               <br />
@@ -130,7 +130,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
           <Button
             type="primary"
             size="small"
-            icon={<ToolOutlined />}
+            icon={<Wrench />}
             onClick={() => { navigate('/restoration'); onClose() }}
             style={{ marginTop: 8, width: '100%' }}
           >
@@ -215,14 +215,14 @@ export default function ItemDetailDrawer({
         <Space>
           <Button
             type={isFavorited ? 'primary' : 'default'}
-            icon={isFavorited ? <HeartFilled /> : <HeartOutlined />}
+            icon={isFavorited ? <Heart /> : <Heart />}
             onClick={onToggleFavorite}
             danger={isFavorited}
             disabled={!isAuthenticated}
           >
             {isFavorited ? '取消收藏' : '收藏'}
           </Button>
-          <Button icon={<LinkOutlined />} onClick={() => { navigate(`/exhibition?id=${item.id}`); onClose() }}>
+          <Button icon={<Link />} onClick={() => { navigate(`/exhibition?id=${item.id}`); onClose() }}>
             展厅查看
           </Button>
         </Space>
@@ -252,7 +252,7 @@ export default function ItemDetailDrawer({
             key: 'timeline',
             label: (
               <span>
-                <ClockCircleOutlined style={{ marginRight: 4 }} />
+                <Clock style={{ marginRight: 4 }} />
                 传承时间线
               </span>
             ),

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Card, Form, Input, Button, Typography, message } from 'antd'
-import { UserOutlined, LockOutlined, SmileOutlined } from '@ant-design/icons'
+import { User, Lock, Smile } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 const { Title } = Typography
@@ -32,10 +32,10 @@ export default function Register() {
         </Title>
         <Form onFinish={onFinish} size="large">
           <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
-            <Input prefix={<UserOutlined />} placeholder="用户名" />
+            <Input prefix={<User />} placeholder="用户名" />
           </Form.Item>
           <Form.Item name="nickname">
-            <Input prefix={<SmileOutlined />} placeholder="昵称（可选）" />
+            <Input prefix={<Smile />} placeholder="昵称（可选）" />
           </Form.Item>
           <Form.Item
             name="password"
@@ -45,7 +45,7 @@ export default function Register() {
               { pattern: /\d/, message: '密码必须包含数字' },
             ]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="密码（至少8位，需含字母和数字）" />
+            <Input.Password prefix={<Lock />} placeholder="密码（至少8位，需含字母和数字）" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} block>

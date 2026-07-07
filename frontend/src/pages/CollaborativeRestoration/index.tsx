@@ -4,10 +4,10 @@ import {
   Typography, Upload, Spin, Button, Card, message, Steps, Row, Col, Empty,
 } from 'antd'
 import {
-  InboxOutlined, ArrowLeftOutlined, ArrowRightOutlined,
-  PictureOutlined, ToolOutlined, SafetyCertificateOutlined,
-  DownloadOutlined, ExperimentOutlined,
-} from '@ant-design/icons'
+  Inbox, ChevronLeft, ChevronRight,
+  Image, Wrench, ShieldCheck,
+  Download, FlaskConical,
+} from 'lucide-react'
 import type { RcFile } from 'antd/es/upload'
 import {
   damageDetect, localInpaint, saveArchive,
@@ -181,10 +181,10 @@ export default function CollaborativeRestoration() {
   // ==================== Render Steps ====================
 
   const stepItems = [
-    { title: '损伤检测', icon: <PictureOutlined /> },
-    { title: '损伤报告', icon: <SafetyCertificateOutlined /> },
-    { title: '协同修复', icon: <ToolOutlined /> },
-    { title: '导出成果', icon: <DownloadOutlined /> },
+    { title: '损伤检测', icon: <Image /> },
+    { title: '损伤报告', icon: <ShieldCheck /> },
+    { title: '协同修复', icon: <Wrench /> },
+    { title: '导出成果', icon: <Download /> },
   ]
 
   const currentStepIndex =
@@ -197,10 +197,10 @@ export default function CollaborativeRestoration() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <Title level={3} style={{ margin: 0, fontSize: 22 }}>
-          <ExperimentOutlined style={{ marginRight: 10, color: 'var(--color-vermilion, #B8463A)', fontSize: 24 }} />
+          <FlaskConical style={{ marginRight: 10, color: 'var(--color-vermilion, #B8463A)', fontSize: 24 }} />
           协同修复工作台
         </Title>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/restoration')}>
+        <Button icon={<ChevronLeft />} onClick={() => navigate('/restoration')}>
           一键修复模式
         </Button>
       </div>
@@ -224,7 +224,7 @@ export default function CollaborativeRestoration() {
                 style={{ padding: '48px 20px' }}
               >
                 <p className="ant-upload-drag-icon">
-                  <InboxOutlined style={{ fontSize: 52, color: 'var(--color-vermilion, #B8463A)' }} />
+                  <Inbox style={{ fontSize: 52, color: 'var(--color-vermilion, #B8463A)' }} />
                 </p>
                 <p className="ant-upload-text" style={{ fontSize: 17 }}>
                   上传文物图片，AI 先检测损伤区域
@@ -285,7 +285,7 @@ export default function CollaborativeRestoration() {
             <Button
               type="primary"
               size="large"
-              icon={<ArrowRightOutlined />}
+              icon={<ChevronRight />}
               onClick={() => setStep('repairing')}
             >
               进入修复工作台
@@ -307,7 +307,7 @@ export default function CollaborativeRestoration() {
                 <Button
                   type="primary"
                   block
-                  icon={<ToolOutlined />}
+                  icon={<Wrench />}
                   onClick={handleRepairRegion}
                   disabled={!selectedRegion && activeTool === 'region_select'}
                   style={{ borderRadius: 8 }}
@@ -327,7 +327,7 @@ export default function CollaborativeRestoration() {
               <div style={{ marginTop: 12 }}>
                 <Button
                   block
-                  icon={<ArrowRightOutlined />}
+                  icon={<ChevronRight />}
                   onClick={() => {
                     // Open pattern engine in new tab OR navigate
                     const geneWin = window.open('/pattern-engine', '_blank')
@@ -346,7 +346,7 @@ export default function CollaborativeRestoration() {
             {/* Step actions */}
             <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
               <Button
-                icon={<ArrowLeftOutlined />}
+                icon={<ChevronLeft />}
                 onClick={() => setStep('damage-report')}
                 size="small"
               >
@@ -354,7 +354,7 @@ export default function CollaborativeRestoration() {
               </Button>
               <Button
                 type="primary"
-                icon={<ArrowRightOutlined />}
+                icon={<ChevronRight />}
                 onClick={() => setStep('complete')}
                 size="small"
               >
@@ -392,7 +392,7 @@ export default function CollaborativeRestoration() {
 
           <div style={{ textAlign: 'center', marginTop: 24 }}>
             <Button
-              icon={<ArrowLeftOutlined />}
+              icon={<ChevronLeft />}
               onClick={() => setStep('repairing')}
             >
               返回工作台继续修复

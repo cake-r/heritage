@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Card, Button, Typography, Timeline, Progress, Space, message, Descriptions } from 'antd'
 import {
-  DownloadOutlined, ShareAltOutlined, TrophyOutlined,
-  CheckCircleOutlined, ExperimentOutlined,
-} from '@ant-design/icons'
+  Download, Share2, Trophy,
+  CheckCircle, FlaskConical,
+} from 'lucide-react'
 import type { ArchiveOperation, ArchiveResponse } from '../../services/restorationWorkbench'
 
 const { Text, Title } = Typography
@@ -64,7 +64,7 @@ const ArchiveExport: React.FC<Props> = ({ archiveData, onExport, onSave }) => {
     <div style={{ maxWidth: 640, margin: '0 auto' }}>
       <Card style={{ borderRadius: 12, marginBottom: 16 }}>
         <Title level={4} style={{ marginBottom: 20 }}>
-          <ExperimentOutlined style={{ marginRight: 8, color: 'var(--color-vermilion, #B8463A)' }} />
+          <FlaskConical style={{ marginRight: 8, color: 'var(--color-vermilion, #B8463A)' }} />
           修复档案
         </Title>
 
@@ -105,7 +105,7 @@ const ArchiveExport: React.FC<Props> = ({ archiveData, onExport, onSave }) => {
         {verification && (
           <div style={{ marginBottom: 20, padding: 16, background: '#f9f7f4', borderRadius: 8 }}>
             <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 8 }}>
-              <TrophyOutlined style={{ marginRight: 6 }} />
+              <Trophy style={{ marginRight: 6 }} />
               AI 质量验收
             </Text>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -134,7 +134,7 @@ const ArchiveExport: React.FC<Props> = ({ archiveData, onExport, onSave }) => {
             <Timeline
               items={operations.map((op, i) => ({
                 color: 'var(--color-vermilion, #B8463A)',
-                dot: <CheckCircleOutlined style={{ fontSize: 14 }} />,
+                dot: <CheckCircle style={{ fontSize: 14 }} />,
                 children: (
                   <div key={i}>
                     <Text strong style={{ fontSize: 13 }}>
@@ -169,20 +169,20 @@ const ArchiveExport: React.FC<Props> = ({ archiveData, onExport, onSave }) => {
         <Space style={{ width: '100%', justifyContent: 'center' }}>
           <Button
             type="primary"
-            icon={<DownloadOutlined />}
+            icon={<Download />}
             onClick={onExport}
           >
             导出 PNG
           </Button>
           <Button
-            icon={<ShareAltOutlined />}
+            icon={<Share2 />}
             onClick={handleSave}
             loading={saving}
           >
             {savedId ? '已保存' : '保存档案'}
           </Button>
           {savedId && (
-            <Button icon={<ShareAltOutlined />} onClick={handleShare}>
+            <Button icon={<Share2 />} onClick={handleShare}>
               复制分享链接
             </Button>
           )}

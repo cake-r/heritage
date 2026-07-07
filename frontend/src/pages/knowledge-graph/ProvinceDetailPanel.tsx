@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Tag, Empty, Card as AntCard } from 'antd'
-import { EnvironmentOutlined, RightOutlined } from '@ant-design/icons'
+import { MapPin, ChevronRight } from 'lucide-react'
 import { getCategoryColor, hexToRgb } from '../../utils/categoryColors'
 import type { RegionData, ItemNode } from '../../services/knowledgeGraph'
 
@@ -40,7 +40,7 @@ export default function ProvinceDetailPanel({ province, regionData, items, onIte
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-          <EnvironmentOutlined style={{ color: 'var(--color-vermilion, #B8463A)', fontSize: 16 }} />
+          <MapPin style={{ color: 'var(--color-vermilion, #B8463A)', fontSize: 16 }} />
           <span style={{ fontSize: 'var(--text-base)', fontWeight: 600 }}>{province}</span>
           <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary, #6B5F52)' }}>
             {regionData?.value || 0} 项
@@ -141,7 +141,7 @@ export default function ProvinceDetailPanel({ province, regionData, items, onIte
                     color="blue">{item.category}</Tag>
                 </div>
               </div>
-              <RightOutlined style={{ color: 'var(--gray-300, #C4BEB4)', fontSize: 'var(--text-xs)', flexShrink: 0, marginLeft: 8 }} />
+              <ChevronRight style={{ color: 'var(--gray-300, #C4BEB4)', fontSize: 'var(--text-xs)', flexShrink: 0, marginLeft: 8 }} />
             </div>
           ))
         )}

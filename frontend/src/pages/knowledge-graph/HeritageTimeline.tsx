@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Timeline, Typography, Tag, Spin, Empty } from 'antd'
 import {
-  ClockCircleOutlined,
-  BulbOutlined,
-  UserOutlined,
-  HistoryOutlined,
-  UpCircleOutlined,
-} from '@ant-design/icons'
+  Clock,
+  Lightbulb,
+  User,
+  History,
+  ArrowUpCircle,
+} from 'lucide-react'
 import { getHeritageTimeline, type HeritageTimeline, type HeritageTimelineEvent } from '../../services/knowledgeGraph'
 
 const { Text, Paragraph } = Typography
@@ -16,10 +16,10 @@ interface HeritageTimelineProps {
 }
 
 const EVENT_CONFIG: Record<string, { icon: React.ReactNode; color: string; label: string }> = {
-  origin: { icon: <BulbOutlined />, color: '#B8463A', label: '技艺起源' },
-  evolution: { icon: <UpCircleOutlined />, color: '#C4A265', label: '技艺变革' },
-  inheritor: { icon: <UserOutlined />, color: '#2B5F8A', label: '传承人' },
-  event: { icon: <HistoryOutlined />, color: '#5A4F42', label: '历史事件' },
+  origin: { icon: <Lightbulb />, color: '#B8463A', label: '技艺起源' },
+  evolution: { icon: <ArrowUpCircle />, color: '#C4A265', label: '技艺变革' },
+  inheritor: { icon: <User />, color: '#2B5F8A', label: '传承人' },
+  event: { icon: <History />, color: '#5A4F42', label: '历史事件' },
 }
 
 function TimelineEventItem({ event }: { event: HeritageTimelineEvent }) {
@@ -101,7 +101,7 @@ export default function HeritageTimelinePanel({ itemId }: HeritageTimelineProps)
   return (
     <div style={{ padding: '8px 0' }}>
       <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <ClockCircleOutlined style={{ color: 'var(--color-vermilion, #B8463A)' }} />
+        <Clock style={{ color: 'var(--color-vermilion, #B8463A)' }} />
         <Text strong style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
           传承时间线
         </Text>

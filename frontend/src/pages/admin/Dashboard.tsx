@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import { Card, Col, Row, Statistic, Typography, Spin, theme } from 'antd'
 import {
-  UserOutlined, AuditOutlined, DollarOutlined,
-  NodeIndexOutlined, FileImageOutlined,
-} from '@ant-design/icons'
+  User, ClipboardCheck, DollarSign,
+  GitGraph, FileImage,
+} from 'lucide-react'
 import ReactEChartsCore from 'echarts-for-react'
 import * as echarts from 'echarts/core'
 import { fetchCostSummary, fetchTaskQueueStatus } from '../../services/admin'
@@ -73,10 +73,10 @@ export default function AdminDashboard() {
 
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
-          <Card><Statistic title="用户总数" value={users?.total || 0} prefix={<UserOutlined />} /></Card>
+          <Card><Statistic title="用户总数" value={users?.total || 0} prefix={<User />} /></Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card><Statistic title="待处理任务" value={tasks?.pending || 0} prefix={<NodeIndexOutlined />} /></Card>
+          <Card><Statistic title="待处理任务" value={tasks?.pending || 0} prefix={<GitGraph />} /></Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card>
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
               title="30天AI成本"
               value={costs?.total_cost || 0}
               precision={2}
-              prefix={<DollarOutlined />}
+              prefix={<DollarSign />}
               suffix="元"
             />
           </Card>

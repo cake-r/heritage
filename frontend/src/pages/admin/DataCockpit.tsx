@@ -2,10 +2,10 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Card, Col, Row, Statistic, Typography, Spin, Select, Empty } from 'antd'
 import {
-  UserOutlined, AuditOutlined, DollarOutlined,
-  NodeIndexOutlined, FileImageOutlined, FireOutlined,
-  DatabaseOutlined, PictureOutlined, TrophyOutlined,
-} from '@ant-design/icons'
+  User, ClipboardCheck, DollarSign,
+  GitGraph, FileImage, Flame,
+  Database, Image, Trophy,
+} from 'lucide-react'
 import ReactEChartsCore from 'echarts-for-react'
 import * as echarts from 'echarts/core'
 import {
@@ -217,45 +217,45 @@ export default function DataCockpit() {
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
         <Col xs={12} sm={8} md={3}>
           <Card size="small">
-            <Statistic title="用户总数" value={overview?.total_users || 0} prefix={<UserOutlined />} />
+            <Statistic title="用户总数" value={overview?.total_users || 0} prefix={<User />} />
           </Card>
         </Col>
         <Col xs={12} sm={8} md={3}>
           <Card size="small">
-            <Statistic title="今日活跃" value={overview?.active_users_today || 0} prefix={<FireOutlined />}
+            <Statistic title="今日活跃" value={overview?.active_users_today || 0} prefix={<Flame />}
               valueStyle={{ color: VERMILION }} />
           </Card>
         </Col>
         <Col xs={12} sm={8} md={3}>
           <Card size="small">
-            <Statistic title="识别总量" value={overview?.total_recognitions || 0} prefix={<AuditOutlined />} />
+            <Statistic title="识别总量" value={overview?.total_recognitions || 0} prefix={<ClipboardCheck />} />
           </Card>
         </Col>
         <Col xs={12} sm={8} md={3}>
           <Card size="small">
-            <Statistic title="修复总量" value={overview?.total_restorations || 0} prefix={<PictureOutlined />} />
+            <Statistic title="修复总量" value={overview?.total_restorations || 0} prefix={<Image />} />
           </Card>
         </Col>
         <Col xs={12} sm={8} md={3}>
           <Card size="small">
-            <Statistic title="创作总量" value={overview?.total_generations || 0} prefix={<FileImageOutlined />} />
+            <Statistic title="创作总量" value={overview?.total_generations || 0} prefix={<FileImage />} />
           </Card>
         </Col>
         <Col xs={12} sm={8} md={3}>
           <Card size="small">
             <Statistic title="今日成本" value={overview?.ai_cost_today || 0} precision={2}
-              prefix={<DollarOutlined />} suffix="元" valueStyle={{ color: GOLD }} />
+              prefix={<DollarSign />} suffix="元" valueStyle={{ color: GOLD }} />
           </Card>
         </Col>
         <Col xs={12} sm={8} md={3}>
           <Card size="small">
-            <Statistic title="排队任务" value={overview?.task_pending || 0} prefix={<NodeIndexOutlined />}
+            <Statistic title="排队任务" value={overview?.task_pending || 0} prefix={<GitGraph />}
               valueStyle={{ color: overview?.task_pending ? '#faad14' : undefined }} />
           </Card>
         </Col>
         <Col xs={12} sm={8} md={3}>
           <Card size="small">
-            <Statistic title="知识库" value={overview?.knowledge_base_size || 0} prefix={<DatabaseOutlined />} />
+            <Statistic title="知识库" value={overview?.knowledge_base_size || 0} prefix={<Database />} />
           </Card>
         </Col>
       </Row>

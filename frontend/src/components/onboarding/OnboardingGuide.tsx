@@ -1,7 +1,7 @@
 /** 首次登录引导弹窗 — 3 步引导 */
 import { useState } from 'react'
 import { Modal, Steps, Typography, Space } from 'antd'
-import { CameraOutlined, MessageOutlined, IdcardOutlined } from '@ant-design/icons'
+import { Camera, MessageCircle, IdCard } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 const { Title, Paragraph } = Typography
@@ -11,21 +11,21 @@ const ONBOARDING_KEY = 'onboarding_shown'
 const steps = [
   {
     title: '拍照识物 · 探索非遗',
-    icon: <CameraOutlined />,
+    icon: <Camera />,
     description: '拍一张非遗相关的照片——剪纸、刺绣、陶瓷…AI 会自动识别工艺技法，为你讲述背后的故事。',
     route: '/recognition',
     color: '#B8463A',
   },
   {
     title: '对话传承人 · 深入交流',
-    icon: <MessageOutlined />,
+    icon: <MessageCircle />,
     description: '进入技艺工坊，选择一位非遗传承人 AI 分身，你可以提问、学习、甚至共创作品。',
     route: '/workshop',
     color: '#C4A265',
   },
   {
     title: '收集护照印章 · 开启修习',
-    icon: <IdcardOutlined />,
+    icon: <IdCard />,
     description: '每次与非遗互动都会获得印章和 XP 经验值，解锁段位称号，成为非遗守护者。',
     route: '/passport',
     color: '#4A8C5C',

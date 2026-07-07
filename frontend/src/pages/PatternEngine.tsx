@@ -4,10 +4,10 @@ import {
   Typography, Upload, Spin, Button, Row, Col, message, Empty, Steps, Tooltip, Card,
 } from 'antd'
 import {
-  InboxOutlined, ReloadOutlined, ExperimentOutlined,
-  ArrowLeftOutlined, ArrowRightOutlined, PictureOutlined,
-  ThunderboltOutlined,
-} from '@ant-design/icons'
+  Inbox, RefreshCw, FlaskConical,
+  ChevronLeft, ChevronRight, Image,
+  Zap,
+} from 'lucide-react'
 import type { RcFile } from 'antd/es/upload'
 import { uploadAndRecognize, getDetail, type RecognitionResult } from '../services/recognition'
 import { matchPatterns, type PatternGene } from '../services/patternEngine'
@@ -149,11 +149,11 @@ export default function PatternEngine() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <Title level={3} style={{ margin: 0, fontSize: 22 }}>
-          <ExperimentOutlined style={{ marginRight: 10, color: 'var(--color-vermilion, #B8463A)', fontSize: 24 }} />
+          <FlaskConical style={{ marginRight: 10, color: 'var(--color-vermilion, #B8463A)', fontSize: 24 }} />
           纹样基因重组引擎
         </Title>
         {step === 'workbench' && (
-          <Button icon={<ArrowLeftOutlined />} onClick={() => { setStep('genes'); setSelectedGenes([]) }}>
+          <Button icon={<ChevronLeft />} onClick={() => { setStep('genes'); setSelectedGenes([]) }}>
             返回基因选择
           </Button>
         )}
@@ -165,9 +165,9 @@ export default function PatternEngine() {
         size="small"
         style={{ marginBottom: 24 }}
         items={[
-          { title: '上传图片', icon: <PictureOutlined /> },
-          { title: '纹样识别', icon: <ThunderboltOutlined /> },
-          { title: '自由创作', icon: <ExperimentOutlined /> },
+          { title: '上传图片', icon: <Image /> },
+          { title: '纹样识别', icon: <Zap /> },
+          { title: '自由创作', icon: <FlaskConical /> },
         ]}
       />
 
@@ -182,7 +182,7 @@ export default function PatternEngine() {
               style={{ padding: '48px 20px' }}
             >
               <p className="ant-upload-drag-icon">
-                <InboxOutlined style={{ fontSize: 52, color: 'var(--color-vermilion, #B8463A)' }} />
+                <Inbox style={{ fontSize: 52, color: 'var(--color-vermilion, #B8463A)' }} />
               </p>
               <p className="ant-upload-text" style={{ fontSize: 17 }}>
                 点击或拖拽上传非遗图片
@@ -332,11 +332,11 @@ function GenesStep({
 
         {/* Actions */}
         <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Button type="primary" size="large" block icon={<ArrowRightOutlined />}
+          <Button type="primary" size="large" block icon={<ChevronRight />}
             onClick={onStartWorkbench}>
             进入工作台创作
           </Button>
-          <Button block icon={<ReloadOutlined />} onClick={onRetry}>
+          <Button block icon={<RefreshCw />} onClick={onRetry}>
             重新上传图片
           </Button>
         </div>

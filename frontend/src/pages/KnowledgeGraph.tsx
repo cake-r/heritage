@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Card, Spin, Empty, Button, message, Alert, Drawer } from 'antd'
-import { ReloadOutlined, InfoCircleOutlined, NodeIndexOutlined } from '@ant-design/icons'
+import { RefreshCw, Info, GitGraph } from 'lucide-react'
 import * as echarts from 'echarts'
 import { FilterProvider, useFilters } from './knowledge-graph/FilterContext'
 import GraphBanner from './knowledge-graph/GraphBanner'
@@ -170,7 +170,7 @@ function KnowledgeGraph() {
   if (error) {
     return (
       <Empty description="加载失败" style={{ padding: 80 }}>
-        <Button icon={<ReloadOutlined />} onClick={() => window.location.reload()}>重试</Button>
+        <Button icon={<RefreshCw />} onClick={() => window.location.reload()}>重试</Button>
       </Empty>
     )
   }
@@ -336,7 +336,7 @@ function KnowledgeGraph() {
       {/* Kinship Graph Button */}
       <div style={{ textAlign: 'center', marginTop: 8 }}>
         <Button
-          icon={<NodeIndexOutlined />}
+          icon={<GitGraph />}
           type="dashed"
           onClick={() => setKinshipOpen(true)}
           style={{

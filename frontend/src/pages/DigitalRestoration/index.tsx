@@ -5,11 +5,11 @@ import {
   Row, Col, Space, message, Steps, Progress, Tabs, Empty, Divider, Tooltip,
 } from 'antd'
 import {
-  InboxOutlined, ReloadOutlined, DownloadOutlined,
-  CloseCircleOutlined,
-  ToolOutlined, BulbOutlined, PictureOutlined, SafetyCertificateOutlined,
-  SwapOutlined, TrophyOutlined, StarFilled, EyeOutlined,
-} from '@ant-design/icons'
+  Inbox, RefreshCw, Download,
+  XCircle,
+  Wrench, Lightbulb, Image, ShieldCheck,
+  ArrowLeftRight, Trophy, Star, Eye,
+} from 'lucide-react'
 import type { TabsProps } from 'antd'
 import {
   uploadAndRestore, getDetail, getHistory,
@@ -226,10 +226,10 @@ function OverlaySlider({ original, restored }: { original: string; restored: str
 // ============================================================
 
 const STEP_ICONS = [
-  <BulbOutlined key={1} />,
-  <ToolOutlined key={2} />,
-  <PictureOutlined key={3} />,
-  <SafetyCertificateOutlined key={4} />,
+  <Lightbulb key={1} />,
+  <Wrench key={2} />,
+  <Image key={3} />,
+  <ShieldCheck key={4} />,
 ]
 
 const STEP_MODELS = ['qwen-vl-max', 'deepseek-chat', 'wan2.5-i2i-preview', 'qwen-vl-max']
@@ -396,7 +396,7 @@ export default function DigitalRestoration() {
         </Text>
         {s.status === 'failed' && (
           <div style={{ color: '#ff4d4f', marginTop: 4, fontSize: 12 }}>
-            <CloseCircleOutlined /> {s.result?.error || '执行失败'}
+            <XCircle /> {s.result?.error || '执行失败'}
           </div>
         )}
       </div>
@@ -405,7 +405,7 @@ export default function DigitalRestoration() {
       ? (s.status === 'failed' ? 'error' as const : 'finish' as const)
       : (i === visibleSteps ? 'process' as const : 'wait' as const),
     icon: i < visibleSteps
-      ? (s.status === 'failed' ? <CloseCircleOutlined /> : STEP_ICONS[i])
+      ? (s.status === 'failed' ? <XCircle /> : STEP_ICONS[i])
       : undefined,
   })) || []
 
@@ -413,7 +413,7 @@ export default function DigitalRestoration() {
   const comparisonTabs: TabsProps['items'] = [
     {
       key: 'overlay',
-      label: <span><SwapOutlined /> 叠加对比</span>,
+      label: <span><ArrowLeftRight /> 叠加对比</span>,
       children: result?.restored_image_url ? (
         <OverlaySlider original={result.original_image_url} restored={result.restored_image_url} />
       ) : (
@@ -453,7 +453,7 @@ export default function DigitalRestoration() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <Title level={3} style={{ margin: 0 }}>🏺 AI 文物数字修复</Title>
         {(step === 'complete' || step === 'error') && (
-          <Button icon={<ReloadOutlined />} onClick={handleRetry}>重新修复</Button>
+          <Button icon={<RefreshCw />} onClick={handleRetry}>重新修复</Button>
         )}
       </div>
 
@@ -490,7 +490,7 @@ export default function DigitalRestoration() {
               style={{ padding: 48 }}
             >
               <p className="ant-upload-drag-icon">
-                <InboxOutlined style={{ fontSize: 64, color: 'var(--color-vermilion)' }} />
+                <Inbox style={{ fontSize: 64, color: 'var(--color-vermilion)' }} />
               </p>
               <p style={{ fontSize: 18, marginTop: 16 }}>上传文物图片，AI 自动分析损伤并修复</p>
               <p style={{ color: '#999' }}>
@@ -504,7 +504,7 @@ export default function DigitalRestoration() {
 
           {/* === 修复案例画廊 === */}
           <Card
-            title={<span><PictureOutlined style={{ marginRight: 8 }} />修复案例画廊</span>}
+            title={<span><Image style={{ marginRight: 8 }} />修复案例画廊</span>}
             style={{ borderRadius: 12, marginTop: 16 }}
           >
             {galleryLoading ? (
@@ -513,7 +513,7 @@ export default function DigitalRestoration() {
               </div>
             ) : galleryItems.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 20 }}>
-                <PictureOutlined style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
+                <Image style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
                 <div>
                   <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
                     还没有修复记录，上传第一张文物图片开始体验 AI 修复
@@ -589,7 +589,7 @@ export default function DigitalRestoration() {
             {/* AI 修复能力说明 */}
             <Col xs={24} md={14}>
               <Card
-                title={<span><ToolOutlined style={{ marginRight: 8 }} />AI 修复能力</span>}
+                title={<span><Wrench style={{ marginRight: 8 }} />AI 修复能力</span>}
                 style={{ borderRadius: 12, height: '100%' }}
               >
                 <Text type="secondary" style={{ display: 'block', marginBottom: 16, fontSize: 'var(--text-xs)' }}>
@@ -613,7 +613,7 @@ export default function DigitalRestoration() {
                               color: i < cap.stars ? '#faad14' : '#e8e4d8',
                               fontSize: 12,
                             }}>
-                              {i < cap.stars ? <StarFilled /> : '★'}
+                              {i < cap.stars ? <Star fill="#faad14" color="#faad14" size={14} /> : <Star size={14} />}
                             </span>
                           ))}
                         </div>
@@ -630,12 +630,12 @@ export default function DigitalRestoration() {
             {/* 修复效果排行榜 */}
             <Col xs={24} md={10}>
               <Card
-                title={<span><TrophyOutlined style={{ marginRight: 8 }} />修复排行</span>}
+                title={<span><Trophy style={{ marginRight: 8 }} />修复排行</span>}
                 style={{ borderRadius: 12, height: '100%' }}
               >
                 {leaderboard.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: 32 }}>
-                    <TrophyOutlined style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
+                    <Trophy style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
                     <div>
                       <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
                         完成修复后将出现在排行中
@@ -711,7 +711,7 @@ export default function DigitalRestoration() {
                             if (win) win.focus()
                           }}
                         >
-                          <EyeOutlined /> 查看全部修复记录 →
+                          <Eye /> 查看全部修复记录 →
                         </Button>
                       </div>
                     )}
@@ -752,11 +752,11 @@ export default function DigitalRestoration() {
       {/* === 错误 === */}
       {step === 'error' && (
         <Card style={{ borderRadius: 12, textAlign: 'center', padding: 40 }}>
-          <CloseCircleOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
+          <XCircle style={{ fontSize: 48, color: '#ff4d4f' }} />
           <Title level={4} style={{ marginTop: 16 }}>修复失败</Title>
           <Text type="secondary">{errorMsg}</Text>
           <div style={{ marginTop: 24 }}>
-            <Button type="primary" icon={<ReloadOutlined />} onClick={handleRetry}>
+            <Button type="primary" icon={<RefreshCw />} onClick={handleRetry}>
               重试
             </Button>
           </div>
@@ -790,7 +790,7 @@ export default function DigitalRestoration() {
                 <Button
                   type="primary"
                   ghost
-                  icon={<DownloadOutlined />}
+                  icon={<Download />}
                   onClick={handleDownload}
                 >
                   下载修复图

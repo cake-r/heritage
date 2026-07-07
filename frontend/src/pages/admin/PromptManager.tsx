@@ -14,10 +14,10 @@ import {
   Collapse, Modal, List, Typography, Space, Badge, Tooltip,
 } from 'antd'
 import {
-  EditOutlined, CheckCircleOutlined, RollbackOutlined,
-  HistoryOutlined, SaveOutlined, ExclamationCircleOutlined,
-  FileTextOutlined,
-} from '@ant-design/icons'
+  Pencil, CheckCircle, Undo2,
+  History, Save, AlertCircle,
+  FileText,
+} from 'lucide-react'
 import {
   fetchPrompts, updatePrompt, fetchPromptHistory,
   type PromptItem, type PromptModule,
@@ -126,10 +126,10 @@ const PromptManager: React.FC = () => {
     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <Title level={3} style={{ margin: 0 }}>
-          <FileTextOutlined style={{ marginRight: 8 }} />
+          <FileText style={{ marginRight: 8 }} />
           Prompt 管理
         </Title>
-        <Button onClick={loadData} icon={<RollbackOutlined />}>刷新</Button>
+        <Button onClick={loadData} icon={<Undo2 />}>刷新</Button>
       </div>
 
       <Alert
@@ -255,7 +255,7 @@ const PromptModuleCard: React.FC<PromptModuleCardProps> = ({
         activePrompt && (
           <Button
             size="small"
-            icon={<HistoryOutlined />}
+            icon={<History />}
             onClick={() => onViewHistory(module.module, activePrompt.id)}
           >
             历史版本
@@ -293,7 +293,7 @@ const PromptModuleCard: React.FC<PromptModuleCardProps> = ({
                       size="small"
                       type="primary"
                       ghost
-                      icon={<CheckCircleOutlined />}
+                      icon={<CheckCircle />}
                       onClick={() => onActivate(item.id)}
                     >
                       激活
@@ -303,7 +303,7 @@ const PromptModuleCard: React.FC<PromptModuleCardProps> = ({
                 <Tooltip title="编辑内容（将创建新版本）">
                   <Button
                     size="small"
-                    icon={<EditOutlined />}
+                    icon={<Pencil />}
                     onClick={() => onStartEdit(item)}
                     disabled={editingId === item.id}
                   >
@@ -324,7 +324,7 @@ const PromptModuleCard: React.FC<PromptModuleCardProps> = ({
                 <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
                   <Button
                     type="primary"
-                    icon={<SaveOutlined />}
+                    icon={<Save />}
                     loading={saving}
                     onClick={() => onSave(item.id)}
                   >
@@ -356,7 +356,7 @@ const PromptModuleCard: React.FC<PromptModuleCardProps> = ({
         <Button
           type="link"
           size="small"
-          icon={<HistoryOutlined />}
+          icon={<History />}
           onClick={() => onViewHistory(module.module, module.prompts[0].id)}
         >
           查看全部 {module.prompts.length} 个版本

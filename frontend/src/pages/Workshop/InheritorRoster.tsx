@@ -1,7 +1,7 @@
 import { Avatar, Tag, Button, Tooltip, Dropdown, Badge } from 'antd'
 import {
-  UserOutlined, PlusOutlined, DeleteOutlined, EditOutlined,
-} from '@ant-design/icons'
+  User, Plus, Trash2, Pencil,
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { InheritorInfo, } from './index'
 
@@ -79,7 +79,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
         <Avatar
           size={40}
           src={item.avatar}
-          icon={<UserOutlined />}
+          icon={<User />}
           style={{ flexShrink: 0 }}
         />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -122,7 +122,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
               items: [
                 {
                   key: 'delete',
-                  icon: <DeleteOutlined />,
+                  icon: <Trash2 />,
                   danger: true,
                   label: '删除',
                   onClick: (e) => { e.domEvent.stopPropagation(); handleDelete(item) },
@@ -134,7 +134,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
             <Button
               type="text"
               size="small"
-              icon={<EditOutlined />}
+              icon={<Pencil />}
               onClick={(e) => e.stopPropagation()}
               style={{ color: isSelected ? 'rgba(255,255,255,0.7)' : 'var(--color-ink-secondary, #6B5F52)' }}
             />
@@ -197,7 +197,7 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
           <Button
             type="text"
             size="small"
-            icon={<PlusOutlined />}
+            icon={<Plus />}
             onClick={() => navigate('/workshop/wizard')}
             disabled={customs.length >= 10}
             style={{ color: customs.length >= 10 ? 'var(--color-ink-secondary, #6B5F52)' : 'var(--color-vermilion, #B8463A)' }}

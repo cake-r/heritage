@@ -1,5 +1,5 @@
 import { Tag } from 'antd'
-import { UserOutlined, MessageOutlined, ClockCircleOutlined } from '@ant-design/icons'
+import { User, MessageCircle, Clock } from 'lucide-react'
 import type { InheritorInfo } from './index'
 
 interface Props {
@@ -27,7 +27,7 @@ export default function WorkshopStatusBar({ inheritor, messageCount, sessionCoun
         {inheritor ? (
           <>
             <span style={{ fontWeight: 600, color: 'var(--color-ink, #2C241A)' }}>
-              <UserOutlined style={{ marginRight: 4 }} />
+              <User style={{ marginRight: 4 }} />
               {inheritor.name}
             </span>
             {inheritor.expertise.slice(0, 3).map(e => (
@@ -45,11 +45,11 @@ export default function WorkshopStatusBar({ inheritor, messageCount, sessionCoun
       {/* 右侧：统计 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
         <span>
-          <MessageOutlined style={{ marginRight: 4 }} />
+          <MessageCircle style={{ marginRight: 4 }} />
           {messageCount} 条消息
         </span>
         <span>
-          <ClockCircleOutlined style={{ marginRight: 4 }} />
+          <Clock style={{ marginRight: 4 }} />
           {sessionCount} 个会话
         </span>
       </div>

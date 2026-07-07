@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Card, Tag, Typography } from 'antd'
-import { RightOutlined, BulbOutlined, PictureOutlined } from '@ant-design/icons'
+import { ChevronRight, Lightbulb, Image } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { normalizeImageUrl } from '../../utils/imageUrl'
 import type { RecommendationItem } from '../../services/recommendation'
@@ -57,7 +57,7 @@ export default function RecommendationCard({ item }: Props) {
             onError={() => setImgError(true)}
           />
         ) : (
-          <PictureOutlined style={{ fontSize: 40, color: 'var(--color-border-medium)', opacity: 0.5 }} />
+          <Image style={{ fontSize: 40, color: 'var(--color-border-medium)', opacity: 0.5 }} />
         )}
       </div>
 
@@ -100,7 +100,7 @@ export default function RecommendationCard({ item }: Props) {
           borderRadius: 'var(--radius-sm)',
           marginBottom: 8,
         }}>
-          <BulbOutlined style={{ color: 'var(--color-gold)', fontSize: 12, marginTop: 2, flexShrink: 0 }} />
+          <Lightbulb style={{ color: 'var(--color-gold)', fontSize: 12, marginTop: 2, flexShrink: 0 }} />
           <Paragraph
             style={{
               fontSize: 'var(--text-xs)',
@@ -117,7 +117,7 @@ export default function RecommendationCard({ item }: Props) {
         {/* 查看详情 */}
         <div style={{ textAlign: 'right' }}>
           <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
-            去看看 <RightOutlined style={{ fontSize: 10 }} />
+            去看看 <ChevronRight style={{ fontSize: 10 }} />
           </Text>
         </div>
       </div>

@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react'
 import { Button, Tooltip, message, Spin } from 'antd'
 import {
-  DeleteOutlined, ZoomInOutlined, ZoomOutOutlined,
-  UndoOutlined, RedoOutlined, ThunderboltOutlined,
-} from '@ant-design/icons'
+  Trash2, ZoomIn, ZoomOut,
+  RotateCw, RotateCcw, Zap,
+} from 'lucide-react'
 import type { ToolType } from './ToolPanel'
 import { normalizeImageUrl } from '../../utils/imageUrl'
 import { localInpaint } from '../../services/restorationWorkbench'
@@ -261,22 +261,22 @@ const RepairCanvas = forwardRef<RepairCanvasHandle, Props>(
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         }}>
           <Tooltip title="放大">
-            <Button size="small" icon={<ZoomInOutlined />} onClick={handleZoomIn} />
+            <Button size="small" icon={<ZoomIn />} onClick={handleZoomIn} />
           </Tooltip>
           <span style={{ fontSize: 13, padding: '0 4px', lineHeight: '24px', color: '#666', fontWeight: 500 }}>
             {Math.round(zoom * 100)}%
           </span>
           <Tooltip title="缩小">
-            <Button size="small" icon={<ZoomOutOutlined />} onClick={handleZoomOut} />
+            <Button size="small" icon={<ZoomOut />} onClick={handleZoomOut} />
           </Tooltip>
           <div style={{ width: 1, height: 20, background: '#e0d8c8', margin: '2px 4px' }} />
           <Tooltip title="撤销">
-            <Button size="small" icon={<UndoOutlined />} onClick={handleUndo} />
+            <Button size="small" icon={<RotateCw />} onClick={handleUndo} />
           </Tooltip>
           <Tooltip title="清除标记">
             <Button
               size="small"
-              icon={<DeleteOutlined />}
+              icon={<Trash2 />}
               onClick={() => {
                 const canvas = fabricRef.current
                 if (canvas && rectRef.current) {

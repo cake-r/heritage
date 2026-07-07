@@ -1,9 +1,9 @@
 import React from 'react'
 import { Tooltip } from 'antd'
 import {
-  AimOutlined, HighlightOutlined, BgColorsOutlined,
-  EditOutlined, AppstoreOutlined,
-} from '@ant-design/icons'
+  Crosshair, Highlighter, Palette,
+  Pencil, LayoutGrid,
+} from 'lucide-react'
 
 export type ToolType = 'region_select' | 'stain_brush' | 'color_palette' | 'line_pen' | 'pattern_library'
 
@@ -19,35 +19,35 @@ const TOOLS: ToolDef[] = [
   {
     key: 'region_select',
     label: '选区',
-    icon: <AimOutlined style={{ fontSize: 20 }} />,
+    icon: <Crosshair style={{ fontSize: 20 }} />,
     enabled: true,
     tip: '框选损伤区域进行AI修复',
   },
   {
     key: 'stain_brush',
     label: '去渍笔',
-    icon: <HighlightOutlined style={{ fontSize: 20 }} />,
+    icon: <Highlighter style={{ fontSize: 20 }} />,
     enabled: true,
     tip: '涂抹污渍区域进行AI清除',
   },
   {
     key: 'pattern_library',
     label: '纹样库',
-    icon: <AppstoreOutlined style={{ fontSize: 20 }} />,
+    icon: <LayoutGrid style={{ fontSize: 20 }} />,
     enabled: true,
     tip: '从85种传统纹样中选择覆盖破损区域',
   },
   {
     key: 'color_palette',
     label: '补色盘',
-    icon: <BgColorsOutlined style={{ fontSize: 20 }} />,
+    icon: <Palette style={{ fontSize: 20 }} />,
     enabled: false,
     tip: '选择区域进行AI色彩修复',
   },
   {
     key: 'line_pen',
     label: '补线笔',
-    icon: <EditOutlined style={{ fontSize: 20 }} />,
+    icon: <Pencil style={{ fontSize: 20 }} />,
     enabled: false,
     tip: '描绘缺失线条进行AI补全',
   },

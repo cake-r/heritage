@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { Card, Form, Input, Button, Typography, message, Space } from 'antd'
-import { UserOutlined, LockOutlined, ReloadOutlined, SafetyOutlined } from '@ant-design/icons'
+import { User, Lock, RefreshCw, Shield } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
 
@@ -74,10 +74,10 @@ export default function Login() {
         </Title>
         <Form onFinish={onFinish} size="large">
           <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
-            <Input prefix={<UserOutlined />} placeholder="用户名" />
+            <Input prefix={<User />} placeholder="用户名" />
           </Form.Item>
           <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+            <Input.Password prefix={<Lock />} placeholder="密码" />
           </Form.Item>
           {captchaQuestion && (
             <Form.Item
@@ -86,12 +86,12 @@ export default function Login() {
             >
               <Space.Compact style={{ width: '100%' }}>
                 <Input
-                  prefix={<SafetyOutlined />}
+                  prefix={<Shield />}
                   placeholder={captchaQuestion}
                   style={{ flex: 1 }}
                 />
                 <Button
-                  icon={<ReloadOutlined />}
+                  icon={<RefreshCw />}
                   onClick={fetchCaptcha}
                   title="换一题"
                 />

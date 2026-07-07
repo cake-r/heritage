@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button, Slider, Space, Typography } from 'antd'
 import {
-  PlayCircleOutlined,
-  PauseCircleOutlined,
-  SoundOutlined,
-} from '@ant-design/icons'
+  Play,
+  Pause,
+  Volume2,
+} from 'lucide-react'
 
 const { Text } = Typography
 
@@ -71,7 +71,7 @@ export default function AudioPlayer({ src, title = '语音讲解' }: Props) {
     <div style={{ padding: '14px 18px', background: 'var(--color-paper, #F7F4ED)', borderRadius: 8 }}>
       <Space direction="vertical" style={{ width: '100%' }} size="small">
         <Space>
-          <SoundOutlined style={{ color: 'var(--color-vermilion, #B8463A)' }} />
+          <Volume2 style={{ color: 'var(--color-vermilion, #B8463A)' }} />
           <Text strong>{title}</Text>
         </Space>
 
@@ -79,7 +79,7 @@ export default function AudioPlayer({ src, title = '语音讲解' }: Props) {
           <Button
             type="primary"
             shape="circle"
-            icon={playing ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+            icon={playing ? <Pause /> : <Play />}
             onClick={togglePlay}
           />
           <Slider

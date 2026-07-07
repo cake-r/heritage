@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import type { ReactNode, ErrorInfo } from 'react'
 import { Button, Result } from 'antd'
-import { HomeOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Home, RefreshCw } from 'lucide-react'
 
 interface Props {
   children: ReactNode
@@ -47,10 +47,10 @@ class ErrorBoundary extends Component<Props, State> {
             subTitle={this.state.error?.message || '抱歉，页面遇到了意外错误，请尝试刷新页面或返回首页'}
             extra={
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                <Button icon={<ReloadOutlined />} onClick={() => window.location.reload()}>
+                <Button icon={<RefreshCw />} onClick={() => window.location.reload()}>
                   刷新页面
                 </Button>
-                <Button type="primary" icon={<HomeOutlined />} onClick={() => {
+                <Button type="primary" icon={<Home />} onClick={() => {
                   this.handleReset()
                   window.location.href = '/'
                 }}>

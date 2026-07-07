@@ -6,7 +6,7 @@
 import { useRef, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Drawer, Typography, Button, Input, Space, Tag, Skeleton, Empty } from 'antd'
-import { SendOutlined, RobotOutlined, DeleteOutlined, UserOutlined, BulbOutlined } from '@ant-design/icons'
+import { Send, Bot, Trash2, User, Lightbulb } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useCompanion } from '../../contexts/CompanionContext'
 import type { CompanionSuggestion } from '../../services/companion'
@@ -80,7 +80,7 @@ function SuggestionInline({
           {item.description}
         </Paragraph>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-          <BulbOutlined style={{ fontSize: 10, color: 'var(--color-gold)' }} />
+          <Lightbulb style={{ fontSize: 10, color: 'var(--color-gold)' }} />
           <Text type="secondary" style={{ fontSize: 10 }}>{Math.round(item.confidence * 100)}% 匹配</Text>
         </div>
       </div>
@@ -124,7 +124,7 @@ function ChatBubble({
         fontSize: 14,
         color: isUser ? '#fff' : 'var(--color-ink, #2C241A)',
       }}>
-        {isUser ? <UserOutlined /> : <RobotOutlined />}
+        {isUser ? <User /> : <Bot />}
       </div>
 
       {/* 气泡 */}
@@ -378,7 +378,7 @@ export default function CompanionDrawer() {
             <Button
               type="text"
               size="small"
-              icon={<DeleteOutlined />}
+              icon={<Trash2 />}
               onClick={clearChat}
               style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)' }}
             >
@@ -437,7 +437,7 @@ export default function CompanionDrawer() {
                   fontSize: 14,
                   color: 'var(--color-ink, #2C241A)',
                 }}>
-                  <RobotOutlined />
+                  <Bot />
                 </div>
                 <div style={{
                   padding: '10px 14px',
@@ -491,7 +491,7 @@ export default function CompanionDrawer() {
         />
         <Button
           type="primary"
-          icon={<SendOutlined />}
+          icon={<Send />}
           onClick={handleSend}
           disabled={!inputValue.trim() || chatLoading}
           loading={chatLoading}

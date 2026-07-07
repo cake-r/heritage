@@ -1,5 +1,5 @@
 import { Card, Button, Tag, Progress } from 'antd'
-import { PlayCircleOutlined } from '@ant-design/icons'
+import { Play } from 'lucide-react'
 import { TOOL_NAMES, TOOL_ICONS } from './index'
 
 interface ToolInfo {
@@ -164,7 +164,7 @@ export default function WorkshopToolbox({ tools, activeToolId, toolStatus, onToo
                       <Button
                         type="link"
                         size="small"
-                        icon={<PlayCircleOutlined />}
+                        icon={<Play />}
                         onClick={(e) => {
                           e.stopPropagation()
                           onToolClick(tool.id)
