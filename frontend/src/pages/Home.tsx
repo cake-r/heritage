@@ -19,8 +19,8 @@ import { normalizeImageUrl } from '../utils/imageUrl'
 const { Title, Text, Paragraph } = Typography
 const { useBreakpoint } = Grid
 
-// ===== Hero 粒子光点配置 =====
-const PARTICLE_COUNT = 20
+// ===== Hero 粒子光点 — 鎏金浮游粒子 =====
+const PARTICLE_COUNT = 30
 
 function HeroParticles() {
   const particles = useMemo(() =>
@@ -28,14 +28,14 @@ function HeroParticles() {
       id: i,
       left: Math.random() * 100,
       top: Math.random() * 100,
-      size: 2 + Math.random() * 4,
-      delay: Math.random() * 5,
-      duration: 3 + Math.random() * 4,
-      opacity: 0.15 + Math.random() * 0.35,
+      size: 3 + Math.random() * 6,
+      delay: Math.random() * 6,
+      duration: 4 + Math.random() * 5,
+      opacity: 0.2 + Math.random() * 0.5,
     })),
   [])
   return (
-    <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+    <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
       {particles.map(p => (
         <div
           key={p.id}
@@ -46,7 +46,8 @@ function HeroParticles() {
             width: p.size,
             height: p.size,
             borderRadius: '50%',
-            background: `rgba(196,162,101,${p.opacity})`,
+            background: `radial-gradient(circle, rgba(196,162,101,${p.opacity}) 0%, transparent 70%)`,
+            boxShadow: `0 0 ${p.size * 2}px rgba(196,162,101,${p.opacity * 0.5})`,
             animation: `floatParticle ${p.duration}s ease-in-out ${p.delay}s infinite`,
           }}
         />

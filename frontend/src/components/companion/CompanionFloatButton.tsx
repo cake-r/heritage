@@ -204,20 +204,18 @@ export default function CompanionFloatButton() {
         width: currentSize,
         height: currentSize,
         borderRadius: '50%',
-        border: hovering ? '1px solid var(--glass-border)' : '1px solid transparent',
+        border: '1px solid var(--glass-border)',
         padding: 0,
         cursor: cursorStyle,
-        background: hovering ? 'var(--glass-bg)' : 'transparent',
-        backdropFilter: hovering ? 'blur(var(--glass-blur))' : 'none',
-        WebkitBackdropFilter: hovering ? 'blur(var(--glass-blur))' : 'none',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'blur(var(--glass-blur))',
+        WebkitBackdropFilter: 'blur(var(--glass-blur))',
         boxShadow: showIndicator
           ? 'var(--shadow-glow-vermilion)'
-          : hovering
-            ? 'var(--shadow-glow-gold)'
-            : 'none',
+          : 'var(--shadow-glow-card)',
         transition: isDragging || isResizing
           ? 'none'
-          : 'box-shadow 0.5s, background 0.3s, border 0.3s',
+          : 'box-shadow 0.5s, transform 0.2s',
         overflow: 'hidden',
         display: 'flex',
         alignItems: 'center',

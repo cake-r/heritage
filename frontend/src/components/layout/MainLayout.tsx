@@ -19,11 +19,11 @@ import { isOnboardingShown } from '../onboarding/OnboardingGuide'
 const { Content, Sider } = Layout
 const { useBreakpoint } = Grid
 
-// 统一页面过渡动效 — 国风优雅过渡
+// 统一页面过渡动效 — 国风优雅过渡（明显的模糊+位移）
 const pageTransition = {
-  initial: { opacity: 0, y: 24, filter: 'blur(4px)' },
+  initial: { opacity: 0, y: 30, filter: 'blur(6px)' },
   animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
-  exit: { opacity: 0, y: -16, filter: 'blur(4px)' },
+  exit: { opacity: 0, y: -20, filter: 'blur(6px)' },
 }
 
 export default function MainLayout() {
@@ -146,7 +146,7 @@ export default function MainLayout() {
               animate={pageTransition.animate}
               exit={pageTransition.exit}
               transition={{
-                duration: 0.35,
+                duration: 0.5,
                 ease: [0.16, 1, 0.3, 1], // --ease-out
               }}
             >
