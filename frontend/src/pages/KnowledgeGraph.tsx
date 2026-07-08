@@ -287,7 +287,7 @@ function KnowledgeGraph() {
       }}>
         <Card
           title={
-            <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
+            <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 20, color: 'var(--color-ink)' }}>
               ☀️ 时间脉络
             </span>
           }
@@ -306,7 +306,7 @@ function KnowledgeGraph() {
         </Card>
         <Card
           title={
-            <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
+            <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 20, color: 'var(--color-ink)' }}>
               🏛 地域分布
             </span>
           }

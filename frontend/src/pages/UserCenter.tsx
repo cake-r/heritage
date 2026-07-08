@@ -66,7 +66,7 @@ export default function UserCenter() {
   return (
     <Layout style={{ background: 'transparent', position: 'relative', minHeight: 'calc(100vh - 64px - 32px)' }}>
       <LotusPondPattern opacity={0.18} />
-      <Sider width={180} style={{ background: '#fff', borderRadius: 12, marginRight: 24 }}>
+      <Sider width={180} style={{ background: 'var(--color-paper-white)', borderRadius: 12, marginRight: 24 }}>
         {/* 用户信息卡片 */}
         <div style={{ padding: '20px 16px 12px', textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
           <Avatar

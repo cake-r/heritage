@@ -50,7 +50,7 @@ function DamageCard({ result }: { result: Record<string, any> }) {
   return (
     <div>
       <Space wrap style={{ marginBottom: 12 }}>
-        <Tag color="var(--color-vermilion)">{result.category}</Tag>
+        <Tag color="#B8463A">{result.category}</Tag>
         <Tag color={severityColor[result.severity] || 'default'}>{result.severity}</Tag>
         {result.damage_types?.map((t: string) => (
           <Tag key={t} color="orange">{t}</Tag>
@@ -198,7 +198,7 @@ function OverlaySlider({ original, restored }: { original: string; restored: str
       <div style={{
         position: 'absolute', top: 0, bottom: 0,
         left: `${position}%`,
-        width: 3, background: '#fff',
+        width: 3, background: 'var(--color-paper-white)',
         boxShadow: '0 0 8px rgba(0,0,0,0.3)',
         transform: 'translateX(-50%)',
         pointerEvents: 'none',
@@ -509,7 +509,7 @@ export default function DigitalRestoration() {
 
           {/* === 修复案例画廊 === */}
           <Card
-            title={<span><Image style={{ marginRight: 8 }} />修复案例画廊</span>}
+            title={<span style={{ fontSize: 20 }}><Image style={{ marginRight: 8 }} />修复案例画廊</span>}
             style={{ borderRadius: 12, marginTop: 16 }}
           >
             {galleryLoading ? (
@@ -520,7 +520,7 @@ export default function DigitalRestoration() {
               <div style={{ textAlign: 'center', padding: 20 }}>
                 <Image style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
                 <div>
-                  <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
+                  <Text type="secondary" style={{ fontSize: 17 }}>
                     还没有修复记录，上传第一张文物图片开始体验 AI 修复
                   </Text>
                 </div>
@@ -548,7 +548,7 @@ export default function DigitalRestoration() {
                                 <span style={{
                                   position: 'absolute', top: 2, left: 2,
                                   background: 'rgba(0,0,0,0.65)', color: '#fff',
-                                  padding: '0 4px', borderRadius: 2, fontSize: 10,
+                                  padding: '0 4px', borderRadius: 2, fontSize: 12,
                                 }}>
                                   原图
                                 </span>
@@ -562,7 +562,7 @@ export default function DigitalRestoration() {
                                 <span style={{
                                   position: 'absolute', top: 2, right: 2,
                                   background: 'rgba(184,70,58,0.8)', color: '#fff',
-                                  padding: '0 4px', borderRadius: 2, fontSize: 10,
+                                  padding: '0 4px', borderRadius: 2, fontSize: 12,
                                 }}>
                                   修复
                                 </span>
@@ -572,11 +572,11 @@ export default function DigitalRestoration() {
                         }
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Tag color="var(--color-vermilion)" style={{ margin: 0, fontSize: 11 }}>
+                          <Tag color="#B8463A" style={{ margin: 0, fontSize: 13 }}>
                             {item.damage_category || '未知类型'}
                           </Tag>
                           {item.verification_score != null && (
-                            <Text type="secondary" style={{ fontSize: 11 }}>
+                            <Text type="secondary" style={{ fontSize: 13 }}>
                               {item.verification_score}分
                             </Text>
                           )}
@@ -594,10 +594,10 @@ export default function DigitalRestoration() {
             {/* AI 修复能力说明 */}
             <Col xs={24} md={14}>
               <Card
-                title={<span><Wrench style={{ marginRight: 8 }} />AI 修复能力</span>}
+                title={<span style={{ fontSize: 20 }}><Wrench style={{ marginRight: 8 }} />AI 修复能力</span>}
                 style={{ borderRadius: 12, height: '100%' }}
               >
-                <Text type="secondary" style={{ display: 'block', marginBottom: 16, fontSize: 'var(--text-xs)' }}>
+                <Text type="secondary" style={{ display: 'block', marginBottom: 16, fontSize: 16 }}>
                   以下为 AI 修复管道支持的主要修复类型及效果评级（★ 越多效果越好）
                 </Text>
                 <Row gutter={[16, 12]}>
@@ -609,7 +609,7 @@ export default function DigitalRestoration() {
                         border: '1px solid var(--color-border-light)',
                       }}>
                         <div style={{ fontSize: 28, marginBottom: 4 }}>{cap.icon}</div>
-                        <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block' }}>
+                        <Text strong style={{ fontSize: 17, display: 'block' }}>
                           {cap.label}
                         </Text>
                         <div style={{ margin: '4px 0' }}>
@@ -618,11 +618,11 @@ export default function DigitalRestoration() {
                               color: i < cap.stars ? '#faad14' : '#e8e4d8',
                               fontSize: 12,
                             }}>
-                              {i < cap.stars ? <Star fill="#faad14" color="#faad14" size={14} /> : <Star size={14} />}
+                              {i < cap.stars ? <Star fill="#faad14" color="#faad14" size={16} /> : <Star size={16} />}
                             </span>
                           ))}
                         </div>
-                        <Text type="secondary" style={{ fontSize: 11, lineHeight: 1.5 }}>
+                        <Text type="secondary" style={{ fontSize: 13, lineHeight: 1.5 }}>
                           {cap.desc}
                         </Text>
                       </div>
@@ -635,14 +635,14 @@ export default function DigitalRestoration() {
             {/* 修复效果排行榜 */}
             <Col xs={24} md={10}>
               <Card
-                title={<span><Trophy style={{ marginRight: 8 }} />修复排行</span>}
+                title={<span style={{ fontSize: 20 }}><Trophy style={{ marginRight: 8 }} />修复排行</span>}
                 style={{ borderRadius: 12, height: '100%' }}
               >
                 {leaderboard.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: 32 }}>
                     <Trophy style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
                     <div>
-                      <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
+                      <Text type="secondary" style={{ fontSize: 17 }}>
                         完成修复后将出现在排行中
                       </Text>
                     </div>
@@ -664,7 +664,7 @@ export default function DigitalRestoration() {
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       >
                         {/* 排名 */}
-                        <span style={{ fontSize: 20, width: 32, textAlign: 'center', flexShrink: 0 }}>
+                        <span style={{ fontSize: 22, width: 32, textAlign: 'center', flexShrink: 0 }}>
                           {rankIcons[i]}
                         </span>
 
@@ -681,10 +681,10 @@ export default function DigitalRestoration() {
 
                         {/* 信息 */}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block' }}>
+                          <Text strong style={{ fontSize: 17, display: 'block' }}>
                             {item.damage_category || '未知类型'}
                           </Text>
-                          <Text type="secondary" style={{ fontSize: 11 }}>
+                          <Text type="secondary" style={{ fontSize: 13 }}>
                             {new Date(item.created_at).toLocaleDateString('zh-CN')}
                           </Text>
                         </div>
@@ -692,7 +692,7 @@ export default function DigitalRestoration() {
                         {/* 评分 */}
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
                           <Text strong style={{
-                            fontSize: 18,
+                            fontSize: 20,
                             color: item.verification_score && item.verification_score >= 85
                               ? '#52c41a'
                               : item.verification_score && item.verification_score >= 70

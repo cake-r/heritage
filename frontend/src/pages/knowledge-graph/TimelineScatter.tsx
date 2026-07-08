@@ -15,6 +15,17 @@ import ReactECharts from 'echarts-for-react'
 import { Empty } from 'antd'
 import { getCategoryColor } from '../../utils/categoryColors'
 import { useFilters } from './FilterContext'
+import { useTheme } from '../../contexts/ThemeContext'
+import {
+  DARK_PAPER_WHITE,
+  DARK_INK,
+  DARK_INK_SECONDARY,
+  DARK_VERMILION,
+  GOLD_LIGHT,
+  VERMILION,
+  BORDER_MEDIUM,
+  BORDER_LIGHT,
+} from '../../styles/chart-theme'
 import type { TimelineItem, ItemNode } from '../../services/knowledgeGraph'
 
 interface Props {
@@ -23,14 +34,6 @@ interface Props {
   activeCategory: string | null
 }
 
-// ===== 硬编码色值（来自 tokens.css，Canvas 兼容） =====
-const INK = '#2C241A'
-const INK_SECONDARY = '#6B5F52'
-const INK_TERTIARY = '#5A4F42'
-const PAPER_WHITE = '#FFFDF9'
-const GOLD_LIGHT = '#E8D5B0'
-const BORDER_MEDIUM = '#D5CFC0'
-const BORDER_LIGHT = '#E8E4D8'
 const FONT_DISPLAY = '"Noto Serif SC", "Source Han Serif SC", SimSun, serif'
 const FONT_BODY = '"Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif'
 
@@ -46,7 +49,7 @@ const ERA_TO_PERIOD: Record<string, string> = {
 }
 
 const PERIODS = ['先秦', '秦汉', '魏晋南北朝', '隋唐', '宋元', '明清', '近现代']
-const PERIOD_BG_COLORS = [
+const PERIOD_BG_COLORS_LIGHT = [
   'rgba(247,244,237,0.55)',   // 先秦 — 极浅米黄
   'rgba(196,162,101,0.10)',   // 秦汉 — 浅鎏金
   'rgba(247,244,237,0.55)',   // 魏晋南北朝
@@ -54,6 +57,15 @@ const PERIOD_BG_COLORS = [
   'rgba(247,244,237,0.55)',   // 宋元
   'rgba(196,162,101,0.10)',   // 明清
   'rgba(247,244,237,0.55)',   // 近现代
+]
+const PERIOD_BG_COLORS_DARK = [
+  'rgba(32,28,24,0.55)',      // 先秦
+  'rgba(196,162,101,0.06)',   // 秦汉
+  'rgba(32,28,24,0.55)',      // 魏晋南北朝
+  'rgba(196,162,101,0.06)',   // 隋唐
+  'rgba(32,28,24,0.55)',      // 宋元
+  'rgba(196,162,101,0.06)',   // 明清
+  'rgba(32,28,24,0.55)',      // 近现代
 ]
 
 // 品类纵向槽位（Y轴位置）
@@ -65,6 +77,8 @@ const CATEGORY_ORDER = [
 
 export default function TimelineScatter({ timelineData, allItems, activeCategory }: Props) {
   const { era, setEra } = useFilters()
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
 
   // 聚合数据：{ period -> { category -> { count, items } } }
   const periodData = useMemo(() => {
@@ -135,7 +149,7 @@ export default function TimelineScatter({ timelineData, allItems, activeCategory
             shadowColor: isDimmed ? 'transparent' : catColor,
             shadowOffsetX: 0,
             shadowOffsetY: 0,
-            borderColor: 'rgba(255,255,255,0.5)',
+            borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.5)',
             borderWidth: 0.5,
           },
           emphasis: {
@@ -144,7 +158,7 @@ export default function TimelineScatter({ timelineData, allItems, activeCategory
               shadowBlur: 20,
               shadowColor: catColor,
               opacity: 1,
-              borderColor: '#fff',
+              borderColor: isDark ? DARK_PAPER_WHITE : '#fff',
               borderWidth: 1.5,
             },
           },
@@ -156,21 +170,30 @@ export default function TimelineScatter({ timelineData, allItems, activeCategory
       }
     }
     return allScatterData
-  }, [periodData, activeCategory, maxGlobalCount])
+  }, [periodData, activeCategory, maxGlobalCount, isDark])
 
   const option = useMemo(() => {
     if (!timelineData.length) return {}
 
+    // isDark-aware colors
+    const paperWhite = isDark ? DARK_PAPER_WHITE : '#FFFDF9'
+    const ink = isDark ? DARK_INK : '#2C241A'
+    const inkSecondary = isDark ? DARK_INK_SECONDARY : '#6B5F52'
+    const vermilion = isDark ? DARK_VERMILION : VERMILION
+    const borderMedium = isDark ? '#4A4540' : BORDER_MEDIUM
+    const borderLight = isDark ? '#3A3530' : BORDER_LIGHT
+    const periodBgColors = isDark ? PERIOD_BG_COLORS_DARK : PERIOD_BG_COLORS_LIGHT
+
     return {
       tooltip: {
         trigger: 'item' as const,
-        backgroundColor: PAPER_WHITE,
+        backgroundColor: paperWhite,
         borderColor: GOLD_LIGHT,
         borderWidth: 1,
         padding: [14, 18],
-        extraCssText: 'border-radius:10px;box-shadow:0 4px 16px rgba(30,27,24,0.10);',
+        extraCssText: `border-radius:10px;box-shadow:0 4px 16px ${isDark ? 'rgba(0,0,0,0.4)' : 'rgba(30,27,24,0.10)'};`,
         textStyle: {
-          color: INK,
+          color: ink,
           fontSize: 13,
           fontFamily: FONT_BODY,
         },
@@ -180,19 +203,18 @@ export default function TimelineScatter({ timelineData, allItems, activeCategory
           const { _cell, _period, _category } = d
           const itemNames = _cell.items.slice(0, 8).map((i: any) => i.name).join('、')
           const more = _cell.items.length > 8 ? ` 等${_cell.items.length}项` : ''
-          // 硬编码色值 — tooltip 是 HTML 但独立渲染，不继承页面 CSS 变量
           return `
             <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif;min-width:190px">
-              <div style="font-size:15px;font-weight:600;color:#2C241A;margin-bottom:8px;border-bottom:1px solid #E8D5B0;padding-bottom:6px">
+              <div style="font-size:15px;font-weight:600;color:${ink};margin-bottom:8px;border-bottom:1px solid ${GOLD_LIGHT};padding-bottom:6px">
                 📜 ${_period} · ${_category}
               </div>
-              <div style="font-size:13px;color:#6B5F52;margin-bottom:4px">
-                非遗项目：<b style="color:#B8463A">${_cell.count}</b> 项
+              <div style="font-size:13px;color:${inkSecondary};margin-bottom:4px">
+                非遗项目：<b style="color:${vermilion}">${_cell.count}</b> 项
               </div>
-              <div style="font-size:12px;color:#5A4F42;line-height:1.7;max-width:270px">
+              <div style="font-size:12px;color:${isDark ? '#A09888' : '#5A4F42'};line-height:1.7;max-width:270px">
                 ${itemNames}${more}
               </div>
-              <div style="font-size:11px;color:#C4BEB4;margin-top:8px;font-style:italic">
+              <div style="font-size:11px;color:${isDark ? '#A09888' : '#C4BEB4'};margin-top:8px;font-style:italic">
                 点击散点筛选此历史分期
               </div>
             </div>`
@@ -210,12 +232,12 @@ export default function TimelineScatter({ timelineData, allItems, activeCategory
         position: 'bottom',
         axisTick: { show: false },
         axisLine: {
-          lineStyle: { color: BORDER_MEDIUM, width: 0.5 },
+          lineStyle: { color: borderMedium, width: 0.5 },
         },
         axisLabel: {
           fontSize: 13,
           fontFamily: FONT_DISPLAY,
-          color: INK,
+          color: ink,
           fontWeight: 500,
           interval: 0,
         },
@@ -230,14 +252,14 @@ export default function TimelineScatter({ timelineData, allItems, activeCategory
         axisLabel: {
           fontSize: 11,
           fontFamily: FONT_BODY,
-          color: INK_SECONDARY,
+          color: inkSecondary,
           width: 52,
           overflow: 'truncate',
         },
         splitLine: {
           show: true,
           lineStyle: {
-            color: BORDER_LIGHT,
+            color: borderLight,
             width: 0.5,
             type: 'dashed' as const,
           },
@@ -256,7 +278,7 @@ export default function TimelineScatter({ timelineData, allItems, activeCategory
             itemStyle: { borderWidth: 0 },
             data: PERIODS.map((name, idx) => ({
               name,
-              itemStyle: { color: PERIOD_BG_COLORS[idx] },
+              itemStyle: { color: periodBgColors[idx] },
               coord: [
                 { xAxis: idx - 0.46, yAxis: -0.5 },
                 { xAxis: idx + 0.46, yAxis: CATEGORY_ORDER.length - 0.5 },
@@ -273,13 +295,13 @@ export default function TimelineScatter({ timelineData, allItems, activeCategory
           top: 4,
           style: {
             text: '● 颜色 = 品类    ● 大小 = 数量',
-            fill: INK_SECONDARY,
+            fill: inkSecondary,
             font: '11px "Noto Sans SC", sans-serif',
           },
         },
       ],
     }
-  }, [timelineData, scatterSeries])
+  }, [timelineData, scatterSeries, isDark])
 
   // 点击事件 → setEra
   const onEvents = useMemo(() => ({
@@ -309,7 +331,7 @@ export default function TimelineScatter({ timelineData, allItems, activeCategory
     return (
       <div style={{
         height: 420, display: 'flex', alignItems: 'center',
-        justifyContent: 'center', color: INK_SECONDARY,
+        justifyContent: 'center', color: isDark ? DARK_INK_SECONDARY : '#6B5F52',
       }}>
         <Empty description="暂无时间轴数据" />
       </div>

@@ -65,7 +65,7 @@ const ToolPanel: React.FC<Props> = ({ selectedTool, onSelect }) => {
       flexDirection: 'column',
       gap: 8,
       padding: '12px 10px',
-      background: '#FAF7F2',
+      background: 'var(--color-paper)',
       borderRadius: 10,
       border: '1px solid #e8e0d5',
     }}>

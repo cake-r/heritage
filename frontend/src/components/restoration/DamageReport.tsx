@@ -132,7 +132,7 @@ const DamageReport: React.FC<Props> = ({ data, onRegionClick, selectedRegionInde
             损伤分析报告
           </Text>
           <Space>
-            <Tag color="var(--color-vermilion, #B8463A)">{data.category}</Tag>
+            <Tag color="#B8463A">{data.category}</Tag>
             <Tag color={severityColor}>{data.severity}</Tag>
           </Space>
         </div>

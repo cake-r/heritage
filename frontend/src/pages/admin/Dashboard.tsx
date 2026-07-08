@@ -1,6 +1,6 @@
 /** 管理后台总览 — 统计数据 + 图表 */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Card, Col, Row, Statistic, Typography, Spin, theme } from 'antd'
 import {
   User, ClipboardCheck, DollarSign,
@@ -11,11 +11,14 @@ import * as echarts from 'echarts/core'
 import { fetchCostSummary, fetchTaskQueueStatus } from '../../services/admin'
 import { fetchUsers } from '../../services/admin'
 import { LoomGridPattern } from '../../components/decoration'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const { Title } = Typography
 
 export default function AdminDashboard() {
   const { token } = theme.useToken()
+  const { theme: appTheme } = useTheme()
+  const isDark = appTheme === 'dark'
   const [costs, setCosts] = useState<any>(null)
   const [tasks, setTasks] = useState<any>(null)
   const [users, setUsers] = useState<any>(null)
@@ -38,7 +41,7 @@ export default function AdminDashboard() {
   const dailyData = costs?.by_day?.map((d: any) => d.date) || []
   const dailyCosts = costs?.by_day?.map((d: any) => d.cost) || []
 
-  const costChartOption = {
+  const costChartOption = useMemo(() => ({
     tooltip: { trigger: 'axis' },
     grid: { left: 50, right: 20, top: 20, bottom: 30 },
     xAxis: { type: 'category', data: dailyData, axisLabel: { rotate: 45, fontSize: 11 } },
@@ -52,9 +55,9 @@ export default function AdminDashboard() {
         { offset: 1, color: token.colorPrimary + '05' },
       ])},
     }],
-  }
+  }), [dailyData, dailyCosts, token.colorPrimary, isDark])
 
-  const taskPieOption = {
+  const taskPieOption = useMemo(() => ({
     tooltip: { trigger: 'item' },
     series: [{
       type: 'pie', radius: ['50%', '75%'],
@@ -66,7 +69,7 @@ export default function AdminDashboard() {
       ],
       label: { formatter: '{b}: {c}' },
     }],
-  }
+  }), [tasks, isDark])
 
   return (
     <div style={{ position: 'relative' }}>

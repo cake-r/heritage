@@ -75,7 +75,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                       border: '1px solid var(--color-paper, #F7F4ED)',
                     }}
                   >
-                    <div style={{ fontSize: 24, marginBottom: 4 }}>{TOOL_ICONS[toolId]}</div>
+                    <div style={{ fontSize: 28, marginBottom: 4 }}>{TOOL_ICONS[toolId]}</div>
                     <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>{TOOL_NAMES[toolId]}</div>
                   </Card>
                 ))}
@@ -128,7 +128,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
               textAlign: 'center',
               marginBottom: 8,
             }}>
-              <Tag color="gold" style={{ fontSize: 12 }}>
+              <Tag color="gold" style={{ fontSize: 30 }}>
                 {TOOL_ICONS[msg.toolUsed]} {TOOL_NAMES[msg.toolUsed]}
               </Tag>
             </div>
@@ -181,7 +181,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                 <div style={{
                   marginTop: 12,
                   padding: 12,
-                  background: 'rgba(255,255,255,0.6)',
+                  background: 'var(--glass-bg)',
                   borderRadius: 8,
                   fontSize: 'var(--text-sm)',
                 }}>
@@ -241,7 +241,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                 <div style={{
                   marginTop: 12,
                   padding: 12,
-                  background: 'rgba(255,255,255,0.6)',
+                  background: 'var(--glass-bg)',
                   borderRadius: 8,
                   fontSize: 'var(--text-sm)',
                 }}>
@@ -302,7 +302,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                 <div style={{
                   marginTop: 12,
                   padding: 12,
-                  background: 'rgba(255,255,255,0.6)',
+                  background: 'var(--glass-bg)',
                   borderRadius: 8,
                   fontSize: 'var(--text-sm)',
                 }}>

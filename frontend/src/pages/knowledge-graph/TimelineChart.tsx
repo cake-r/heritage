@@ -14,6 +14,17 @@ import ReactECharts from 'echarts-for-react'
 import { Empty } from 'antd'
 import { getCategoryColor } from '../../utils/categoryColors'
 import { useFilters } from './FilterContext'
+import { useTheme } from '../../contexts/ThemeContext'
+import {
+  DARK_PAPER_WHITE,
+  DARK_INK,
+  DARK_INK_SECONDARY,
+  DARK_VERMILION,
+  GOLD_LIGHT,
+  VERMILION,
+  BORDER_MEDIUM,
+  BORDER_LIGHT,
+} from '../../styles/chart-theme'
 import type { TimelineItem } from '../../services/knowledgeGraph'
 
 // ===== 朝代→历史分期映射 =====
@@ -48,15 +59,6 @@ const CATEGORY_ORDER = [
   '紫砂', '篆刻', '唐三彩', '书法',
 ]
 
-// ===== 硬编码色值（ECharts Canvas 兼容，对应 tokens.css） =====
-const INK = '#2C241A'
-const INK_SECONDARY = '#6B5F52'
-const INK_TERTIARY = '#5A4F42'
-const PAPER_WHITE = '#FFFDF9'
-const GOLD_LIGHT = '#E8D5B0'
-const VERMILION = '#B8463A'
-const BORDER_MEDIUM = '#D5CFC0'
-const BORDER_LIGHT = '#E8E4D8'
 const FONT_DISPLAY = '"Noto Serif SC", "Source Han Serif SC", SimSun, serif'
 const FONT_BODY = '"Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif'
 
@@ -68,6 +70,8 @@ interface Props {
 
 export default function TimelineChart({ timelineData, activeCategory }: Props) {
   const { era, setEra } = useFilters()
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
 
   // 当前选中的分期（era 可能是分期名或朝代名，统一转为分期名）
   const selectedPeriod = useMemo(() => {
@@ -113,6 +117,14 @@ export default function TimelineChart({ timelineData, activeCategory }: Props) {
   }, [periodCategoryData])
 
   const option = useMemo(() => {
+    // isDark-aware colors
+    const paperWhite = isDark ? DARK_PAPER_WHITE : '#FFFDF9'
+    const ink = isDark ? DARK_INK : '#2C241A'
+    const inkSecondary = isDark ? DARK_INK_SECONDARY : '#6B5F52'
+    const vermilion = isDark ? DARK_VERMILION : VERMILION
+    const borderMedium = isDark ? '#4A4540' : BORDER_MEDIUM
+    const borderLight = isDark ? '#3A3530' : BORDER_LIGHT
+
     // 构建每个品类的堆叠 series
     const barSeries = CATEGORY_ORDER.map(cat => {
       const catColor = getCategoryColor(cat)
@@ -140,7 +152,7 @@ export default function TimelineChart({ timelineData, activeCategory }: Props) {
             value: count,
             ...(isSelected ? {
               itemStyle: {
-                borderColor: VERMILION,
+                borderColor: vermilion,
                 borderWidth: 1.5,
                 borderRadius: 3,
               },
@@ -159,17 +171,17 @@ export default function TimelineChart({ timelineData, activeCategory }: Props) {
         axisPointer: {
           type: 'shadow' as const,
           shadowStyle: {
-            color: 'rgba(30,27,24,0.04)',
+            color: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(30,27,24,0.04)',
           },
         },
-        backgroundColor: PAPER_WHITE,
+        backgroundColor: paperWhite,
         borderColor: GOLD_LIGHT,
         borderWidth: 1,
         padding: [14, 18],
-        extraCssText: 'border-radius:10px;box-shadow:0 6px 20px rgba(30,27,24,0.12);',
+        extraCssText: `border-radius:10px;box-shadow:0 6px 20px ${isDark ? 'rgba(0,0,0,0.4)' : 'rgba(30,27,24,0.12)'};`,
         textStyle: {
-          color: INK,
-          fontSize: 13,
+          color: ink,
+          fontSize: 15,
           fontFamily: FONT_BODY,
         },
         formatter: (params: any[]) => {
@@ -180,7 +192,7 @@ export default function TimelineChart({ timelineData, activeCategory }: Props) {
             total += (p.value || 0) as number
           }
           if (total === 0) return `
-            <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif;text-align:center;color:#6B5F52">
+            <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif;text-align:center;color:${inkSecondary}">
               📜 ${periodName}<br/>暂无数据
             </div>`
 
@@ -189,23 +201,23 @@ export default function TimelineChart({ timelineData, activeCategory }: Props) {
             .sort((a: any, b: any) => b.value - a.value)
             .map((p: any) => {
               const dotColor = typeof p.color === 'string' ? p.color : '#999'
-              return `<div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;font-size:12px;color:#5A4F42;min-width:160px">
+              return `<div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;font-size:15px;color:${isDark ? '#A09888' : '#5A4F42'};min-width:160px">
                 <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};margin-right:6px"></span>${p.seriesName}</span>
-                <b style="color:#2C241A;margin-left:16px">${p.value}</b> 项
+                <b style="color:${ink};margin-left:16px">${p.value}</b> 项
               </div>`
             })
             .join('')
 
           return `
             <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif">
-              <div style="font-size:16px;font-weight:700;color:#2C241A;margin-bottom:6px;padding-bottom:8px;border-bottom:1px solid #E8D5B0">
+              <div style="font-size:18px;font-weight:700;color:${ink};margin-bottom:6px;padding-bottom:8px;border-bottom:1px solid ${GOLD_LIGHT}">
                 📜 ${periodName}
               </div>
-              <div style="font-size:13px;color:#6B5F52;margin-bottom:10px">
-                非遗项目总计：<b style="color:#B8463A;font-size:16px">${total}</b> 项
+              <div style="font-size:15px;color:${inkSecondary};margin-bottom:10px">
+                非遗项目总计：<b style="color:${vermilion};font-size:18px">${total}</b> 项
               </div>
               <div style="margin-bottom:2px">${items}</div>
-              <div style="font-size:11px;color:#C4BEB4;margin-top:8px;padding-top:6px;border-top:1px dashed #E8E4D8;font-style:italic">
+              <div style="font-size:13px;color:${isDark ? '#A09888' : '#C4BEB4'};margin-top:8px;padding-top:6px;border-top:1px dashed ${borderLight};font-style:italic">
                 点击柱子筛选此历史分期
               </div>
             </div>`
@@ -217,16 +229,16 @@ export default function TimelineChart({ timelineData, activeCategory }: Props) {
         orient: 'horizontal',
         left: 8,
         top: 0,
-        itemWidth: 10,
-        itemHeight: 10,
-        itemGap: 14,
+        itemWidth: 14,
+        itemHeight: 14,
+        itemGap: 16,
         textStyle: {
-          fontSize: 10,
-          color: INK_SECONDARY,
+          fontSize: 16,
+          color: inkSecondary,
           fontFamily: FONT_BODY,
         },
         pageTextStyle: {
-          color: INK_SECONDARY,
+          color: inkSecondary,
         },
       },
       grid: {
@@ -241,12 +253,12 @@ export default function TimelineChart({ timelineData, activeCategory }: Props) {
         position: 'bottom',
         axisTick: { show: false },
         axisLine: {
-          lineStyle: { color: BORDER_MEDIUM, width: 0.5 },
+          lineStyle: { color: borderMedium, width: 0.5 },
         },
         axisLabel: {
-          fontSize: 13,
+          fontSize: 15,
           fontFamily: FONT_DISPLAY,
-          color: INK,
+          color: ink,
           fontWeight: 500,
           interval: 0,
         },
@@ -255,7 +267,9 @@ export default function TimelineChart({ timelineData, activeCategory }: Props) {
         splitArea: {
           show: true,
           areaStyle: {
-            color: ['rgba(247,244,237,0.40)', 'rgba(196,162,101,0.07)'],
+            color: isDark
+              ? ['rgba(32,28,24,0.40)', 'rgba(196,162,101,0.05)']
+              : ['rgba(247,244,237,0.40)', 'rgba(196,162,101,0.07)'],
           },
         },
       },
@@ -264,15 +278,15 @@ export default function TimelineChart({ timelineData, activeCategory }: Props) {
         axisTick: { show: false },
         axisLine: { show: false },
         axisLabel: {
-          fontSize: 11,
+          fontSize: 13,
           fontFamily: FONT_BODY,
-          color: INK_SECONDARY,
+          color: inkSecondary,
         },
         splitLine: { show: false },
       },
       series: barSeries,
     }
-  }, [periodCategoryData, maxTotal, selectedPeriod, activeCategory])
+  }, [periodCategoryData, maxTotal, selectedPeriod, activeCategory, isDark])
 
   // 点击事件 → setEra
   const onEvents = useMemo(() => ({
@@ -295,7 +309,7 @@ export default function TimelineChart({ timelineData, activeCategory }: Props) {
     return (
       <div style={{
         height: 380, display: 'flex', alignItems: 'center',
-        justifyContent: 'center', color: INK_SECONDARY,
+        justifyContent: 'center', color: isDark ? DARK_INK_SECONDARY : '#6B5F52',
       }}>
         <Empty description="暂无时间轴数据" />
       </div>

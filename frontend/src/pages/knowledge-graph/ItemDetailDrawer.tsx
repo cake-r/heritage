@@ -101,7 +101,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
                   <Text strong>{inh.name}</Text>
                   {inh.title && <Tag color="gold">{inh.title}</Tag>}
                 </div>
-                {inh.desc && <Paragraph style={{ margin: '8px 0 0', color: '#5a5045', lineHeight: 1.7 }}>{inh.desc}</Paragraph>}
+                {inh.desc && <Paragraph style={{ margin: '8px 0 0', color: 'var(--color-ink-tertiary)', lineHeight: 1.7 }}>{inh.desc}</Paragraph>}
               </Card>
             )),
           }]} />
@@ -114,7 +114,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
           size="small"
           style={{
             marginBottom: 16,
-            background: 'linear-gradient(135deg, #FFF8F5, #FFFDF9)',
+            background: 'linear-gradient(135deg, var(--color-paper), var(--color-paper-white))',
             border: '1px solid var(--color-vermilion, #B8463A)',
             borderRadius: 8,
           }}

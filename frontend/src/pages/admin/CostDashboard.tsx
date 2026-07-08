@@ -1,11 +1,13 @@
 /** AI 成本看板 — 按模型/日期总览 + 调用明细 */
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Card, Row, Col, Statistic, Table, Tag, DatePicker, Typography } from 'antd'
 import ReactEChartsCore from 'echarts-for-react'
 import * as echarts from 'echarts/core'
 import { fetchCostSummary, fetchCostLogs } from '../../services/admin'
 import { LoomGridPattern } from '../../components/decoration'
+import { useTheme } from '../../contexts/ThemeContext'
+import { DARK_VERMILION } from '../../styles/chart-theme'
 
 const { Title } = Typography
 const { RangePicker } = DatePicker
@@ -15,6 +17,8 @@ export default function CostDashboard() {
   const [logs, setLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [days, setDays] = useState(30)
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -33,16 +37,16 @@ export default function CostDashboard() {
   const modelNames = Object.keys(summary.by_model || {})
   const modelCosts = modelNames.map(m => summary.by_model?.[m] || 0)
 
-  const barOption = {
+  const barOption = useMemo(() => ({
     tooltip: { trigger: 'axis' },
     grid: { left: 100, right: 20, top: 10, bottom: 20 },
     xAxis: { type: 'value', name: '元' },
     yAxis: { type: 'category', data: modelNames, axisLabel: { fontSize: 11 } },
     series: [{
       type: 'bar', data: modelCosts,
-      itemStyle: { color: '#B8463A', borderRadius: [0, 4, 4, 0] },
+      itemStyle: { color: isDark ? DARK_VERMILION : '#B8463A', borderRadius: [0, 4, 4, 0] },
     }],
-  }
+  }), [modelNames, modelCosts, isDark])
 
   const columns = [
     { title: '用户', dataIndex: 'user_id', width: 60 },
@@ -83,7 +87,7 @@ export default function CostDashboard() {
         <Col xs={24} lg={12}>
           <Card title="端点成本明细">
             {Object.entries(summary.by_endpoint || {}).map(([ep, cost]: any) => (
-              <div key={ep} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
+              <div key={ep} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--color-border-light)' }}>
                 <span>{ep}</span>
                 <Tag color="gold">¥{cost?.toFixed(4)}</Tag>
               </div>

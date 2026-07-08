@@ -279,6 +279,51 @@ a:hover { color: var(--color-vermilion-hover); }
    Ant Design 全局样式覆盖（国风主题）
    ================================================================ */
 
+/* --- 暗色补丁：亮色模式下硬编码的 rgba 值在暗色模式下需调整 --- */
+[data-theme="dark"] .ant-btn-primary {
+  box-shadow: 0 2px 8px rgba(201, 107, 95, 0.3) !important;
+}
+[data-theme="dark"] .ant-btn-primary:hover {
+  box-shadow: 0 4px 14px rgba(201, 107, 95, 0.4) !important;
+}
+[data-theme="dark"] .ant-input:focus,
+[data-theme="dark"] .ant-input-focused {
+  box-shadow: 0 0 0 2px rgba(212, 184, 122, 0.25) !important;
+}
+[data-theme="dark"] .ant-select-focused .ant-select-selector {
+  box-shadow: 0 0 0 2px rgba(212, 184, 122, 0.25) !important;
+}
+[data-theme="dark"] .ant-card {
+  background: var(--color-paper-white) !important;
+}
+[data-theme="dark"] .ant-drawer-content {
+  background: var(--color-paper-white);
+}
+[data-theme="dark"] .ant-modal-content {
+  background: var(--color-paper-white) !important;
+}
+[data-theme="dark"] .ant-message-notice-content {
+  background: var(--color-paper-white);
+}
+[data-theme="dark"] .ant-popover-inner {
+  background: var(--color-paper-white);
+}
+[data-theme="dark"] .ant-tooltip-inner {
+  background: var(--color-deep);
+}
+[data-theme="dark"] .ant-table {
+  background: var(--color-paper-white) !important;
+}
+[data-theme="dark"] .ant-table-thead > tr > th {
+  background: var(--color-paper) !important;
+}
+[data-theme="dark"] .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+  background: var(--color-paper);
+}
+[data-theme="dark"] .ant-tag {
+  border-color: var(--color-border-medium);
+}
+
 /* --- Button --- */
 .ant-btn-primary {
   background: var(--color-vermilion) !important;

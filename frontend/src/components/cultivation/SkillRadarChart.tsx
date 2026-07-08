@@ -36,6 +36,8 @@ interface Props {
 export default function SkillRadarChart({ skillTrees, darkMode }: Props) {
   const textColor = darkMode ? '#DED9D0' : '#2C241A'
   const areaColor = darkMode ? 'rgba(184,70,58,0.2)' : 'rgba(184,70,58,0.15)'
+  const vermilionColor = darkMode ? '#C96B5F' : '#B8463A'
+  const vermilionArea = darkMode ? 'rgba(201,107,95,0.25)' : 'rgba(184,70,58,0.25)'
 
   const option = {
     tooltip: {
@@ -57,7 +59,7 @@ export default function SkillRadarChart({ skillTrees, darkMode }: Props) {
       })),
       axisName: {
         color: textColor,
-        fontSize: 11,
+        fontSize: 16,
         borderRadius: 3,
         padding: [2, 4],
       },
@@ -79,14 +81,14 @@ export default function SkillRadarChart({ skillTrees, darkMode }: Props) {
         value: skillTrees.map(t => t.percentage),
         name: '技能进度',
         areaStyle: {
-          color: 'rgba(184,70,58,0.25)',
+          color: vermilionArea,
         },
         lineStyle: {
-          color: '#B8463A',
+          color: vermilionColor,
           width: 2,
         },
         itemStyle: {
-          color: '#B8463A',
+          color: vermilionColor,
         },
         symbol: 'circle',
         symbolSize: 5,

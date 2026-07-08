@@ -103,7 +103,7 @@ const ArchiveExport: React.FC<Props> = ({ archiveData, onExport, onSave }) => {
 
         {/* Verification score */}
         {verification && (
-          <div style={{ marginBottom: 20, padding: 16, background: '#f9f7f4', borderRadius: 8 }}>
+          <div style={{ marginBottom: 20, padding: 16, background: 'var(--color-paper)', borderRadius: 8 }}>
             <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 8 }}>
               <Trophy style={{ marginRight: 6 }} />
               AI 质量验收

@@ -5,7 +5,7 @@
 - ECharts tree 系列 + 四色来源类型编码
 */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { Alert, Card, Collapse, Empty, Spin, Tag, Typography } from 'antd'
 import {
   GitGraph,
@@ -22,6 +22,8 @@ import { CanvasRenderer } from 'echarts/renderers'
 
 echarts.use([TreeChart, TooltipComponent, CanvasRenderer])
 
+import { useTheme } from '../../contexts/ThemeContext'
+import { DARK_INK } from '../../styles/chart-theme'
 import type { TraceNode, TraceResponse, SourceType } from '../../services/xai'
 import {
   SOURCE_COLORS,
@@ -45,6 +47,8 @@ interface ExplainPanelProps {
 const EXPLAIN_PANEL_HEIGHT = 520
 
 const ExplainPanel: React.FC<ExplainPanelProps> = ({ module, recordId, compact = false }) => {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [trace, setTrace] = useState<TraceResponse | null>(null)
@@ -86,7 +90,7 @@ const ExplainPanel: React.FC<ExplainPanelProps> = ({ module, recordId, compact =
 
   const treeData = toEChartsTree(trace.root)
 
-  const chartOption = {
+  const chartOption = useMemo(() => ({
     tooltip: {
       trigger: 'item' as const,
       triggerOn: 'mousemove' as const,
@@ -116,7 +120,7 @@ const ExplainPanel: React.FC<ExplainPanelProps> = ({ module, recordId, compact =
           verticalAlign: 'middle',
           align: 'right',
           fontSize: 12,
-          color: '#333',
+          color: isDark ? DARK_INK : '#333',
           formatter: (p: any) => {
             const maxLen = compact ? 14 : 20
             return p.name.length > maxLen ? p.name.slice(0, maxLen) + '...' : p.name
@@ -130,7 +134,7 @@ const ExplainPanel: React.FC<ExplainPanelProps> = ({ module, recordId, compact =
           },
         },
         lineStyle: {
-          color: '#ccc',
+          color: isDark ? '#555' : '#ccc',
           curveness: 0.5,
         },
         emphasis: {
@@ -138,7 +142,7 @@ const ExplainPanel: React.FC<ExplainPanelProps> = ({ module, recordId, compact =
         },
       },
     ],
-  }
+  }), [treeData, compact, isDark])
 
   return (
     <Card

@@ -2,16 +2,18 @@ import { useMemo, useRef, useCallback } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { Empty, Typography, Tag } from 'antd'
 import { getCategoryColor } from '../../utils/categoryColors'
+import { useTheme } from '../../contexts/ThemeContext'
+import {
+  DARK_PAPER_WHITE,
+  DARK_INK,
+  DARK_INK_SECONDARY,
+  DARK_VERMILION,
+  GOLD,
+  VERMILION,
+} from '../../styles/chart-theme'
 import type { ItemsData } from '../../services/knowledgeGraph'
 
 const { Text } = Typography
-
-// ECharts canvas 硬编码色值
-const VERMILION = '#B8463A'
-const GOLD = '#C4A265'
-const INK = '#2C241A'
-const PAPER = '#FFFDF9'
-const INK_TERTIARY = '#5A4F42'
 
 interface KinshipGraphProps {
   data: ItemsData | null
@@ -21,6 +23,8 @@ interface KinshipGraphProps {
 
 export default function KinshipGraph({ data, onNodeClick, height = 400 }: KinshipGraphProps) {
   const chartRef = useRef<any>(null)
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
 
   const handleClick = useCallback((params: any) => {
     if (params.dataType === 'node' && params.data?._itemId && onNodeClick) {
@@ -33,6 +37,13 @@ export default function KinshipGraph({ data, onNodeClick, height = 400 }: Kinshi
   const option = useMemo(() => {
     if (!data || data.nodes.length === 0) return null
 
+    // isDark-aware colors
+    const paperWhite = isDark ? DARK_PAPER_WHITE : '#FFFDF9'
+    const ink = isDark ? DARK_INK : '#2C241A'
+    const inkTertiary = isDark ? DARK_INK_SECONDARY : '#5A4F42'
+    const vermilion = isDark ? DARK_VERMILION : VERMILION
+    const gold = GOLD // gold stays same in both modes
+
     const categories = [...new Set(data.nodes.map(n => n.category))]
     const nodes = data.nodes.map(n => ({
       id: n.id,
@@ -43,16 +54,16 @@ export default function KinshipGraph({ data, onNodeClick, height = 400 }: Kinshi
       _category: n.category,
       itemStyle: {
         color: getCategoryColor(n.category),
-        borderColor: PAPER,
+        borderColor: paperWhite,
         borderWidth: 2,
         shadowBlur: 8,
-        shadowColor: 'rgba(0,0,0,0.08)',
+        shadowColor: isDark ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.08)',
       },
       label: {
         show: n.symbolSize >= 25,
         formatter: n.name,
         fontSize: 11,
-        color: INK,
+        color: ink,
       },
     }))
 
@@ -61,8 +72,8 @@ export default function KinshipGraph({ data, onNodeClick, height = 400 }: Kinshi
       target: l.target,
       value: l.relation,
       lineStyle: {
-        color: l.relation === '技法相似' ? VERMILION
-          : l.relation === '地域接近' ? GOLD
+        color: l.relation === '技法相似' ? vermilion
+          : l.relation === '地域接近' ? gold
           : '#A0A0A0',
         width: 1,
         curveness: 0.2,
@@ -76,11 +87,11 @@ export default function KinshipGraph({ data, onNodeClick, height = 400 }: Kinshi
     }))
 
     return {
-      backgroundColor: PAPER,
+      backgroundColor: paperWhite,
       legend: {
         data: legendData,
         bottom: 0,
-        textStyle: { fontSize: 11, color: INK_TERTIARY },
+        textStyle: { fontSize: 11, color: inkTertiary },
         itemWidth: 10,
         itemHeight: 10,
       },
@@ -104,7 +115,7 @@ export default function KinshipGraph({ data, onNodeClick, height = 400 }: Kinshi
         emphasis: {
           focus: 'adjacency',
           lineStyle: { width: 2 },
-          itemStyle: { shadowBlur: 16, shadowColor: 'rgba(184,70,58,0.3)' },
+          itemStyle: { shadowBlur: 16, shadowColor: isDark ? 'rgba(201,107,95,0.4)' : 'rgba(184,70,58,0.3)' },
         },
         lineStyle: {
           opacity: 0.4,
@@ -114,7 +125,7 @@ export default function KinshipGraph({ data, onNodeClick, height = 400 }: Kinshi
           show: true,
           position: 'right',
           fontSize: 11,
-          color: INK,
+          color: ink,
         },
         edgeSymbol: ['none', 'none'],
       }],
@@ -128,7 +139,7 @@ export default function KinshipGraph({ data, onNodeClick, height = 400 }: Kinshi
         },
       },
     }
-  }, [data])
+  }, [data, isDark])
 
   if (!option) {
     return <Empty description="暂无关联数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -137,7 +148,7 @@ export default function KinshipGraph({ data, onNodeClick, height = 400 }: Kinshi
   return (
     <div style={{ position: 'relative' }}>
       <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Text strong style={{ fontSize: 'var(--text-sm)', color: INK }}>
+        <Text strong style={{ fontSize: 'var(--text-sm)', color: isDark ? DARK_INK : '#2C241A' }}>
           🔗 技艺亲缘关系图
         </Text>
         <Tag color="gold" style={{ fontSize: 11 }}>

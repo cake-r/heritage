@@ -409,7 +409,7 @@ function GenesStep({
         )}
 
         {unmatchedNames.length > 0 && (
-          <div style={{ marginTop: 16, padding: 14, background: '#FFFBE6', borderRadius: 10, border: '1px solid #FFE58F' }}>
+          <div style={{ marginTop: 16, padding: 14, background: 'var(--color-bg-active)', borderRadius: 10, border: '1px solid #FFE58F' }}>
             <Text style={{ fontSize: 13, color: '#AD6800' }}>
               AI 返回但未匹配到的纹样: {unmatchedNames.join('、')}
             </Text>

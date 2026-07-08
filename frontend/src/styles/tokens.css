@@ -134,6 +134,11 @@
   --color-gold-light:      #3D3528;
   --color-vermilion:       #C96B5F;
   --color-vermilion-hover: #D4847A;
+  --color-gold:            #D4B87A;   /* 暗色模式下提亮鎏金 */
+  --color-success:         #5CA86E;   /* 暗色模式下提亮墨绿 */
+  --color-error:           #D97060;   /* 暗色模式下提亮暗红 */
+  --color-info:            #7BA5C0;   /* 暗色模式下提亮青蓝 */
+  --color-warning:         #D4AE52;   /* 暗色模式下提亮暗金 */
 
   --gray-50:  #161310;
   --gray-100: #201C18;

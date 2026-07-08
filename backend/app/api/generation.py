@@ -63,6 +63,7 @@ def create_text_to_image(
         mode="text2img",
         images_json=json.dumps(result["images"], ensure_ascii=False),
         params_json=json.dumps(req.model_dump(), ensure_ascii=False),
+        is_public=True,
     )
     db.add(work)
     db.commit()
@@ -161,6 +162,7 @@ async def create_image_to_image(
             "color_palette": color_palette, "composition": composition,
             "intensity": intensity,
         }, ensure_ascii=False),
+        is_public=True,
     )
     db.add(work)
     db.commit()

@@ -46,8 +46,8 @@ function DraggableGene({ gene }: { gene: PatternGene }) {
       : undefined,
     cursor: 'grab',
     padding: '8px 12px',
-    background: '#fff',
-    border: '1px solid #e8e0d5',
+    background: 'var(--color-paper-white)',
+    border: '1px solid var(--color-border-light)',
     borderRadius: 8,
     display: 'flex',
     alignItems: 'center',
@@ -87,10 +87,10 @@ function DroppableCanvas({
       style={{
         width: carrier.width * scale,
         height: carrier.height * scale,
-        background: '#fff',
+        background: 'var(--color-paper-white)',
         position: 'relative',
         overflow: 'hidden',
-        border: isOver ? '2px dashed #B8463A' : '2px dashed #e0d8c8',
+        border: isOver ? '2px dashed #B8463A' : '2px dashed var(--color-border-light)',
         borderRadius: 4,
         transition: 'border 0.2s',
         boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
@@ -267,7 +267,7 @@ const PatternWorkbench: React.FC<Props> = ({ genes, carrierKey }) => {
     setExporting(true)
     try {
       const canvas = await html2canvas(canvasRef.current, {
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--color-paper-white)',
         scale: 3,
         useCORS: true,
       })
@@ -292,14 +292,14 @@ const PatternWorkbench: React.FC<Props> = ({ genes, carrierKey }) => {
         <div style={{
           width: 220,
           flexShrink: 0,
-          background: '#FAF7F2',
+          background: 'var(--color-paper)',
           borderRadius: 10,
           padding: 14,
           overflowY: 'auto',
           maxHeight: 'calc(100vh - 280px)',
-          border: '1px solid #e8e0d5',
+          border: '1px solid var(--color-border-light)',
         }}>
-          <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 10, color: '#1E1B18' }}>
+          <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 10, color: 'var(--color-ink)' }}>
             纹样基因库
           </div>
           {genes.map(gene => (
@@ -364,14 +364,14 @@ const PatternWorkbench: React.FC<Props> = ({ genes, carrierKey }) => {
         <div style={{
           width: 220,
           flexShrink: 0,
-          background: '#FAF7F2',
+          background: 'var(--color-paper)',
           borderRadius: 10,
           padding: 14,
-          border: '1px solid #e8e0d5',
+          border: '1px solid var(--color-border-light)',
           maxHeight: 'calc(100vh - 280px)',
           overflowY: 'auto',
         }}>
-          <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 14, color: '#1E1B18' }}>
+          <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 14, color: 'var(--color-ink)' }}>
             属性控制
           </div>
 

@@ -203,20 +203,14 @@ export default function CompanionFloatButton() {
         position: 'relative',
         width: currentSize,
         height: currentSize,
-        borderRadius: '50%',
-        border: '1px solid var(--glass-border)',
         padding: 0,
         cursor: cursorStyle,
-        background: 'var(--glass-bg)',
-        backdropFilter: 'blur(var(--glass-blur))',
-        WebkitBackdropFilter: 'blur(var(--glass-blur))',
-        boxShadow: showIndicator
-          ? 'var(--shadow-glow-vermilion)'
-          : 'var(--shadow-glow-card)',
+        background: 'transparent',
+        border: 'none',
         transition: isDragging || isResizing
           ? 'none'
           : 'box-shadow 0.5s, transform 0.2s',
-        overflow: 'hidden',
+        overflow: 'visible',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -230,6 +224,7 @@ export default function CompanionFloatButton() {
         expression={expression}
         liveParams={liveParams}
         enableMouseTracking={false}
+        noClip
         onLoad={handleModelLoad}
         onError={(err) => {
           console.error('[Live2D FloatButton] Model load error:', err)
@@ -273,20 +268,6 @@ export default function CompanionFloatButton() {
         </span>
       )}
 
-      {showIndicator && modelReady && (
-        <span style={{
-          position: 'absolute',
-          top: currentSize * 0.06,
-          right: currentSize * 0.06,
-          width: Math.max(8, currentSize * 0.1),
-          height: Math.max(8, currentSize * 0.1),
-          borderRadius: '50%',
-          background: 'var(--color-vermilion)',
-          border: '2px solid var(--color-paper-white)',
-          zIndex: 2,
-          animation: 'floatPulse 2s ease-in-out infinite',
-        }} />
-      )}
     </button>
   )
 

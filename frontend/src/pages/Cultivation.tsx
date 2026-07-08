@@ -148,11 +148,11 @@ export default function Cultivation() {
                     color: 'var(--color-gold)',
                     fontFamily: 'var(--font-display)',
                     letterSpacing: 4,
-                    fontSize: isMobile ? 24 : 32,
+                    fontSize: isMobile ? 26 : 34,
                   }}>
                     {status.rank}
                   </Title>
-                  <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--text-sm)' }}>
+                  <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 17 }}>
                     累计修为 {status.xp} XP
                     {status.xp_to_next > 0 && ` · 距离下一段位还需 ${status.xp_to_next} XP`}
                   </Text>
@@ -198,7 +198,7 @@ export default function Cultivation() {
             {/* 雷达图 */}
             <Card
               title={
-                <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2 }}>
+                <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 20 }}>
                   🕸 六艺技能总览
                 </span>
               }
@@ -241,7 +241,7 @@ export default function Cultivation() {
                   <Flame style={{ color: 'var(--color-vermilion)' }} />
                   <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2 }}>今日任务</span>
                   {streak && streak.streak_bonus_active && (
-                    <Tag color="gold" style={{ fontSize: 10, marginLeft: 4 }}>
+                    <Tag color="gold" style={{ fontSize: 12, marginLeft: 4 }}>
                       连胜加成 +{streak.streak_days >= 7 ? '25' : '10'}%
                     </Tag>
                   )}
@@ -283,7 +283,7 @@ export default function Cultivation() {
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                          <span style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>
+                          <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1 }}>
                             {isCompleted
                               ? <CheckCircle style={{ color: 'var(--color-success)' }} className="animate-check-bounce" />
                               : (quest.icon || '📋')
@@ -291,14 +291,14 @@ export default function Cultivation() {
                           </span>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <Text strong style={{
-                              fontSize: 'var(--text-sm)',
+                              fontSize: 17,
                               display: 'block',
                               textDecoration: isCompleted ? 'line-through' : 'none',
                               color: isCompleted ? 'var(--color-ink-secondary)' : 'var(--color-ink)',
                             }}>
                               {quest.title}
                             </Text>
-                            <Text type="secondary" style={{ fontSize: 'var(--text-xs)', display: 'block' }}>
+                            <Text type="secondary" style={{ fontSize: 16, display: 'block' }}>
                               {quest.description}
                             </Text>
 
@@ -317,7 +317,7 @@ export default function Cultivation() {
 
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                               <span style={{
-                                fontSize: 'var(--text-xs)',
+                                fontSize: 16,
                                 background: 'var(--color-vermilion)',
                                 color: '#fff',
                                 padding: '1px 6px',
@@ -325,11 +325,11 @@ export default function Cultivation() {
                               }}>
                                 +{quest.xp_reward} XP
                               </span>
-                              <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
+                              <Text type="secondary" style={{ fontSize: 16 }}>
                                 {MODULE_LABELS[quest.module] || quest.module}
                               </Text>
                               {auto && !isCompleted && (
-                                <Loader2 style={{ fontSize: 12, color: 'var(--color-ink-secondary)', marginLeft: 'auto' }} />
+                                <Loader2 style={{ fontSize: 14, color: 'var(--color-ink-secondary)', marginLeft: 'auto' }} />
                               )}
                             </div>
                           </div>
@@ -342,7 +342,7 @@ export default function Cultivation() {
                               loading={completing === quest.id}
                               style={{
                                 flexShrink: 0, borderRadius: 'var(--radius-sm)',
-                                fontSize: 'var(--text-xs)',
+                                fontSize: 16,
                               }}
                               onClick={() => handleComplete(quest.id)}
                             >
@@ -390,7 +390,7 @@ export default function Cultivation() {
                   }}>
                     {weeklyChallenge.theme}
                   </Title>
-                  <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
+                  <Text type="secondary" style={{ fontSize: 17 }}>
                     {weeklyChallenge.description}
                   </Text>
                 </div>
@@ -407,11 +407,11 @@ export default function Cultivation() {
                 }}>
                   <span style={{ fontSize: 24 }}>{weeklyChallenge.reward_stamp_icon}</span>
                   <div>
-                    <Text strong style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
+                    <Text strong style={{ fontSize: 17, color: 'var(--color-ink)' }}>
                       {weeklyChallenge.reward_stamp_name}
                     </Text>
                     <br />
-                    <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
+                    <Text type="secondary" style={{ fontSize: 16 }}>
                       <Clock /> 截止 {weeklyChallenge.expires_at}
                     </Text>
                   </div>

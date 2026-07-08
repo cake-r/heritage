@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, lazy, Suspense } from 'react'
+import { useState, useCallback, useEffect, useMemo, lazy, Suspense } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Layout, Grid } from 'antd'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -12,9 +12,53 @@ import CompanionFloatButton from '../companion/CompanionFloatButton'
 import CompanionDrawer from '../companion/CompanionDrawer'
 import AchievementToast from '../cultivation/AchievementToast'
 import RankUpCelebration from '../cultivation/RankUpCelebration'
+import { BrocadePattern } from '../decoration'
 
 const OnboardingGuide = lazy(() => import('../onboarding/OnboardingGuide'))
 import { isOnboardingShown } from '../onboarding/OnboardingGuide'
+
+// ===== 侧边栏浮金粒子 =====
+const SIDEBAR_PARTICLE_COUNT = 25
+
+function SidebarGoldParticles({ collapsed }: { collapsed: boolean }) {
+  const particles = useMemo(() =>
+    Array.from({ length: SIDEBAR_PARTICLE_COUNT }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      bottom: Math.random() * 100,
+      size: 2 + Math.random() * 5,
+      delay: Math.random() * 8,
+      duration: 3 + Math.random() * 6,
+      opacity: 0.15 + Math.random() * 0.4,
+    })),
+  [])
+
+  // 收起时降低粒子数量
+  const visibleParticles = collapsed ? particles.slice(0, 8) : particles
+
+  return (
+    <div aria-hidden="true" style={{
+      position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 1,
+    }}>
+      {visibleParticles.map(p => (
+        <div
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: `${p.left}%`,
+            bottom: `${p.bottom}%`,
+            width: p.size,
+            height: p.size,
+            borderRadius: '50%',
+            background: `radial-gradient(circle, rgba(196,162,101,${p.opacity}) 0%, transparent 70%)`,
+            boxShadow: `0 0 ${p.size * 3}px rgba(196,162,101,${p.opacity * 0.6})`,
+            animation: `floatParticle ${p.duration}s ease-in-out ${p.delay}s infinite`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
 
 const { Content, Sider } = Layout
 const { useBreakpoint } = Grid
@@ -109,9 +153,34 @@ export default function MainLayout() {
           style={{
             background: `linear-gradient(180deg, var(--color-deep) 0%, #2A2520 100%)`,
             borderRight: `1px solid rgba(196, 162, 101, 0.15)`,
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          <Sidebar collapsed={sidebarCollapsed} onNavigate={handleNavigate} />
+          {/* 织锦暗纹 — 极低透明度金色 */}
+          <BrocadePattern
+            opacity={0.08}
+            color="var(--color-gold)"
+            size={sidebarCollapsed ? 40 : 56}
+          />
+          {/* 浮金粒子 */}
+          <SidebarGoldParticles collapsed={sidebarCollapsed} />
+          {/* 鎏金渐变右边线 */}
+          <div aria-hidden="true" style={{
+            position: 'absolute',
+            top: 0, bottom: 0, right: 0,
+            width: 2,
+            background: `linear-gradient(180deg,
+              transparent 0%,
+              var(--color-gold) 15%,
+              var(--color-vermilion) 50%,
+              var(--color-gold) 85%,
+              transparent 100%)`,
+            zIndex: 1,
+          }} />
+          <div style={{ position: 'relative', zIndex: 2, height: '100%' }}>
+            <Sidebar collapsed={sidebarCollapsed} onNavigate={handleNavigate} />
+          </div>
         </Sider>
       )}
 

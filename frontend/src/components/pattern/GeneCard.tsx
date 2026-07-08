@@ -41,7 +41,7 @@ const GeneCard: React.FC<Props> = ({ gene, selected, onClick }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#FAF7F2',
+          background: 'var(--color-paper)',
           borderRadius: 8,
           marginBottom: 10,
           overflow: 'hidden',

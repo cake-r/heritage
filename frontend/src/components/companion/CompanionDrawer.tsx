@@ -51,16 +51,16 @@ function SuggestionInline({
         cursor: 'pointer',
       }}
     >
-      <span style={{ fontSize: 20, flexShrink: 0, lineHeight: '22px' }}>{item.icon}</span>
+      <span style={{ fontSize: 24, flexShrink: 0, lineHeight: '26px' }}>{item.icon}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-          <Text strong style={{ fontSize: 'var(--text-sm)', lineHeight: '20px' }}>{item.title}</Text>
+          <Text strong style={{ fontSize: 'var(--text-base)', lineHeight: '22px' }}>{item.title}</Text>
           <Tag
             style={{
               margin: 0,
-              fontSize: 10,
-              lineHeight: '16px',
-              padding: '0 5px',
+              fontSize: 12,
+              lineHeight: '18px',
+              padding: '0 6px',
               borderRadius: 'var(--radius-sm, 4px)',
               background: CATEGORY_COLORS[item.category] || 'var(--color-info)',
               color: '#fff',
@@ -72,14 +72,14 @@ function SuggestionInline({
         </div>
         <Paragraph
           type="secondary"
-          style={{ fontSize: 'var(--text-xs)', margin: 0, lineHeight: '18px' }}
+          style={{ fontSize: 'var(--text-sm)', margin: 0, lineHeight: '20px' }}
           ellipsis={{ rows: 2 }}
         >
           {item.description}
         </Paragraph>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-          <Lightbulb style={{ fontSize: 10, color: 'var(--color-gold)' }} />
-          <Text type="secondary" style={{ fontSize: 10 }}>{Math.round(item.confidence * 100)}% 匹配</Text>
+          <Lightbulb size={12} style={{ color: 'var(--color-gold)' }} />
+          <Text type="secondary" style={{ fontSize: 12 }}>{Math.round(item.confidence * 100)}% 匹配</Text>
         </div>
       </div>
     </div>
@@ -111,24 +111,23 @@ function ChatBubble({
     >
       {/* 头像 */}
       <div style={{
-        width: 28,
-        height: 28,
+        width: 36,
+        height: 36,
         borderRadius: '50%',
         background: isUser ? 'var(--color-vermilion, #B8463A)' : 'var(--color-gold-light, #E8D5B0)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
-        fontSize: 14,
         color: isUser ? '#fff' : 'var(--color-ink, #2C241A)',
       }}>
-        {isUser ? <User /> : <Bot />}
+        {isUser ? <User size={18} /> : <Bot size={18} />}
       </div>
 
       {/* 气泡 */}
       <div style={{
         maxWidth: '82%',
-        padding: '10px 14px',
+        padding: '12px 16px',
         borderRadius: 10,
         background: isUser
           ? 'var(--color-vermilion, #B8463A)'
@@ -138,8 +137,8 @@ function ChatBubble({
         border: isUser ? 'none' : '1px solid var(--glass-border)',
         borderLeft: isUser ? 'none' : '3px solid var(--color-gold, #C4A265)',
         color: isUser ? '#fff' : 'var(--color-ink, #2C241A)',
-        fontSize: 'var(--text-sm)',
-        lineHeight: 1.65,
+        fontSize: 'var(--text-base)',
+        lineHeight: 1.7,
         wordBreak: 'break-word',
       }}>
         <span>{msg.content}</span>
@@ -191,19 +190,19 @@ function WelcomePanel({
           borderRadius: 'var(--radius-md, 8px)',
           marginBottom: 16,
         }}>
-          <Text style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary)', lineHeight: 1.7 }}>
+          <Text style={{ fontSize: 'var(--text-base)', color: 'var(--color-ink-secondary)', lineHeight: 1.7 }}>
             {context.user_summary}
           </Text>
           {context.recent_activity.length > 0 && (
             <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
               {context.recent_activity.map((act, i) => (
                 <Tag key={i} style={{
-                  fontSize: 'var(--text-xs)',
+                  fontSize: 'var(--text-sm)',
                   background: 'var(--color-paper)',
                   border: '1px solid var(--gray-200)',
                   borderRadius: 'var(--radius-sm)',
                   color: 'var(--color-ink-secondary)',
-                  lineHeight: '18px',
+                  lineHeight: '20px',
                   margin: 0,
                 }}>
                   {act}
@@ -216,7 +215,7 @@ function WelcomePanel({
 
       {/* 快捷提问 */}
       <div style={{ marginBottom: 16 }}>
-        <Text type="secondary" style={{ fontSize: 'var(--text-xs)', display: 'block', marginBottom: 8 }}>
+        <Text type="secondary" style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>
           💬 试试问我：
         </Text>
         <Space direction="vertical" style={{ width: '100%' }} size={8}>
@@ -229,8 +228,8 @@ function WelcomePanel({
               onClick={() => onQuickMessage(q)}
               style={{
                 textAlign: 'left',
-                fontSize: 'var(--text-xs)',
-                height: 34,
+                fontSize: 'var(--text-sm)',
+                height: 38,
                 borderRadius: 'var(--radius-md, 8px)',
                 border: '1px solid var(--color-paper, #F7F4ED)',
               }}
@@ -265,7 +264,7 @@ function WelcomePanel({
       {/* 建议卡片 */}
       {!loading && suggestions.length > 0 && (
         <div style={{ marginTop: 4 }}>
-          <Text type="secondary" style={{ fontSize: 'var(--text-xs)', display: 'block', marginBottom: 10 }}>
+          <Text type="secondary" style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 10 }}>
             💡 为你准备了 {suggestions.length} 条个性化建议
           </Text>
           {suggestions.map(item => (
@@ -283,7 +282,7 @@ function WelcomePanel({
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           style={{ marginTop: 24 }}
         >
-          <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
+          <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
             继续探索非遗世界，我会在你需要时出现 ✨
           </Text>
         </Empty>
@@ -376,12 +375,12 @@ export default function CompanionDrawer() {
       title={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 18, lineHeight: '40px', width: 40, textAlign: 'center' }}>
+            <span style={{ fontSize: 22, lineHeight: '40px', width: 40, textAlign: 'center' }}>
               🤖
             </span>
             <span style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-base)',
+              fontSize: 'var(--text-md)',
               fontWeight: 600,
               letterSpacing: 1,
               color: 'var(--color-ink)',
@@ -393,9 +392,9 @@ export default function CompanionDrawer() {
             <Button
               type="text"
               size="small"
-              icon={<Trash2 />}
+              icon={<Trash2 size={16} />}
               onClick={clearChat}
-              style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)' }}
+              style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary)' }}
             >
               清空
             </Button>
@@ -441,24 +440,23 @@ export default function CompanionDrawer() {
                 marginBottom: 14,
               }}>
                 <div style={{
-                  width: 28,
-                  height: 28,
+                  width: 36,
+                  height: 36,
                   borderRadius: '50%',
                   background: 'var(--color-gold-light, #E8D5B0)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
-                  fontSize: 14,
                   color: 'var(--color-ink, #2C241A)',
                 }}>
-                  <Bot />
+                  <Bot size={18} />
                 </div>
                 <div style={{
-                  padding: '10px 14px',
+                  padding: '12px 16px',
                   borderRadius: 10,
                   background: 'var(--color-paper, #F7F4ED)',
-                  fontSize: 'var(--text-sm)',
+                  fontSize: 'var(--text-base)',
                   color: 'var(--color-ink-secondary)',
                 }}>
                   <span className="cursor-blink" style={{
@@ -501,22 +499,22 @@ export default function CompanionDrawer() {
             border: '1px solid var(--color-paper, #F7F4ED)',
             borderRadius: 'var(--radius-md, 8px)',
             resize: 'none',
-            fontSize: 'var(--text-sm)',
-            padding: '8px 12px',
+            fontSize: 'var(--text-base)',
+            padding: '10px 14px',
             background: 'var(--color-paper, #F7F4ED)',
           }}
         />
         <Button
           type="primary"
-          icon={<Send />}
+          icon={<Send size={18} />}
           onClick={handleSend}
           disabled={!inputValue.trim() || chatLoading}
           loading={chatLoading}
           style={{
             background: 'var(--color-vermilion, #B8463A)',
             borderColor: 'var(--color-vermilion, #B8463A)',
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             flexShrink: 0,
           }}
         />

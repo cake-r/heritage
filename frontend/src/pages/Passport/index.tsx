@@ -27,6 +27,8 @@ import {
   type StampConfig,
 } from '../../services/passport'
 import { JourneyCloudPattern } from '../../components/decoration'
+import { useTheme } from '../../contexts/ThemeContext'
+import { DARK_PAPER, DARK_DEEP, DARK_INK, DARK_INK_SECONDARY } from '../../styles/chart-theme'
 
 // ===== 硬编码色值（Canvas 兼容） =====
 const INK = '#2C241A'
@@ -92,6 +94,8 @@ export default function PassportPage() {
   const [exporting, setExporting] = useState(false)
   const passportRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
 
   useEffect(() => {
     loadAll()
@@ -163,16 +167,27 @@ export default function PassportPage() {
   const stampMap = new Map(allEarned.map((s: EarnedStamp) => [s.type, s]))
 
   // 地域热力图配置
-  const mapOption = useMemo(() => ({
+  const mapOption = useMemo(() => {
+    const areaColor = isDark ? DARK_DEEP : REGION_COLOR_0
+    const borderColor = isDark ? '#3A3530' : '#D5CFC0'
+    const tooltipBg = isDark ? DARK_PAPER : PAPER
+    const tooltipText = isDark ? DARK_INK : INK
+    const tooltipSecondary = isDark ? DARK_INK_SECONDARY : INK_SECONDARY
+    const tooltipBorder = isDark ? '#3A3530' : GOLD_LIGHT
+    const emphasisAreaColor = isDark ? '#4A3A28' : GOLD_LIGHT
+    const emphasisLabelColor = isDark ? DARK_INK : INK
+    const unexploredColor = isDark ? DARK_DEEP : REGION_COLOR_0
+
+    return {
     tooltip: {
       trigger: 'item',
-      backgroundColor: PAPER,
-      borderColor: GOLD_LIGHT,
+      backgroundColor: tooltipBg,
+      borderColor: tooltipBorder,
       borderWidth: 1,
       padding: [14, 18],
       extraCssText: 'border-radius:10px;box-shadow:0 4px 16px rgba(30,27,24,0.10);',
       textStyle: {
-        color: INK,
+        color: tooltipText,
         fontSize: 13,
         fontFamily: '"Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif',
       },
@@ -183,16 +198,18 @@ export default function PassportPage() {
         const dateStr = regionData?.unlocked_at
           ? new Date(regionData.unlocked_at).toLocaleDateString('zh-CN')
           : null
+        const vermilionColor = isDark ? '#C96B5F' : '#B8463A'
+        const grayColor = isDark ? '#A09888' : '#C4BEB4'
         return `
           <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif;min-width:150px">
-            <div style="font-size:15px;font-weight:600;color:#2C241A;margin-bottom:8px;border-bottom:1px solid #E8D5B0;padding-bottom:6px">
-              📍 ${short}
+            <div style="font-size:15px;font-weight:600;color:${tooltipText};margin-bottom:8px;border-bottom:1px solid ${tooltipBorder};padding-bottom:6px">
+              \u{1F4CD} ${short}
             </div>
-            <div style="font-size:13px;color:#6B5F52;margin-bottom:4px">
-              状态：<b style="color:${hasExplored ? '#B8463A' : '#6B5F52'};font-size:14px">${hasExplored ? '✅ 已探索' : '⏳ 尚未探索'}</b>
+            <div style="font-size:13px;color:${tooltipSecondary};margin-bottom:4px">
+              状态：<b style="color:${hasExplored ? vermilionColor : tooltipSecondary};font-size:14px">${hasExplored ? '✅ 已探索' : '⏳ 尚未探索'}</b>
             </div>
-            ${dateStr ? `<div style="font-size:13px;color:#6B5F52">解锁于：${dateStr}</div>` : ''}
-            ${!hasExplored ? '<div style="font-size:11px;color:#C4BEB4;margin-top:6px;font-style:italic">继续探索非遗世界…</div>' : ''}
+            ${dateStr ? `<div style="font-size:13px;color:${tooltipSecondary}">解锁于：${dateStr}</div>` : ''}
+            ${!hasExplored ? `<div style="font-size:11px;color:${grayColor};margin-top:6px;font-style:italic">继续探索非遗世界…</div>` : ''}
           </div>`
       },
     },
@@ -201,7 +218,7 @@ export default function PassportPage() {
       max: 1,
       pieces: [
         { value: 1, color: GOLD, label: '已探索' },
-        { value: 0, color: REGION_COLOR_0, label: '未探索' },
+        { value: 0, color: unexploredColor, label: '未探索' },
       ],
       show: false,
     },
@@ -211,16 +228,16 @@ export default function PassportPage() {
       scaleLimit: { min: 1, max: 3 },
       label: { show: false },
       itemStyle: {
-        areaColor: REGION_COLOR_0,
-        borderColor: '#D5CFC0',
+        areaColor,
+        borderColor,
         borderWidth: 0.8,
         shadowColor: 'rgba(30,27,24,0.06)',
         shadowBlur: 4,
       },
       emphasis: {
-        label: { show: true, color: INK, fontSize: 13, fontWeight: 600 },
+        label: { show: true, color: emphasisLabelColor, fontSize: 13, fontWeight: 600 },
         itemStyle: {
-          areaColor: GOLD_LIGHT,
+          areaColor: emphasisAreaColor,
           borderColor: GOLD,
           borderWidth: 2,
           shadowColor: 'rgba(196,162,101,0.30)',
@@ -235,7 +252,7 @@ export default function PassportPage() {
       data: regionMapData,
       selectedMode: false,
     }],
-  }), [regionMapData, regions])
+  }}, [regionMapData, regions, isDark])
 
   // 导出护照
   const handleExport = async () => {
@@ -244,7 +261,7 @@ export default function PassportPage() {
     try {
       const html2canvas = (await import('html2canvas')).default
       const canvas = await html2canvas(passportRef.current, {
-        backgroundColor: PAPER,
+        backgroundColor: isDark ? DARK_PAPER : PAPER,
         scale: 2,
         useCORS: true,
       })
@@ -433,8 +450,8 @@ export default function PassportPage() {
               dot: <span style={{ fontSize: 20 }}>{m.icon}</span>,
               children: (
                 <div>
-                  <div style={{ fontWeight: 600, color: INK, marginBottom: 2 }}>{m.title}</div>
-                  <div style={{ fontSize: 'var(--text-xs)', color: INK_SECONDARY }}>{m.description}</div>
+                  <div style={{ fontWeight: 600, color: 'var(--color-ink)', marginBottom: 2 }}>{m.title}</div>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)' }}>{m.description}</div>
                   {m.date && (
                     <div style={{ fontSize: 'var(--text-xs)', color: GOLD, marginTop: 2 }}>
                       {new Date(m.date).toLocaleDateString('zh-CN')}
@@ -507,7 +524,7 @@ export default function PassportPage() {
                 <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)', marginBottom: 6 }}>
                   探索覆盖率
                 </div>
-                <div style={{ fontSize: 30, fontWeight: 700, color: INK, fontFamily: 'var(--font-display)' }}>
+                <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-ink)', fontFamily: 'var(--font-display)' }}>
                   {totalProvinces > 0 ? Math.round(regions.length / totalProvinces * 100) : 0}%
                 </div>
               </Card>
@@ -546,7 +563,7 @@ export default function PassportPage() {
               border: '1px solid var(--color-border-light)',
               borderRadius: 12,
               overflow: 'hidden',
-              background: PAPER,
+              background: 'var(--color-paper-white)',
             }}
           >
             <ReactECharts
@@ -584,14 +601,14 @@ export default function PassportPage() {
               background: REGION_COLOR_0,
               border: '1px solid #D5CFC0',
             }} />
-            <span style={{ fontSize: 'var(--text-xs)', color: INK_SECONDARY }}>未探索</span>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)' }}>未探索</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{
               width: 14, height: 14, borderRadius: 3,
               background: GOLD,
             }} />
-            <span style={{ fontSize: 'var(--text-xs)', color: INK_SECONDARY }}>已探索</span>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)' }}>已探索</span>
           </div>
         </div>
 
@@ -625,7 +642,7 @@ export default function PassportPage() {
                       border: isSelected
                         ? `2px solid ${VERMILION}`
                         : '1px solid var(--color-border-light)',
-                      background: isSelected ? '#FFF5F3' : PAPER,
+                      background: isSelected ? (isDark ? 'rgba(201,107,95,0.12)' : '#FFF5F3') : 'var(--color-paper-white)',
                       transition: 'all var(--duration-normal) var(--ease-out)',
                       boxShadow: isSelected
                         ? '0 4px 14px rgba(184,70,58,0.12)'
@@ -638,7 +655,7 @@ export default function PassportPage() {
                       justifyContent: 'space-between',
                       marginBottom: 8,
                     }}>
-                      <span style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: INK }}>
+                      <span style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
                         📍 {r.region_code}
                       </span>
                       {isSelected && (
@@ -655,7 +672,7 @@ export default function PassportPage() {
                       size="small"
                     />
                     {r.unlocked_at && (
-                      <div style={{ fontSize: 'var(--text-xs)', color: INK_SECONDARY, marginTop: 6 }}>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)', marginTop: 6 }}>
                         🗓 {new Date(r.unlocked_at).toLocaleDateString('zh-CN')}
                       </div>
                     )}

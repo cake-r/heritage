@@ -1,4 +1,6 @@
-/** 非遗品类完整色板 — 19 品类 */
+/** 非遗品类完整色板 — 19 品类，亮/暗双模式 */
+
+// === 亮色模式色板 ===
 export const CATEGORY_COLORS: Record<string, string> = {
   '刺绣': '#C41E3A',
   '陶瓷': '#2B5F8A',
@@ -21,9 +23,41 @@ export const CATEGORY_COLORS: Record<string, string> = {
   '其他': '#999999',
 }
 
-export const DEFAULT_CATEGORY_COLOR = '#999999'
+// === 暗色模式色板（提亮以保持暗底对比度） ===
+const CATEGORY_COLORS_DARK: Record<string, string> = {
+  '刺绣': '#E06070',
+  '陶瓷': '#5B9FD8',
+  '剪纸': '#F08060',
+  '皮影': '#80B860',
+  '织锦': '#B86080',
+  '金属': '#D4A830',
+  '漆器': '#C04040',
+  '竹编': '#90B848',
+  '雕塑': '#A0A8B0',
+  '泥塑': '#C07850',
+  '民间美术': '#E898A8',
+  '戏曲': '#D47075',
+  '年画': '#F05860',
+  '蓝印花布': '#5088C0',
+  '紫砂': '#B87040',
+  '篆刻': '#786050',
+  '唐三彩': '#F0D070',
+  '书法': '#C0C0C0',
+  '其他': '#B0B0B0',
+}
 
-export function getCategoryColor(category: string): string {
+export const DEFAULT_CATEGORY_COLOR = '#999999'
+const DEFAULT_CATEGORY_COLOR_DARK = '#B0B0B0'
+
+/**
+ * 获取品类色板（亮/暗模式自适应）
+ * @param category - 品类名称
+ * @param isDark - 是否暗色模式
+ */
+export function getCategoryColor(category: string, isDark = false): string {
+  if (isDark) {
+    return CATEGORY_COLORS_DARK[category] || DEFAULT_CATEGORY_COLOR_DARK
+  }
   return CATEGORY_COLORS[category] || DEFAULT_CATEGORY_COLOR
 }
 

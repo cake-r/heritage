@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import {
   Layout, Menu, Card, Typography, Input, Select, Button, Badge,
   Row, Col, Drawer, Image, Tag, Pagination, Modal, Upload,
-  Form, Spin, Empty, Space, message, Segmented, Collapse, AutoComplete, Checkbox,
+  Form, Spin, Empty, Space, message, Segmented, Collapse, AutoComplete, Checkbox, Progress,
 } from 'antd'
 import {
   Search, UploadIcon, Heart,
@@ -451,7 +451,7 @@ export default function ExhibitionHall() {
     <Layout style={{ background: 'transparent', position: 'relative' }}>
       <MeanderPattern opacity={0.18} />
       {/* 左侧分类导航 */}
-      <Sider width={160} style={{ background: '#fff', borderRadius: 12, marginRight: 24, padding: '16px 0' }}>
+      <Sider width={160} style={{ background: 'var(--color-paper-white)', borderRadius: 12, marginRight: 24, padding: '16px 0' }}>
         <div style={{ padding: '0 16px', marginBottom: 8 }}>
           <Text strong>非遗品类</Text>
         </div>
@@ -549,14 +549,25 @@ export default function ExhibitionHall() {
             )}
             <Col xs={12} sm={9} style={{ textAlign: 'right' }}>
               <Space wrap>
-                <Button
-                  icon={<Maximize />}
-                  onClick={() => setExpandOpen(true)}
-                  disabled={!isAuthenticated || taskRunning}
-                  title="AI 扩充知识库"
-                >
-                  扩充
-                </Button>
+                <Space size={8}>
+                  <Button
+                    icon={<Maximize />}
+                    onClick={() => setExpandOpen(true)}
+                    disabled={!isAuthenticated || taskRunning}
+                    title="AI 扩充知识库"
+                  >
+                    扩充
+                  </Button>
+                  {taskRunning && (
+                    <Progress
+                      type="circle"
+                      percent={Math.round((taskProgress.completed / Math.max(taskProgress.total, 1)) * 100)}
+                      size={40}
+                      strokeColor="var(--color-gold)"
+                      format={() => `${taskProgress.completed}/${taskProgress.total}`}
+                    />
+                  )}
+                </Space>
                 {reviewTotal > 0 && (
                   <Badge count={reviewTotal} size="small" offset={[-4, 4]}>
                     <Button
@@ -640,14 +651,14 @@ export default function ExhibitionHall() {
                               type="text"
                               icon={favIds.has(`${item.item_type || 'heritage'}:${item.id}`) ? <Heart fill="#C41E3A" color="#C41E3A" /> : <Heart />}
                               onClick={e => { e.stopPropagation(); handleToggleFavorite(item) }}
-                              style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.8)' }}
+                              style={{ position: 'absolute', top: 8, right: 8, background: 'var(--glass-bg-strong)' }}
                             />
                           )}
                         </div>
                       ) : (
                         <div style={{
                           height: viewMode === 'waterfall' ? 280 : 200,
-                          background: '#f5f5f5',
+                          background: 'var(--color-paper)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           borderTopLeftRadius: 12, borderTopRightRadius: 12,
                         }}>
@@ -1225,10 +1236,10 @@ function ItemDetail({ item }: { item: HeritageItem }) {
           <Text strong style={{ fontSize: 15 }}>📖 简介</Text>
           <div style={{
             marginTop: 8, lineHeight: 1.9, maxHeight: 300, overflowY: 'auto',
-            padding: '12px 16px', background: '#fafaf8', borderRadius: 8,
-            border: '1px solid #f0ebe0',
+            padding: '12px 16px', background: 'var(--color-paper)', borderRadius: 8,
+            border: '1px solid var(--color-border-light)',
           }}>
-            <Paragraph style={{ margin: 0, color: '#4a3f35' }}>{item.description}</Paragraph>
+            <Paragraph style={{ margin: 0, color: 'var(--color-ink-secondary)' }}>{item.description}</Paragraph>
           </div>
         </div>
       )}
@@ -1245,10 +1256,10 @@ function ItemDetail({ item }: { item: HeritageItem }) {
               children: (
                 <div>
                   {item.techniques.map((t, i) => (
-                    <Card key={i} size="small" style={{ marginBottom: 8, background: '#fafaf8', borderRadius: 8 }}>
+                    <Card key={i} size="small" style={{ marginBottom: 8, background: 'var(--color-paper)', borderRadius: 8 }}>
                       <Text strong style={{ color: '#C41E3A' }}>{t.name}</Text>
                       {t.desc && (
-                        <Paragraph style={{ margin: '8px 0 0', color: '#5a5045', lineHeight: 1.7 }}>
+                        <Paragraph style={{ margin: '8px 0 0', color: 'var(--color-ink-tertiary)', lineHeight: 1.7 }}>
                           {t.desc}
                         </Paragraph>
                       )}
@@ -1273,13 +1284,13 @@ function ItemDetail({ item }: { item: HeritageItem }) {
               children: (
                 <div>
                   {item.inheritors.map((inh, i) => (
-                    <Card key={i} size="small" style={{ marginBottom: 8, background: '#fafaf8', borderRadius: 8 }}>
+                    <Card key={i} size="small" style={{ marginBottom: 8, background: 'var(--color-paper)', borderRadius: 8 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <Text strong>{inh.name}</Text>
                         {inh.title && <Tag color="gold">{inh.title}</Tag>}
                       </div>
                       {inh.desc && (
-                        <Paragraph style={{ margin: '8px 0 0', color: '#5a5045', lineHeight: 1.7 }}>
+                        <Paragraph style={{ margin: '8px 0 0', color: 'var(--color-ink-tertiary)', lineHeight: 1.7 }}>
                           {inh.desc}
                         </Paragraph>
                       )}
@@ -1298,10 +1309,10 @@ function ItemDetail({ item }: { item: HeritageItem }) {
           <Text strong style={{ fontSize: 15 }}>🎭 文化寓意</Text>
           <div style={{
             marginTop: 8, lineHeight: 1.9, maxHeight: 300, overflowY: 'auto',
-            padding: '12px 16px', background: '#fafaf8', borderRadius: 8,
-            border: '1px solid #f0ebe0',
+            padding: '12px 16px', background: 'var(--color-paper)', borderRadius: 8,
+            border: '1px solid var(--color-border-light)',
           }}>
-            <Paragraph style={{ margin: 0, color: '#4a3f35' }}>{item.cultural_meaning}</Paragraph>
+            <Paragraph style={{ margin: 0, color: 'var(--color-ink-secondary)' }}>{item.cultural_meaning}</Paragraph>
           </div>
         </div>
       )}

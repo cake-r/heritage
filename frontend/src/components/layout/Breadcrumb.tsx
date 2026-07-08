@@ -90,7 +90,7 @@ export default function Breadcrumb() {
     const last = crumbs[crumbs.length - 1]
     return (
       <span style={{
-        fontSize: 'var(--text-sm)',
+        fontSize: 25,
         fontWeight: 600,
         color: 'var(--color-ink)',
         fontFamily: 'var(--font-display)',
@@ -121,7 +121,7 @@ export default function Breadcrumb() {
             )}
             {isLast ? (
               <span style={{
-                fontSize: 'var(--text-sm)',
+                fontSize: 25,
                 fontWeight: 600,
                 color: 'var(--color-gold)',
                 fontFamily: 'var(--font-display)',

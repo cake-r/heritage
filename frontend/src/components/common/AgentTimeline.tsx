@@ -110,7 +110,7 @@ function StepItem({ step, isLast, compact }: StepItemProps) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: step.status === 'running' ? '#e6f4ff' : 'transparent',
+            background: step.status === 'running' ? 'var(--color-bg-active)' : 'transparent',
             border: `2px solid ${getStatusColor(step.status)}`,
             fontSize: compact ? 12 : 14,
           }}
@@ -127,7 +127,7 @@ function StepItem({ step, isLast, compact }: StepItemProps) {
                 ? '#52c41a'
                 : step.status === 'failed'
                   ? '#ffd8d8'
-                  : '#f0f0f0',
+                  : 'var(--color-border-light)',
             }}
           />
         )}
@@ -208,12 +208,12 @@ function StepItem({ step, isLast, compact }: StepItemProps) {
                     style={{
                       marginTop: 6,
                       padding: 8,
-                      background: '#fafafa',
+                      background: 'var(--color-paper)',
                       borderRadius: 6,
                       fontSize: 11,
                       maxHeight: 120,
                       overflow: 'auto',
-                      border: '1px solid #f0f0f0',
+                      border: '1px solid var(--color-border-light)',
                     }}
                   >
                     {JSON.stringify(step.detail, null, 2)}
@@ -298,9 +298,9 @@ export default function AgentTimeline({
   return (
     <div
       style={{
-        background: '#fff',
+        background: 'var(--color-paper-white)',
         borderRadius: 8,
-        border: '1px solid #f0f0f0',
+        border: '1px solid var(--color-border-light)',
         padding: compact ? 12 : 16,
         maxHeight,
         overflowY: 'auto',

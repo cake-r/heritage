@@ -1,6 +1,8 @@
 import { useMemo, useRef, useEffect } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { Spin, Empty } from 'antd'
+import { useTheme } from '../../contexts/ThemeContext'
+import { DARK_INK, DARK_INK_SECONDARY, DARK_PAPER_WHITE } from '../../styles/chart-theme'
 import type { SunburstNode } from './useSunburstData'
 
 interface Props {
@@ -21,6 +23,8 @@ export default function SunburstChart({
   onTechniqueClick,
 }: Props) {
   const chartRef = useRef<any>(null)
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
 
   // Reset drill-down when data changes (e.g. filter applied)
   useEffect(() => {
@@ -84,7 +88,7 @@ export default function SunburstChart({
           type: 'sunburst',
           data: [data],
           radius: ['8%', '88%'],
-          center: ['50%', '52%'],
+          center: ['50%', '54%'],
           sort: 'desc',
           nodeClick: 'rootToNode' as const,
           emphasis: {
@@ -99,12 +103,12 @@ export default function SunburstChart({
               label: {
                 show: true,
                 rotate: 'radial' as const,
-                fontSize: 12,
-                color: '#2C241A',
+                fontSize: 25,
+                color: isDark ? DARK_INK : '#2C241A',
               },
               itemStyle: {
                 borderWidth: 2,
-                borderColor: '#fff',
+                borderColor: isDark ? DARK_PAPER_WHITE : '#fff',
               },
             },
             {
@@ -112,11 +116,14 @@ export default function SunburstChart({
               r0: '45%',
               r: '72%',
               label: {
-                show: false,
+                show: true,
+                rotate: 'radial' as const,
+                fontSize: 25,
+                color: isDark ? DARK_INK : '#2C241A',
               },
               itemStyle: {
                 borderWidth: 1,
-                borderColor: '#fff',
+                borderColor: isDark ? DARK_PAPER_WHITE : '#fff',
               },
             },
             {
@@ -124,18 +131,21 @@ export default function SunburstChart({
               r0: '72%',
               r: '90%',
               label: {
-                show: false,
+                show: true,
+                rotate: 'radial' as const,
+                fontSize: 12,
+                color: isDark ? DARK_INK_SECONDARY : '#5A4F42',
               },
               itemStyle: {
                 borderWidth: 0.5,
-                borderColor: '#fff',
+                borderColor: isDark ? DARK_PAPER_WHITE : '#fff',
               },
             },
           ],
         },
       ],
     }
-  }, [data])
+  }, [data, isDark])
 
   const onEvents = useMemo(() => ({
     click: (params: any) => {
@@ -180,7 +190,7 @@ export default function SunburstChart({
 
   if (!data) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 520 }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 750 }}>
         <Spin tip="加载图谱数据..." />
       </div>
     )
@@ -190,7 +200,7 @@ export default function SunburstChart({
   const hasData = data.children && data.children.some(c => (c.children?.length || 0) > 0)
   if (!hasData) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 520 }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 750 }}>
         <Empty description="该筛选条件下暂无项目" />
       </div>
     )
@@ -200,7 +210,7 @@ export default function SunburstChart({
     <ReactECharts
       ref={chartRef}
       option={option}
-      style={{ height: 520, width: '100%' }}
+      style={{ height: 750, width: '100%' }}
       onEvents={stableOnEvents}
       notMerge
       lazyUpdate

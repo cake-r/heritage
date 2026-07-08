@@ -13,6 +13,16 @@ import ReactECharts from 'echarts-for-react'
 import { Empty } from 'antd'
 import { getCategoryColor } from '../../utils/categoryColors'
 import { useFilters } from './FilterContext'
+import { useTheme } from '../../contexts/ThemeContext'
+import {
+  DARK_PAPER_WHITE,
+  DARK_INK,
+  DARK_INK_SECONDARY,
+  DARK_VERMILION,
+  GOLD_LIGHT,
+  VERMILION,
+  BORDER_MEDIUM,
+} from '../../styles/chart-theme'
 import type { RegionData, ItemNode } from '../../services/knowledgeGraph'
 
 interface Props {
@@ -23,13 +33,6 @@ interface Props {
 
 let chinaGeo: any = null
 
-// ===== 硬编码色值（来自 tokens.css，Canvas 兼容） =====
-const INK = '#2C241A'
-const INK_SECONDARY = '#6B5F52'
-const PAPER_WHITE = '#FFFDF9'
-const GOLD_LIGHT = '#E8D5B0'
-const BORDER_MEDIUM = '#D5CFC0'
-const VERMILION = '#B8463A'
 const FONT_DISPLAY = '"Noto Serif SC", "Source Han Serif SC", SimSun, serif'
 const FONT_BODY = '"Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif'
 
@@ -59,6 +62,8 @@ function toShortName(fullName: string): string {
 
 export default function ChoroplethMap({ data, allItems, activeCategory }: Props) {
   const { region, setRegion } = useFilters()
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const [geoLoaded, setGeoLoaded] = useState(false)
   const chartRef = useRef<any>(null)
 
@@ -132,36 +137,43 @@ export default function ChoroplethMap({ data, allItems, activeCategory }: Props)
   const option = useMemo(() => {
     if (!geoLoaded || !data.length) return {}
 
+    // isDark-aware colors
+    const paperWhite = isDark ? DARK_PAPER_WHITE : '#FFFDF9'
+    const ink = isDark ? DARK_INK : '#2C241A'
+    const inkSecondary = isDark ? DARK_INK_SECONDARY : '#6B5F52'
+    const vermilion = isDark ? DARK_VERMILION : VERMILION
+    const borderMedium = isDark ? '#4A4540' : BORDER_MEDIUM
+
     return {
       tooltip: {
         trigger: 'item' as const,
-        backgroundColor: PAPER_WHITE,
+        backgroundColor: paperWhite,
         borderColor: GOLD_LIGHT,
         borderWidth: 1,
         padding: [14, 18],
-        extraCssText: 'border-radius:10px;box-shadow:0 4px 16px rgba(30,27,24,0.10);',
-        textStyle: { color: INK, fontSize: 13, fontFamily: FONT_BODY },
+        extraCssText: `border-radius:10px;box-shadow:0 4px 16px ${isDark ? 'rgba(0,0,0,0.4)' : 'rgba(30,27,24,0.10)'};`,
+        textStyle: { color: ink, fontSize: 15, fontFamily: FONT_BODY },
         formatter: (params: any) => {
           if (params.seriesType !== 'map') return params.name
           const d = filteredMapData.find(r => r.name === params.name)
           if (!d || d.value === 0) {
-            return `<div style="font-family:'Noto Serif SC',serif;padding:4px"><b>${params.name}</b><br/><span style="color:#8A8378">暂无收录</span></div>`
+            return `<div style="font-family:'Noto Serif SC',serif;padding:4px"><b>${params.name}</b><br/><span style="color:${inkSecondary}">暂无收录</span></div>`
           }
           const catDots = d._categories.slice(0, 5).map((c: string) =>
             `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${getCategoryColor(c)};margin-right:4px;vertical-align:middle"></span>${c}`
           ).join('<br/>')
           const more = d._categories.length > 5
-            ? `<br/><span style="color:#8A8378;font-size:11px">...共${d._categories.length}个品类</span>` : ''
+            ? `<br/><span style="color:${inkSecondary};font-size:13px">...共${d._categories.length}个品类</span>` : ''
           return `
             <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif;min-width:170px">
-              <div style="font-size:15px;font-weight:600;color:#2C241A;margin-bottom:8px;border-bottom:1px solid #E8D5B0;padding-bottom:6px">
+              <div style="font-size:17px;font-weight:600;color:${ink};margin-bottom:8px;border-bottom:1px solid ${GOLD_LIGHT};padding-bottom:6px">
                 🏛 ${d._rawName || d.name}
               </div>
-              <div style="font-size:13px;color:#6B5F52;margin-bottom:4px">
-                非遗项目：<b style="color:#B8463A;font-size:16px">${d.value}</b> 项
+              <div style="font-size:15px;color:${inkSecondary};margin-bottom:4px">
+                非遗项目：<b style="color:${vermilion};font-size:18px">${d.value}</b> 项
               </div>
-              ${d._categories.length > 0 ? `<div style="font-size:12px;line-height:1.9;margin-top:4px;color:#5A4F42">${catDots}${more}</div>` : ''}
-              ${d._topTechniques.length > 0 ? `<div style="font-size:11px;color:#8A8378;margin-top:6px">热门技法：${d._topTechniques.slice(0, 3).join('、')}</div>` : ''}
+              ${d._categories.length > 0 ? `<div style="font-size:14px;line-height:1.9;margin-top:4px;color:${isDark ? '#A09888' : '#5A4F42'}">${catDots}${more}</div>` : ''}
+              ${d._topTechniques.length > 0 ? `<div style="font-size:13px;color:${inkSecondary};margin-top:6px">热门技法：${d._topTechniques.slice(0, 3).join('、')}</div>` : ''}
             </div>`
         },
       },
@@ -180,7 +192,7 @@ export default function ChoroplethMap({ data, allItems, activeCategory }: Props)
         itemWidth: 16,
         itemHeight: 10,
         itemGap: 6,
-        textStyle: { fontSize: 11, color: INK_SECONDARY, fontFamily: FONT_BODY },
+        textStyle: { fontSize: 13, color: inkSecondary, fontFamily: FONT_BODY },
         showLabel: true,
       },
       series: [
@@ -195,16 +207,16 @@ export default function ChoroplethMap({ data, allItems, activeCategory }: Props)
           nameMap,  // 短名 → 全名桥接
           label: {
             show: true,
-            fontSize: 10,
-            color: INK_SECONDARY,
+            fontSize: 12,
+            color: inkSecondary,
             fontFamily: FONT_DISPLAY,
             formatter: (params: any) => labeledProvinces.has(params.name) ? params.name : '',
           },
           emphasis: {
-            label: { show: true, fontSize: 14, fontWeight: 'bold' as const, fontFamily: FONT_DISPLAY, color: VERMILION },
-            itemStyle: { borderColor: VERMILION, borderWidth: 2.5, shadowBlur: 20, shadowColor: 'rgba(184, 70, 58, 0.45)' },
+            label: { show: true, fontSize: 16, fontWeight: 'bold' as const, fontFamily: FONT_DISPLAY, color: vermilion },
+            itemStyle: { borderColor: vermilion, borderWidth: 2.5, shadowBlur: 20, shadowColor: isDark ? 'rgba(201,107,95,0.45)' : 'rgba(184, 70, 58, 0.45)' },
           },
-          itemStyle: { borderColor: BORDER_MEDIUM, borderWidth: 0.5, areaColor: COLOR_0 },
+          itemStyle: { borderColor: borderMedium, borderWidth: 0.5, areaColor: COLOR_0 },
           data: filteredMapData,
           ...(region ? {
             selectedMode: 'single' as const,
@@ -213,7 +225,7 @@ export default function ChoroplethMap({ data, allItems, activeCategory }: Props)
         },
       ],
     }
-  }, [data, region, geoLoaded, maxVal, filteredMapData, labeledProvinces, nameMap])
+  }, [data, region, geoLoaded, maxVal, filteredMapData, labeledProvinces, nameMap, isDark])
 
   // 点击 → setRegion（使用短名）
   const rawNameLookup = useMemo(() => {
@@ -250,7 +262,7 @@ export default function ChoroplethMap({ data, allItems, activeCategory }: Props)
   }, [geoLoaded])
 
   if (!geoLoaded) {
-    return <div style={{ height: 380, display: 'flex', alignItems: 'center', justifyContent: 'center', color: INK_SECONDARY }}>加载地图中...</div>
+    return <div style={{ height: 380, display: 'flex', alignItems: 'center', justifyContent: 'center', color: isDark ? DARK_INK_SECONDARY : '#6B5F52' }}>加载地图中...</div>
   }
 
   if (!data.length) {
@@ -260,7 +272,9 @@ export default function ChoroplethMap({ data, allItems, activeCategory }: Props)
   return (
     <div style={{ position: 'relative' }}>
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1,
-        background: 'radial-gradient(ellipse at 20% 50%, rgba(247,244,237,0.25) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(247,244,237,0.15) 0%, transparent 50%)',
+        background: isDark
+          ? 'radial-gradient(ellipse at 20% 50%, rgba(32,28,24,0.25) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(32,28,24,0.15) 0%, transparent 50%)'
+          : 'radial-gradient(ellipse at 20% 50%, rgba(247,244,237,0.25) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(247,244,237,0.15) 0%, transparent 50%)',
       }} />
       <ReactECharts ref={chartRef} option={option} style={{ height: 380, width: '100%' }} onEvents={onEvents} notMerge />
     </div>

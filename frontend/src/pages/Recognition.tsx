@@ -327,7 +327,7 @@ export default function Recognition() {
 
           {/* === 最近识别记录 === */}
           <Card
-            title={<span><History style={{ marginRight: 8 }} />最近识别</span>}
+            title={<span style={{ fontSize: 20 }}><History style={{ marginRight: 8 }} />最近识别</span>}
             extra={
               recentRecords.length > 0 && (
                 <Button type="link" size="small" onClick={() => navigate('/user-center/recognition')}>
@@ -345,7 +345,7 @@ export default function Recognition() {
               <div style={{ textAlign: 'center', padding: 20 }}>
                 <Image style={{ fontSize: 32, color: '#ccc', marginBottom: 8 }} />
                 <div>
-                  <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
+                  <Text type="secondary" style={{ fontSize: 17 }}>
                     还没有识别记录，上传第一张图片开始体验吧
                   </Text>
                 </div>
@@ -365,14 +365,14 @@ export default function Recognition() {
                         alt={record.category || '识别记录'}
                         style={{
                           width: '100%', height: 120, objectFit: 'cover',
-                          borderRadius: 6, background: '#f5f0e8',
+                          borderRadius: 6, background: 'var(--color-paper)',
                         }}
                       />
                       <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Tag color={getCategoryColor(record.category)} style={{ margin: 0, fontSize: 12 }}>
+                        <Tag color={getCategoryColor(record.category)} style={{ margin: 0, fontSize: 14 }}>
                           {record.category}
                         </Tag>
-                        <Text type="secondary" style={{ fontSize: 11 }}>
+                        <Text type="secondary" style={{ fontSize: 13 }}>
                           {new Date(record.created_at).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
                         </Text>
                       </div>
@@ -412,7 +412,7 @@ export default function Recognition() {
                           alt={sample.label}
                           style={{
                             width: '100%', height: 120, objectFit: 'cover',
-                            borderRadius: 6, background: '#f5f0e8',
+                            borderRadius: 6, background: 'var(--color-paper)',
                           }}
                         />
                         <div style={{ marginTop: 8 }}>
@@ -564,12 +564,12 @@ function ResultDisplay({
 
         {/* 识别结果摘要 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0', borderTop: '1px solid var(--color-border-light, #E8E4D8)' }}>
-          <Tag color="var(--color-vermilion, #B8463A)" style={{ fontSize: 16, padding: '4px 16px' }}>
+          <Tag color="#B8463A" style={{ fontSize: 16, padding: '4px 16px' }}>
             🏷 {result.category}
           </Tag>
           <Tag color="blue">置信度 {(result.confidence * 100).toFixed(1)}%</Tag>
           <Space size={4}>
-            {result.features.map(f => (
+            {result.features?.map(f => (
               <Tag key={f} color="gold">{f}</Tag>
             ))}
           </Space>
@@ -586,22 +586,22 @@ function ResultDisplay({
             {
               key: 'history',
               label: '📜 历史渊源',
-              children: <MarkdownContent content={result.explanation.history} />,
+              children: <MarkdownContent content={result.explanation?.history || ''} />,
             },
             {
               key: 'technique',
               label: '🔧 制作工艺',
-              children: <MarkdownContent content={result.explanation.technique} />,
+              children: <MarkdownContent content={result.explanation?.technique || ''} />,
             },
             {
               key: 'inheritor',
               label: '👤 传承人故事',
-              children: <MarkdownContent content={result.explanation.inheritor} />,
+              children: <MarkdownContent content={result.explanation?.inheritor || ''} />,
             },
             {
               key: 'meaning',
               label: '🎭 文化寓意',
-              children: <MarkdownContent content={result.explanation.meaning} />,
+              children: <MarkdownContent content={result.explanation?.meaning || ''} />,
             },
           ]}
         />
@@ -611,16 +611,16 @@ function ResultDisplay({
       <Row gutter={16}>
         <Col xs={24} md={12}>
           <Card title="🏆 Top 3 候选" style={{ borderRadius: 12, marginBottom: 16 }}>
-            {result.top3.map((item, i) => (
+            {(result.top3 || []).map((item, i) => (
               <div
                 key={item.category}
                 style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '10px 0', borderBottom: i < result.top3.length - 1 ? '1px solid var(--color-border-light, #E8E4D8)' : 'none',
+                  padding: '10px 0', borderBottom: i < (result.top3 || []).length - 1 ? '1px solid var(--color-border-light, #E8E4D8)' : 'none',
                 }}
               >
                 <Space>
-                  <Tag color={i === 0 ? 'var(--color-vermilion, #B8463A)' as any : 'default'}>{i + 1}</Tag>
+                  <Tag color={i === 0 ? '#B8463A' : 'default'}>{i + 1}</Tag>
                   <Text strong={i === 0}>{item.category}</Text>
                 </Space>
                 <Text type="secondary">{(item.confidence * 100).toFixed(1)}%</Text>
@@ -633,7 +633,7 @@ function ResultDisplay({
           <Card title="🔗 关联推荐" style={{ borderRadius: 12, marginBottom: 16 }}>
             <Text type="secondary" style={{ fontSize: 12 }}>相关文创</Text>
             <div style={{ marginBottom: 16 }}>
-              {result.related.creations.map(c => (
+              {result.related?.creations?.map(c => (
                 <Button
                   key={c.style}
                   type="link"
@@ -647,7 +647,7 @@ function ResultDisplay({
             </div>
 
             <Text type="secondary" style={{ fontSize: 12 }}>展厅藏品</Text>
-            {result.related.exhibits.length > 0 ? (
+            {result.related?.exhibits?.length > 0 ? (
               result.related.exhibits.map(e => (
                 <Button
                   key={e.id}

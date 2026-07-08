@@ -17,6 +17,8 @@ import {
   type DashboardLeaderboard,
 } from '../../services/admin'
 import { LoomGridPattern } from '../../components/decoration'
+import { useTheme } from '../../contexts/ThemeContext'
+import { DARK_DEEP } from '../../styles/chart-theme'
 
 const { Title } = Typography
 
@@ -45,6 +47,8 @@ export default function DataCockpit() {
   const [loading, setLoading] = useState(true)
   const [trendDays, setTrendDays] = useState(7)
   const [geoLoaded, setGeoLoaded] = useState(false)
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
 
   useEffect(() => {
     if (chinaGeo) { setGeoLoaded(true); return }
@@ -173,7 +177,7 @@ export default function DataCockpit() {
     visualMap: {
       min: 0,
       max: Math.max(...regionMapData.map(d => d.value), 1),
-      inRange: { color: ['#F7F4ED', '#E8D5B0', '#C4A265', '#B8463A'] },
+      inRange: { color: isDark ? ['#1E1B18', '#3A3020', '#C4A265', '#C96B5F'] : ['#F7F4ED', '#E8D5B0', '#C4A265', '#B8463A'] },
       show: false,
     },
     geo: {
@@ -181,18 +185,18 @@ export default function DataCockpit() {
       roam: false,
       label: { show: false },
       itemStyle: {
-        areaColor: '#F7F4ED',
-        borderColor: '#D5CFC0',
+        areaColor: isDark ? DARK_DEEP : '#F7F4ED',
+        borderColor: isDark ? '#3A3530' : '#D5CFC0',
         borderWidth: 0.5,
       },
       emphasis: {
-        itemStyle: { areaColor: '#E8D5B0' },
+        itemStyle: { areaColor: isDark ? '#4A3A28' : '#E8D5B0' },
       },
     },
     series: [{
       type: 'map', map: 'china', geoIndex: 0, data: regionMapData,
     }],
-  }), [regionMapData])
+  }), [regionMapData, isDark])
 
   if (loading && !overview) {
     return <Spin size="large" style={{ display: 'block', margin: '80px auto' }} />
@@ -313,12 +317,12 @@ export default function DataCockpit() {
                       <span style={{
                         width: 24, height: 24, borderRadius: '50%',
                         background: i < 3 ? ['#C4A265', '#C0C0C0', '#CD7F32'][i] : '#F5F2EC',
-                        color: i < 3 ? '#fff' : INK,
+                        color: i < 3 ? '#fff' : 'var(--color-ink)',
                         textAlign: 'center', lineHeight: '24px', fontSize: 12, fontWeight: 600,
                       }}>
                         {i + 1}
                       </span>
-                      <span style={{ fontSize: 'var(--text-sm)', color: INK }}>{u.name}</span>
+                      <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>{u.name}</span>
                     </div>
                     <span style={{ fontSize: 'var(--text-xs)', color: GOLD, fontWeight: 600 }}>
                       {u.value} 印章

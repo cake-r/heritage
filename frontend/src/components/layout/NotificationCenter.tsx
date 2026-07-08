@@ -156,7 +156,7 @@ export default function NotificationCenter() {
       <Badge count={unreadCount} size="small" offset={[-2, 2]}>
         <Button
           type="text"
-          icon={<Bell size={18} />}
+          icon={<Bell size={25} />}
           aria-label="通知中心"
         />
       </Badge>

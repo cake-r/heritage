@@ -20,6 +20,7 @@ import XpGainAnimation from '../cultivation/XpGainAnimation'
 import Breadcrumb from './Breadcrumb'
 import CommandPalette from './CommandPalette'
 import NotificationCenter from './NotificationCenter'
+import { MeanderPattern } from '../decoration'
 
 const { Header: AntHeader } = Layout
 
@@ -50,8 +51,8 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
   }, [handleKeyDown])
 
   const userMenuItems = [
-    { key: 'profile', icon: <User size={18} />, label: '个人中心', onClick: () => navigate('/user-center') },
-    { key: 'logout', icon: <LogOut size={18} />, label: '退出登录', onClick: logout },
+    { key: 'profile', icon: <User size={25} />, label: '个人中心', onClick: () => navigate('/user-center') },
+    { key: 'logout', icon: <LogOut size={25} />, label: '退出登录', onClick: logout },
   ]
 
   return (
@@ -63,29 +64,56 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid var(--gray-100)',
           height: 64,
-          boxShadow: 'var(--shadow-sm)',
           transition: 'background var(--duration-normal) var(--ease-out)',
           position: 'sticky',
           top: 0,
           zIndex: 100,
           gap: isMobile ? 8 : 16,
+          overflow: 'hidden',
+          borderBottom: 'none',
         }}
       >
-        {/* ======== 左侧：侧栏切换 + 品牌 ======== */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        {/* 极淡织锦暗纹 */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
+        }}>
+          <MeanderPattern opacity={0.25} color="#C4A265" mode="band" cellSize={40} />
+        </div>
+
+        {/* 鎏金渐变底线 */}
+        <div aria-hidden="true" style={{
+          position: 'absolute',
+          bottom: 0, left: 0, right: 0,
+          height: 2,
+          background: `linear-gradient(90deg,
+            transparent 0%,
+            var(--color-gold) 15%,
+            var(--color-vermilion) 50%,
+            var(--color-gold) 85%,
+            transparent 100%)`,
+          zIndex: 1,
+        }} />
+
+        {/* 内容层 — 覆盖在装饰上方 */}
+        <div style={{
+          position: 'relative', zIndex: 2,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          width: '100%', height: '100%',
+        }}>
+          {/* ======== 左侧：侧栏切换 + 品牌 ======== */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
           {isMobile ? (
             <Button
               type="text"
-              icon={<Menu size={20} />}
+              icon={<Menu size={25} />}
               onClick={onMobileMenuClick}
               aria-label="打开菜单"
             />
           ) : (
             <Button
               type="text"
-              icon={sidebarCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+              icon={sidebarCollapsed ? <PanelLeftOpen size={25} /> : <PanelLeftClose size={25} />}
               onClick={toggleSidebar}
               aria-label={sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
             />
@@ -122,7 +150,7 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
           {/* 全局搜索 */}
           <Button
             type="text"
-            icon={<Search size={18} />}
+            icon={<Search size={25} />}
             onClick={() => setSearchOpen(true)}
             aria-label="全局搜索 (Ctrl+K)"
             title="全局搜索 (Ctrl+K)"
@@ -137,7 +165,7 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
           {/* 暗亮模式切换 */}
           <Button
             type="text"
-            icon={theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            icon={theme === 'dark' ? <Sun size={25} /> : <Moon size={25} />}
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? '切换亮色模式' : '切换暗色模式'}
             title={theme === 'dark' ? '亮色模式' : '暗色模式'}
@@ -151,14 +179,14 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
 
           {isAuthenticated ? (
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-              <Button type="text" icon={<User size={18} />}>
+              <Button type="text" icon={<User size={25} />}>
                 {!isMobile && (user?.nickname || user?.username)}
               </Button>
             </Dropdown>
           ) : (
             <Button
               type="primary"
-              icon={<LogIn size={18} />}
+              icon={<LogIn size={25} />}
               onClick={() => navigate('/login')}
               style={{
                 background: 'var(--color-vermilion)',
@@ -171,8 +199,9 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
           )}
         </Space>
 
-        {/* XP 获得动画 */}
-        <XpGainAnimation />
+          {/* XP 获得动画 */}
+          <XpGainAnimation />
+        </div>
       </AntHeader>
 
       {/* 全局搜索命令面板 */}

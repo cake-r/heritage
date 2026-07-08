@@ -59,7 +59,7 @@ export default function SkillProgressCard({ tree }: Props) {
             width: 36, height: 36, borderRadius: 8,
             background: `${color}14`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 20, flexShrink: 0,
+            fontSize: 22, flexShrink: 0,
           }}>
             {TREE_ICONS[tree.tree_name] || '📋'}
           </div>
@@ -70,11 +70,11 @@ export default function SkillProgressCard({ tree }: Props) {
               display: 'flex', justifyContent: 'space-between',
               alignItems: 'baseline', marginBottom: 4,
             }}>
-              <Text strong style={{ fontSize: 'var(--text-sm)' }}>
+              <Text strong style={{ fontSize: 17 }}>
                 {tree.label}
               </Text>
               <Text style={{
-                fontSize: 'var(--text-xs)',
+                fontSize: 16,
                 color,
                 fontWeight: 600,
                 fontFamily: 'var(--font-display)',
@@ -83,7 +83,7 @@ export default function SkillProgressCard({ tree }: Props) {
               </Text>
             </div>
 
-            <Text type="secondary" style={{ fontSize: 'var(--text-xs)', display: 'block', marginBottom: 6 }}>
+            <Text type="secondary" style={{ fontSize: 16, display: 'block', marginBottom: 6 }}>
               {levelLabel}
             </Text>
 
@@ -96,7 +96,7 @@ export default function SkillProgressCard({ tree }: Props) {
                 style={{ flex: 1, marginBottom: 0 }}
                 showInfo={false}
               />
-              <Text type="secondary" style={{ fontSize: 11, whiteSpace: 'nowrap' }}>
+              <Text type="secondary" style={{ fontSize: 13, whiteSpace: 'nowrap' }}>
                 {tree.current}/{tree.threshold}
               </Text>
             </div>

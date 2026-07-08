@@ -255,10 +255,10 @@ const RepairCanvas = forwardRef<RepairCanvasHandle, Props>(
           zIndex: 10,
           display: 'flex',
           gap: 4,
-          background: 'rgba(255,255,255,0.9)',
+          background: 'var(--glass-bg-strong)',
           borderRadius: 8,
           padding: '4px 6px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          boxShadow: 'var(--shadow-md)',
         }}>
           <Tooltip title="放大">
             <Button size="small" icon={<ZoomIn />} onClick={handleZoomIn} />
@@ -269,7 +269,7 @@ const RepairCanvas = forwardRef<RepairCanvasHandle, Props>(
           <Tooltip title="缩小">
             <Button size="small" icon={<ZoomOut />} onClick={handleZoomOut} />
           </Tooltip>
-          <div style={{ width: 1, height: 20, background: '#e0d8c8', margin: '2px 4px' }} />
+          <div style={{ width: 1, height: 20, background: 'var(--color-border-light)', margin: '2px 4px' }} />
           <Tooltip title="撤销">
             <Button size="small" icon={<RotateCw />} onClick={handleUndo} />
           </Tooltip>
@@ -297,7 +297,7 @@ const RepairCanvas = forwardRef<RepairCanvasHandle, Props>(
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(255,255,255,0.7)',
+            background: 'var(--glass-bg)',
             zIndex: 20,
             borderRadius: 8,
           }}>

@@ -117,11 +117,11 @@ const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function Wo
       {availableTools.length > 0 && (
         <div style={{ marginBottom: 8, overflowX: 'auto', whiteSpace: 'nowrap' }}>
           <Segmented
-            size="small"
+            size="middle"
             options={toolOptions}
             value={activeTool || ''}
             onChange={(val) => handleToolChange(String(val))}
-            style={{ fontSize: 13 }}
+            style={{ fontSize: 16 }}
           />
         </div>
       )}
