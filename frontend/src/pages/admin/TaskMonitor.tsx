@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { Table, Card, Row, Col, Statistic, Tag, Button, Select, Typography, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { fetchTaskQueueStatus, fetchAllTasks, adminRetryTask, adminCancelTask } from '../../services/admin'
+import { LoomGridPattern } from '../../components/decoration'
 
 const { Title } = Typography
 
@@ -73,7 +74,8 @@ export default function TaskMonitor() {
   ]
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      <LoomGridPattern opacity={0.18} />
       <Title level={4} style={{ marginBottom: 16 }}>任务监控</Title>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>

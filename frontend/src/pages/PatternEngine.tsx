@@ -16,6 +16,7 @@ import { normalizeImageUrl } from '../utils/imageUrl'
 import GeneCard from '../components/pattern/GeneCard'
 import CarrierTemplateSelector, { CARRIER_TEMPLATES } from '../components/pattern/CarrierTemplate'
 import PatternWorkbench from '../components/pattern/PatternWorkbench'
+import { BrocadePattern } from '../components/decoration'
 
 const { Dragger } = Upload
 const { Title, Text } = Typography
@@ -146,7 +147,8 @@ export default function PatternEngine() {
   const genesForWorkbench = matchedGenes.length > 0 ? matchedGenes : allGenes
 
   return (
-    <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ maxWidth: 1400, margin: '0 auto', position: 'relative' }}>
+      <BrocadePattern opacity={0.18} />
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <Title level={3} style={{ margin: 0, fontSize: 22 }}>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Card, InputNumber, Slider, Switch, Button, Typography, message, Spin, Divider } from 'antd'
 import { Save } from 'lucide-react'
 import { fetchConfig, updateConfig } from '../../services/admin'
+import { LoomGridPattern } from '../../components/decoration'
 
 const { Title, Text } = Typography
 
@@ -38,7 +39,8 @@ export default function ConfigPanel() {
   const recommendation = config.recommendation || {}
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      <LoomGridPattern opacity={0.18} />
       <Title level={4} style={{ marginBottom: 16 }}>系统配置</Title>
 
       <Card title="用户日配额" style={{ marginBottom: 16 }}>

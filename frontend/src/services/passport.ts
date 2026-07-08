@@ -96,5 +96,17 @@ export async function fetchStampConfig(): Promise<StampConfig[]> {
 
 export async function trackRegionVisit(regionCode: string): Promise<{ region_code: string; is_new: boolean }> {
   const res = await api.post(`/api/passport/regions/track?region_code=${encodeURIComponent(regionCode)}`)
-  return res.data
+  const result = res.data
+  // 新地域解锁 → 推送通知
+  if (result.is_new) {
+    const { pushNotification } = await import('../stores/notificationStore')
+    pushNotification({
+      type: 'stamp',
+      title: `发现新地域：${result.region_code}`,
+      description: '你首次探索了这个地区，护照已记录！',
+      icon: '📍',
+      route: '/passport',
+    })
+  }
+  return result
 }

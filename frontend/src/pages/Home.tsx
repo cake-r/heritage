@@ -12,9 +12,10 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { getStatistics, type UserStatistics } from '../services/user'
 import { getPassportStatus, type PassportStatus } from '../services/passport'
-import { getRecommendationFeed, type RecommendationItem } from '../services/recommendation'
+import { getRecommendationFeed, getCachedFeed, type RecommendationItem } from '../services/recommendation'
 import RecommendationCard from '../components/recommendation/RecommendationCard'
 import { normalizeImageUrl } from '../utils/imageUrl'
+import { CloudPattern, MeanderBand, BrocadePattern } from '../components/decoration'
 
 const { Title, Text, Paragraph } = Typography
 const { useBreakpoint } = Grid
@@ -133,9 +134,11 @@ export default function Home() {
   const [passportStatus, setPassportStatus] = useState<PassportStatus | null>(null)
   const [dailyItem, setDailyItem] = useState<any>(null)
   const [publicItems, setPublicItems] = useState<any[]>([])
-  const [feedItems, setFeedItems] = useState<RecommendationItem[]>([])
-  const [feedStatus, setFeedStatus] = useState<string>('cold_start')
-  const [feedLoading, setFeedLoading] = useState(isAuthenticated)
+  // 从缓存初始化推荐流，避免每次切换页面显示骨架屏
+  const cachedFeed = getCachedFeed()
+  const [feedItems, setFeedItems] = useState<RecommendationItem[]>(() => cachedFeed?.items ?? [])
+  const [feedStatus, setFeedStatus] = useState<string>(() => cachedFeed?.profile_status ?? 'cold_start')
+  const [feedLoading, setFeedLoading] = useState(() => !cachedFeed && isAuthenticated)
 
   // ===== 数据加载 =====
   useEffect(() => {
@@ -169,9 +172,14 @@ export default function Home() {
       getPassportStatus()
         .then(setPassportStatus)
         .catch(() => { /* 静默降级 */ })
-      // 个性化推荐流
-      setFeedLoading(true)
-      getRecommendationFeed(1, 8)
+      // 个性化推荐流（stale-while-revalidate：有缓存立即展示，后台静默更新）
+      if (!cachedFeed) setFeedLoading(true)
+      getRecommendationFeed(1, 8, {
+        onBackgroundRefresh: (data) => {
+          setFeedItems(data.items ?? [])
+          setFeedStatus(data.profile_status ?? 'cold_start')
+        },
+      })
         .then(data => {
           setFeedItems(data.items ?? [])
           setFeedStatus(data.profile_status ?? 'cold_start')
@@ -184,7 +192,10 @@ export default function Home() {
   }, [isAuthenticated])
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      {/* 页面背景 — 织锦几何暗纹（墨色，米白底上清晰可见） */}
+      <BrocadePattern opacity={0.18} color="var(--color-ink-secondary)" size={56} />
+
       {/* ================================================================ */}
       {/* Hero — 数字文博风                                                */}
       {/* ================================================================ */}
@@ -216,6 +227,9 @@ export default function Home() {
 
         {/* 动态粒子光点 */}
         <HeroParticles />
+
+        {/* 祥云纹 — 金色流云满铺 Hero 深色背景 */}
+        <CloudPattern opacity={0.28} color="var(--color-gold)" density={100} />
 
         {/* 中式纹样装饰条 */}
         <div style={{
@@ -843,7 +857,9 @@ export default function Home() {
       {/* ================================================================ */}
       {/* 核心功能卡片                                                     */}
       {/* ================================================================ */}
-      <OrnamentDivider />
+      {/* 回纹装饰带 */}
+      <MeanderBand color="var(--color-gold)" opacity={0.30} height={40} />
+      <div style={{ marginBottom: 12 }} />
       <div style={{ marginBottom: 32 }}>
         <Title
           level={3}

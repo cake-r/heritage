@@ -8,8 +8,12 @@ import { AuthProvider } from './contexts/AuthContext'
 import { AppProvider } from './contexts/AppContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import ErrorBoundary from './components/common/ErrorBoundary'
+import { initNotificationListener } from './stores/notificationStore'
 import './styles/tokens.css'
 import './styles/globals.css'
+
+// 初始化全局通知事件监听（使任何组件可通过 CustomEvent 推送通知）
+initNotificationListener()
 
 // 东方新古典 · 数字文博风 — Ant Design 主题
 // 所有色值来自 tokens.css，hex fallback 兼容不支持 CSS 变量的旧浏览器

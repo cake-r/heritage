@@ -21,6 +21,7 @@ import {
   type DemoErrorEvent,
 } from '../../services/storyMode'
 import { normalizeImageUrl } from '../../utils/imageUrl'
+import { MountainMistPattern } from '../../components/decoration'
 
 const { Title, Paragraph, Text } = Typography
 
@@ -168,7 +169,9 @@ export default function StoryModePage() {
       background: `linear-gradient(135deg, ${DARK_BG} 0%, #0f3460 50%, ${DARK_BG} 100%)`,
       padding: '24px 24px 40px',
       color: DARK_TEXT,
+      position: 'relative',
     }}>
+      <MountainMistPattern opacity={0.16} />
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         {/* 标题 */}
         <motion.div

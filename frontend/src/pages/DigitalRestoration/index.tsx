@@ -18,6 +18,7 @@ import {
 } from '../../services/restoration'
 import { normalizeImageUrl } from '../../utils/imageUrl'
 import ExplainPanel from '../../components/common/ExplainPanel'
+import { RestorationMuralPattern } from '../../components/decoration'
 
 const { Dragger } = Upload
 const { Title, Text, Paragraph } = Typography
@@ -449,7 +450,11 @@ export default function DigitalRestoration() {
   const rankIcons = ['🥇', '🥈', '🥉']
 
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto' }}>
+    <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <RestorationMuralPattern opacity={0.28} />
+      </div>
+      <div style={{ maxWidth: 960, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <Title level={3} style={{ margin: 0 }}>🏺 AI 文物数字修复</Title>
         {(step === 'complete' || step === 'error') && (
@@ -806,5 +811,6 @@ export default function DigitalRestoration() {
         </>
       )}
     </div>
+    </>
   )
 }

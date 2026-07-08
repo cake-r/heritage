@@ -10,6 +10,7 @@ import ReactEChartsCore from 'echarts-for-react'
 import * as echarts from 'echarts/core'
 import { fetchCostSummary, fetchTaskQueueStatus } from '../../services/admin'
 import { fetchUsers } from '../../services/admin'
+import { LoomGridPattern } from '../../components/decoration'
 
 const { Title } = Typography
 
@@ -68,7 +69,8 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      <LoomGridPattern opacity={0.18} />
       <Title level={4} style={{ marginBottom: 24 }}>管理后台总览</Title>
 
       <Row gutter={[16, 16]}>

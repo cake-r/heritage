@@ -18,6 +18,7 @@ import {
 } from '../services/generation'
 import { useAuth } from '../contexts/AuthContext'
 import { normalizeImageUrl } from '../utils/imageUrl'
+import { MedallionPattern } from '../components/decoration'
 
 const { Title, Text } = Typography
 
@@ -26,6 +27,8 @@ const { Title, Text } = Typography
 const STYLES = [
   '剪纸', '苏绣', '皮影', '蓝印花布', '年画',
   '唐三彩', '青花瓷', '京剧脸譜', '敦煌', '苗银',
+  '景泰蓝', '漆器', '蜡染', '云锦', '龙泉青瓷',
+  '紫砂陶', '竹编', '泥塑', '木版年画', '缂丝',
 ]
 
 const ELEMENTS = [
@@ -33,9 +36,9 @@ const ELEMENTS = [
   '青花配色', '敦煌配色', '景泰蓝配色', '水墨风',
 ]
 
-const PALETTES = ['', '青花瓷蓝白', '敦煌赭红石绿', '景泰蓝宝石色', '水墨黑白']
+const PALETTES = ['', '青花瓷蓝白', '敦煌赭红石绿', '景泰蓝宝石色', '水墨黑白', '唐三彩黄绿褐', '漆器朱红黑金', '粉彩柔粉', '青铜锈绿', '紫砂赭褐', '汝窑天青']
 
-const COMPOSITIONS = ['', '中心对称', '散点透视', '长卷式', '团扇式', '留白']
+const COMPOSITIONS = ['', '中心对称', '散点透视', '长卷式', '团扇式', '留白', '满铺纹样', '对角呼应', '三联幅', 'S形蜿蜒']
 
 // ========== 页面主组件 ==========
 
@@ -50,7 +53,12 @@ export default function CreativeStudio() {
   }
 
   return (
-    <div style={{ maxWidth: 1300, margin: '0 auto' }}>
+    <>
+      {/* 全视口纹样背景 — 洒金宣纸 */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <MedallionPattern opacity={0.22} />
+      </div>
+      <div style={{ maxWidth: 1300, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <Title level={3}>🎨 AI非遗文创生成工作室</Title>
 
       <Tabs
@@ -65,6 +73,7 @@ export default function CreativeStudio() {
 
       {activeTab === 'create' ? <CreationPanel /> : <GalleryPanel />}
     </div>
+    </>
   )
 }
 
@@ -184,7 +193,7 @@ function CreationPanel() {
             <Text strong>配色方案</Text>
             <Radio.Group value={palette} onChange={e => setPalette(e.target.value)} style={{ marginTop: 8 }}>
               {PALETTES.map(p => (
-                <Radio.Button key={p || '默认'} value={p} style={{ fontSize: 12 }}>{p || '默认'}</Radio.Button>
+                <Radio.Button key={p || '默认'} value={p}>{p || '默认'}</Radio.Button>
               ))}
             </Radio.Group>
           </div>
@@ -194,7 +203,7 @@ function CreationPanel() {
             <Text strong>构图</Text>
             <Radio.Group value={composition} onChange={e => setComposition(e.target.value)} style={{ marginTop: 8 }}>
               {COMPOSITIONS.map(c => (
-                <Radio.Button key={c || '默认'} value={c} style={{ fontSize: 12 }}>{c || '默认'}</Radio.Button>
+                <Radio.Button key={c || '默认'} value={c}>{c || '默认'}</Radio.Button>
               ))}
             </Radio.Group>
           </div>

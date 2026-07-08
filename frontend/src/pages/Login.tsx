@@ -4,6 +4,7 @@ import { Card, Form, Input, Button, Typography, message, Space } from 'antd'
 import { User, Lock, RefreshCw, Shield } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
+import { BrocadePattern } from '../components/decoration'
 
 const { Title, Text } = Typography
 
@@ -64,7 +65,8 @@ export default function Login() {
   }
 
   return (
-    <div style={{ maxWidth: 420, margin: '80px auto' }}>
+    <div style={{ maxWidth: 420, margin: '80px auto', position: 'relative' }}>
+      <BrocadePattern opacity={0.18} />
       <Card
         style={{ borderRadius: 12, border: '1px solid var(--color-gold-light, #E8D5B0)' }}
         styles={{ body: { padding: '32px 28px' } }}

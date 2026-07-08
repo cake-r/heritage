@@ -174,7 +174,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # === 路由注册 ===
 from app.api import auth, recognition, generation, exhibition, user, chat, knowledge_graph, tools, inheritor, restoration, passport, expansion, recommendation, cultivation, companion, task
 from app.api import admin_users, admin_tasks, admin_costs, admin_config, admin_dashboard
-from app.api import pattern_engine, restoration_workbench, agent, story_mode, explain, admin_prompts
+from app.api import pattern_engine, restoration_workbench, agent, story_mode, explain, admin_prompts, search
 app.include_router(auth.router, prefix="/api/auth", tags=["鉴权"])
 app.include_router(recognition.router, prefix="/api/recognition", tags=["识别讲解"])
 app.include_router(generation.router, prefix="/api/generation", tags=["文创生成"])
@@ -202,3 +202,4 @@ app.include_router(agent.router)
 app.include_router(story_mode.router)
 app.include_router(explain.router)
 app.include_router(admin_prompts.router)
+app.include_router(search.router)

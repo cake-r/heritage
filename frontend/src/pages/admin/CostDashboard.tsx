@@ -5,6 +5,7 @@ import { Card, Row, Col, Statistic, Table, Tag, DatePicker, Typography } from 'a
 import ReactEChartsCore from 'echarts-for-react'
 import * as echarts from 'echarts/core'
 import { fetchCostSummary, fetchCostLogs } from '../../services/admin'
+import { LoomGridPattern } from '../../components/decoration'
 
 const { Title } = Typography
 const { RangePicker } = DatePicker
@@ -58,7 +59,8 @@ export default function CostDashboard() {
   ]
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      <LoomGridPattern opacity={0.18} />
       <Title level={4} style={{ marginBottom: 16 }}>
         AI 成本看板
         <DatePicker

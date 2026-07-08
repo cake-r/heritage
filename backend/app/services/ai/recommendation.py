@@ -298,14 +298,24 @@ def _personalized_feed(user_id: int, profile: UserInterestProfile, page: int, si
 
     page_items = page_items[:size]
 
-    # 为 top 推荐生成 LLM 理由（仅 top 3 调用 LLM 降本）
+    # 为 top 推荐生成 LLM 理由（仅 top 3 调用 LLM，并行执行降延迟）
+    llm_indices = [i for i in range(min(3, len(page_items))) if not mock_mode()]
+    if llm_indices:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        with ThreadPoolExecutor(max_workers=len(llm_indices)) as executor:
+            futures = {
+                executor.submit(_generate_reason, user_id, page_items[i], cat_weights, tech_weights): i
+                for i in llm_indices
+            }
+            for future in as_completed(futures):
+                idx = futures[future]
+                try:
+                    page_items[idx]["reason"] = future.result()
+                except Exception:
+                    page_items[idx]["reason"] = _default_reason(page_items[idx], cat_weights)
+    # 非 top 3 用默认理由
     for i, item in enumerate(page_items):
-        if i < 3 and not mock_mode():
-            try:
-                item["reason"] = _generate_reason(user_id, item, cat_weights, tech_weights)
-            except Exception:
-                item["reason"] = _default_reason(item, cat_weights)
-        else:
+        if "reason" not in item:
             item["reason"] = _default_reason(item, cat_weights)
 
         # 清理内部字段

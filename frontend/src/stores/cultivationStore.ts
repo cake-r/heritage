@@ -7,6 +7,7 @@ import {
   type CultivationStatus, type DailyQuest, type WeeklyChallenge,
   type StreakInfo, type QuestCompletedItem,
 } from '../services/cultivation'
+import { pushNotification } from './notificationStore'
 
 interface CultivationState {
   status: CultivationStatus | null
@@ -71,6 +72,13 @@ export const useCultivationStore = create<CultivationState>()((set, get) => ({
           newRankIndex: result.new_rank_index || 0,
         },
       })
+      pushNotification({
+        type: 'rank_up',
+        title: `段位晋升：${result.new_rank}`,
+        description: `从「${oldRank}」晋升为「${result.new_rank}」`,
+        icon: '⬆️',
+        route: '/cultivation',
+      })
     }
     return { xp_gained: result.xp_gained, new_rank: result.new_rank }
   },
@@ -86,10 +94,21 @@ export const useCultivationStore = create<CultivationState>()((set, get) => ({
 
       if (result.quests_completed.length > 0) {
         const state = get()
-        // 显示通知
+        // 显示 Toast 通知
         set({
           notifications: [...state.notifications, ...result.quests_completed].slice(-5),
         })
+
+        // 同步推送至通知中心
+        for (const item of result.quests_completed) {
+          pushNotification({
+            type: 'quest',
+            title: item.title,
+            description: `+${item.xp_gained} 修为 · ${item.skill_tree || '综合'}`,
+            icon: '✅',
+            route: '/cultivation',
+          })
+        }
 
         // XP 动画
         state.triggerXpAnimation(result.total_xp_gained)
@@ -112,6 +131,13 @@ export const useCultivationStore = create<CultivationState>()((set, get) => ({
               newRank: result.new_rank,
               newRankIndex: 0,
             },
+          })
+          pushNotification({
+            type: 'rank_up',
+            title: `段位晋升：${result.new_rank}`,
+            description: `从「${oldRank}」晋升为「${result.new_rank}」`,
+            icon: '⬆️',
+            route: '/cultivation',
           })
         }
 

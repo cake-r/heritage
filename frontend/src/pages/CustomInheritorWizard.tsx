@@ -12,6 +12,7 @@ import {
   type CategoryInfo, type GeneratePersonaRequest, type GeneratePersonaResponse,
 } from '../services/inheritor'
 import AvatarCropper from '../components/AvatarCropper'
+import { CloudPattern } from '../components/decoration'
 
 const ALL_CATEGORIES = ['suxiu', 'xiangxiu', 'shuxiu', 'yuexiu', 'jianzhi', 'piying', 'nianhua', 'lanbuhua', 'tangsancai', 'qinghua', 'zisha', 'jingju', 'dunhuang', 'miaoyin', 'jingtailan', 'muban', 'shufa', 'zhuanke', 'dongyang']
 
@@ -193,7 +194,9 @@ export default function CustomInheritorWizard() {
       maxWidth: 640,
       margin: '0 auto',
       padding: '32px 16px',
+      position: 'relative',
     }}>
+      <CloudPattern opacity={0.18} />
       <h2 style={{ textAlign: 'center', marginBottom: 32, fontSize: 22, fontWeight: 700 }}>
         🏮 创建自定义传承人
       </h2>

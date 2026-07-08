@@ -5,6 +5,7 @@ import { Table, Button, Tag, Input, Select, Space, Modal, Typography, message } 
 import { Search, Square, Shield } from 'lucide-react'
 import type { ColumnsType } from 'antd/es/table'
 import { fetchUsers, updateUserRole, banUser, unbanUser, type UserItem } from '../../services/admin'
+import { LoomGridPattern } from '../../components/decoration'
 
 const { Title } = Typography
 
@@ -103,7 +104,8 @@ export default function UserManagement() {
   ]
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      <LoomGridPattern opacity={0.18} />
       <Title level={4} style={{ marginBottom: 16 }}>用户管理</Title>
       <Table
         dataSource={data.items}

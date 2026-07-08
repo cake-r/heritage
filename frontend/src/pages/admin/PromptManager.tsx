@@ -23,6 +23,7 @@ import {
   type PromptItem, type PromptModule,
   PROMPT_MODULE_LABELS, PROMPT_MODULE_ICONS, PROMPT_MODULE_COLORS,
 } from '../../services/prompt'
+import { LoomGridPattern } from '../../components/decoration'
 
 const { TextArea } = Input
 const { Text, Title } = Typography
@@ -123,7 +124,8 @@ const PromptManager: React.FC = () => {
   }
 
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+    <div style={{ maxWidth: 1000, margin: '0 auto', position: 'relative' }}>
+      <LoomGridPattern opacity={0.18} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <Title level={3} style={{ margin: 0 }}>
           <FileText style={{ marginRight: 8 }} />

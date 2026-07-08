@@ -23,6 +23,7 @@ import {
 import { useAuth } from '../contexts/AuthContext'
 import { addFavorite, deleteFavorite, listFavorites } from '../services/user'
 import { trackRegionVisit } from '../services/passport'
+import { StarChartPattern } from '../components/decoration'
 
 // Register echarts globally for map registration
 ;(window as any).echarts = echarts
@@ -188,7 +189,11 @@ function KnowledgeGraph() {
   const filteredRegionData = region ? regions.find(r => r.name === region) : undefined
 
   return (
-    <div style={{ maxWidth: 1500, margin: '0 auto', padding: '24px 16px' }}>
+    <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <StarChartPattern opacity={0.22} />
+      </div>
+      <div style={{ maxWidth: 1500, margin: '0 auto', padding: '24px 16px', position: 'relative', zIndex: 1 }}>
       {/* Banner */}
       <div style={{ marginBottom: 16 }}>
         <GraphBanner drilledCategory={drilledCategory} />
@@ -371,5 +376,6 @@ function KnowledgeGraph() {
         />
       </Drawer>
     </div>
+    </>
   )
 }

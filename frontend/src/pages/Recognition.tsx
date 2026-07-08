@@ -20,6 +20,7 @@ import {
 import { getItems, type HeritageItem } from '../services/exhibition'
 import { normalizeImageUrl } from '../utils/imageUrl'
 import { getCategoryColor } from '../utils/categoryColors'
+import { WindowLatticePattern } from '../components/decoration'
 
 const { Dragger } = Upload
 const { Title, Text } = Typography
@@ -268,7 +269,13 @@ export default function Recognition() {
   }
 
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto' }}>
+    <>
+      {/* 全视口纹样背景 — fixed 覆盖 Header/Sider/边距 */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <WindowLatticePattern opacity={0.22} />
+      </div>
+
+      <div style={{ maxWidth: 960, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <Title level={3} style={{ margin: 0 }}>📷 非遗智能识别与讲解</Title>
         {step === 'result' && (
@@ -500,6 +507,7 @@ export default function Recognition() {
         <ResultDisplay result={result} previewImage={previewImage} navigate={navigate} />
       )}
     </div>
+    </>
   )
 }
 

@@ -5,6 +5,7 @@ import { Card, Button, Tag, Typography, Spin, Empty, Space, message, Description
 import { Check, X } from 'lucide-react'
 import api from '../../services/api'
 import { normalizeImageUrl } from '../../utils/imageUrl'
+import { LoomGridPattern } from '../../components/decoration'
 
 const { Title, Paragraph } = Typography
 
@@ -51,7 +52,8 @@ export default function ContentReview() {
   if (!items.length) return <Empty description="暂无待审核项目" />
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      <LoomGridPattern opacity={0.18} />
       <Title level={4} style={{ marginBottom: 16 }}>
         内容审核 <Tag>{items.length} 条待审</Tag>
       </Title>

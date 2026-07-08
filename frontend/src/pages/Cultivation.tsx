@@ -14,6 +14,7 @@ import SkillRadarChart from '../components/cultivation/SkillRadarChart'
 import SkillProgressCard, { TREE_COLORS } from '../components/cultivation/SkillProgressCard'
 import StreakFlame from '../components/cultivation/StreakFlame'
 import type { DailyQuest } from '../services/cultivation'
+import { StepBrocadePattern } from '../components/decoration'
 
 const { Title, Text } = Typography
 const { useBreakpoint } = Grid
@@ -95,7 +96,11 @@ export default function Cultivation() {
     : 100
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? 16 : 32 }}>
+    <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <StepBrocadePattern opacity={0.22} />
+      </div>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? 16 : 32, position: 'relative', zIndex: 1 }}>
       {/* ================================================================ */}
       {/* 段位横幅 */}
       {/* ================================================================ */}
@@ -417,5 +422,6 @@ export default function Cultivation() {
         </Col>
       </Row>
     </div>
+    </>
   )
 }

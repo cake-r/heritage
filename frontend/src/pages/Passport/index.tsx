@@ -26,6 +26,7 @@ import {
   type RegionProgress,
   type StampConfig,
 } from '../../services/passport'
+import { JourneyCloudPattern } from '../../components/decoration'
 
 // ===== 硬编码色值（Canvas 兼容） =====
 const INK = '#2C241A'
@@ -283,7 +284,11 @@ export default function PassportPage() {
   const stampDefs = stampConfigs.length > 0 ? stampConfigs : []
 
   return (
-    <div ref={passportRef} style={{ maxWidth: 960, margin: '0 auto', padding: '32px 24px 48px' }}>
+    <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <JourneyCloudPattern opacity={0.22} />
+      </div>
+      <div ref={passportRef} style={{ maxWidth: 960, margin: '0 auto', padding: '32px 24px 48px', position: 'relative', zIndex: 1 }}>
       {/* 标题区域 */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -823,5 +828,6 @@ export default function PassportPage() {
         </motion.div>
       )}
     </div>
+    </>
   )
 }

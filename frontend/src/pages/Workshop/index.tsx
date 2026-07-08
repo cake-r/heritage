@@ -16,6 +16,7 @@ import WorkshopChat from './WorkshopChat'
 import WorkshopChatInput from './WorkshopChatInput'
 import WorkshopToolbox from './WorkshopToolbox'
 import WorkshopStatusBar from './WorkshopStatusBar'
+import { WaterRipplePattern } from '../../components/decoration'
 
 // === 扩展消息类型 ===
 
@@ -498,7 +499,9 @@ export default function Workshop() {
       gap: isCompact ? 12 : 20,
       padding: isCompact ? '0 8px 12px' : '0 20px 20px',
       overflow: 'hidden',
+      position: 'relative',
     }}>
+      <WaterRipplePattern opacity={0.15} />
       {/* 左侧：传承人列表 */}
       <InheritorRoster
         presets={presets}

@@ -3,18 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   Layout, Menu, Card, Typography, Spin, Empty, Button,
   List, Image, Tag, Space, Input, Form, message, Popconfirm, Tabs, Tooltip,
-  Upload, Avatar,
+  Upload, Avatar, Progress,
 } from 'antd'
 import {
   Camera, ImageIcon, MessageCircle,
   Heart, Settings, Wrench,
   Trash2, ChevronRight,
-  User, Plus, Bot,
+  User, Plus, Bot, Flame, Trophy,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import {
-  getProfile, updateProfile, listFavorites, deleteFavorite,
-  type UserProfile, type FavoriteItem,
+  getProfile, updateProfile, listFavorites, deleteFavorite, getStatistics,
+  type UserProfile, type FavoriteItem, type UserStatistics,
 } from '../services/user'
 import { getHistory as getRecognitionHistory, deleteRecognition, type RecognitionListItem } from '../services/recognition'
 import { getHistory as getGenerationHistory, deleteWork, type GenerationItem } from '../services/generation'
@@ -22,9 +22,11 @@ import { getHistory as getRestorationHistory, deleteRestoration, type Restoratio
 import api from '../services/api'
 import { normalizeImageUrl } from '../utils/imageUrl'
 import AvatarCropper from '../components/AvatarCropper'
+import { LotusPondPattern } from '../components/decoration'
 import { listSessions, deleteSession, type ChatSessionItem } from '../services/chat'
 import { listMyInheritors, deleteInheritor, type CustomInheritor } from '../services/inheritor'
 import { TOOL_NAMES, TOOL_ICONS } from './Workshop'
+import { useCultivationStore } from '../stores/cultivationStore'
 
 const { Sider, Content } = Layout
 const { Title, Text } = Typography
@@ -62,22 +64,17 @@ export default function UserCenter() {
   }
 
   return (
-    <Layout style={{ background: 'transparent' }}>
+    <Layout style={{ background: 'transparent', position: 'relative', minHeight: 'calc(100vh - 64px - 32px)' }}>
+      <LotusPondPattern opacity={0.18} />
       <Sider width={180} style={{ background: '#fff', borderRadius: 12, marginRight: 24 }}>
         {/* 用户信息卡片 */}
         <div style={{ padding: '20px 16px 12px', textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
-          {profile?.avatar_url ? (
-            <Avatar size={80} src={normalizeImageUrl(profile.avatar_url)} style={{ margin: '0 auto 8px', display: 'block' }} />
-          ) : (
-            <div style={{
-              width: 80, height: 80, borderRadius: '50%', background: '#C41E3A',
-              margin: '0 auto 8px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontSize: 32, fontWeight: 'bold',
-            }}>
-              {profile?.nickname?.[0] || user?.username?.[0] || <User size={32} />}
-            </div>
-          )}
+          <Avatar
+            size={150}
+            src={normalizeImageUrl(profile?.avatar_url)}
+            icon={<User size={64} color="#fff" />}
+            style={{ margin: '0 auto 8px', display: 'block', background: '#C41E3A' }}
+          />
           <Text strong>{profile?.nickname || user?.username || '用户'}</Text>
         </div>
 
@@ -90,12 +87,26 @@ export default function UserCenter() {
         />
       </Sider>
 
-      <Content>
-        <Card style={{ borderRadius: 12, minHeight: 500 }}>
-          <Title level={3} style={{ marginTop: 0 }}>
+      <Content style={{ display: 'flex', flexDirection: 'column' }}>
+        <Card
+          style={{ borderRadius: 12, flex: 1 }}
+          styles={{ body: { display: 'flex', flexDirection: 'column', height: '100%', padding: 24 } }}
+        >
+          <Title level={3} style={{ marginTop: 0, flexShrink: 0 }}>
             {tabs.find(t => t.key === tab)?.label}
           </Title>
-          <div style={{ marginTop: 16 }}>{renderContent()}</div>
+          <div style={{ marginTop: 16, flex: 1, overflow: 'auto', minHeight: 0 }}>{renderContent()}</div>
+
+          {/* Card 底部 — 修习状态 + 今日足迹 */}
+          <div style={{ flexShrink: 0, marginTop: 24 }}>
+            <div style={{
+              height: 1,
+              background: 'linear-gradient(90deg, transparent, var(--color-gold, #C4A265), transparent)',
+              opacity: 0.4,
+              marginBottom: 20,
+            }} />
+            <DashboardFooter />
+          </div>
         </Card>
       </Content>
     </Layout>
@@ -261,6 +272,19 @@ function SessionsList() {
   const navigate = useNavigate()
   const { user } = useAuth()
 
+  // 读取 localStorage 头像覆盖（与 Workshop buildInheritorList 逻辑一致）
+  const [avatarOverrides, setAvatarOverrides] = useState<Record<string, string>>({})
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('inheritor_avatar_overrides')
+      if (raw) setAvatarOverrides(JSON.parse(raw))
+    } catch { /* ignore */ }
+  }, [])
+
+  // 解析实际头像：优先 localStorage 覆盖
+  const resolveAvatar = (item: ChatSessionItem) =>
+    avatarOverrides[item.persona] || item.inheritor_avatar
+
   useEffect(() => { load() }, [])
 
   const load = () => {
@@ -321,39 +345,23 @@ function SessionsList() {
           <List.Item.Meta
             avatar={
               <div style={{ position: 'relative' }}>
-                {item.inheritor_avatar ? (
-                  <img src={normalizeImageUrl(item.inheritor_avatar)} alt=""
-                    style={{ width: 48, height: 48, borderRadius: 24, objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div style={{
-                    width: 48, height: 48, borderRadius: 24,
-                    background: 'var(--color-paper, #F7F4ED)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <Bot size={24} style={{ color: 'var(--color-ink-secondary, #6B5F52)' }} />
-                  </div>
-                )}
+                {/* 传承人头像 — 优先 localStorage 覆盖，加载失败自动回退 */}
+                <Avatar
+                  size={48}
+                  src={normalizeImageUrl(resolveAvatar(item))}
+                  icon={<Bot size={24} style={{ color: 'var(--color-ink-secondary, #6B5F52)' }} />}
+                  style={{ background: 'var(--color-paper, #F7F4ED)' }}
+                />
                 {/* 用户头像小角标 */}
-                {user?.avatar_url ? (
-                  <img src={normalizeImageUrl(user.avatar_url)} alt=""
-                    style={{
-                      width: 26, height: 26, borderRadius: 13, objectFit: 'cover',
-                      position: 'absolute', bottom: -2, right: -4,
-                      border: '2px solid #fff',
-                    }}
-                  />
-                ) : (
-                  <div style={{
-                    width: 26, height: 26, borderRadius: 13,
+                <Avatar
+                  size={26}
+                  src={normalizeImageUrl(user?.avatar_url)}
+                  icon={<User size={12} color="#fff" />}
+                  style={{
                     position: 'absolute', bottom: -2, right: -4,
-                    border: '2px solid #fff',
-                    background: '#C41E3A',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <User size={12} color="#fff" />
-                  </div>
-                )}
+                    border: '2px solid #fff', background: '#C41E3A',
+                  }}
+                />
               </div>
             }
             title={
@@ -451,19 +459,12 @@ function MyInheritorsList() {
           styles={{ body: { padding: 16 } }}
         >
           <div style={{ textAlign: 'center', marginBottom: 12 }}>
-            {item.avatar_url ? (
-              <img src={normalizeImageUrl(item.avatar_url)} alt={item.name}
-                style={{ width: 64, height: 64, borderRadius: 32, objectFit: 'cover' }}
-              />
-            ) : (
-              <div style={{
-                width: 64, height: 64, borderRadius: 32, margin: '0 auto',
-                background: 'var(--color-paper, #F7F4ED)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <User size={28} style={{ color: 'var(--color-ink-secondary, #6B5F52)' }} />
-              </div>
-            )}
+            <Avatar
+              size={64}
+              src={normalizeImageUrl(item.avatar_url)}
+              icon={<User size={28} style={{ color: 'var(--color-ink-secondary, #6B5F52)' }} />}
+              style={{ background: 'var(--color-paper, #F7F4ED)' }}
+            />
           </div>
 
           <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, textAlign: 'center', marginBottom: 6 }}>
@@ -799,10 +800,6 @@ function SettingsTab({
         </Form.Item>
       </Form>
 
-      <Card title="统计信息" size="small" style={{ marginTop: 24 }}>
-        <SimpleStats />
-      </Card>
-
       <Card title="偏好" size="small" style={{ marginTop: 16 }}>
         <div>
           <Text type="secondary">语音播报速度: {profile.voice_speed}x</Text>
@@ -822,32 +819,105 @@ function SettingsTab({
   )
 }
 
-// ========== 统计小部件 ==========
+// ========== Card 底部仪表盘：修习状态 + 活动足迹 ==========
 
-function SimpleStats() {
-  const [stats, setStats] = useState<{
-    recognition_count: number
-    generation_count: number
-    chat_count: number
-    favorite_count: number
-    upload_count: number
-  } | null>(null)
+const RANK_THRESHOLDS = [0, 100, 300, 800, 2000]
+const RANK_EMOJIS = ['🥉', '🥈', '🥇', '💎', '👑']
+
+function DashboardFooter() {
+  const status = useCultivationStore(s => s.status)
+  const [stats, setStats] = useState<UserStatistics | null>(null)
 
   useEffect(() => {
-    import('../services/user').then(({ getStatistics }) => {
-      getStatistics().then(setStats).catch(() => {})
-    })
+    getStatistics().then(setStats).catch(() => {})
   }, [])
 
-  if (!stats) return <Spin size="small" />
+  // 同步拉取修习状态（如果 store 尚未加载）
+  useEffect(() => {
+    if (!status) {
+      useCultivationStore.getState().refreshStatus()
+    }
+  }, [])
+
+  const rankPercent = status && status.xp_to_next > 0
+    ? Math.round(((status.xp - RANK_THRESHOLDS[status.rank_index]) /
+        (RANK_THRESHOLDS[status.rank_index + 1] - RANK_THRESHOLDS[status.rank_index])) * 100)
+    : status ? 100 : 0
+
+  // 活动项配置
+  const activityItems = stats ? [
+    { icon: '📷', count: stats.recognition_count, label: '识别' },
+    { icon: '🎨', count: stats.generation_count, label: '作品' },
+    { icon: '💬', count: stats.chat_count, label: '对话' },
+    { icon: '🔧', count: stats.restoration_count, label: '修复' },
+  ] : []
 
   return (
-    <Space size={24} wrap>
-      <div><Text strong style={{ fontSize: 20, color: '#C41E3A' }}>{stats.recognition_count}</Text><br /><Text type="secondary">识别记录</Text></div>
-      <div><Text strong style={{ fontSize: 20, color: '#C41E3A' }}>{stats.generation_count}</Text><br /><Text type="secondary">生成作品</Text></div>
-      <div><Text strong style={{ fontSize: 20, color: '#C41E3A' }}>{stats.chat_count}</Text><br /><Text type="secondary">对话次数</Text></div>
-      <div><Text strong style={{ fontSize: 20, color: '#C41E3A' }}>{stats.favorite_count}</Text><br /><Text type="secondary">收藏</Text></div>
-      <div><Text strong style={{ fontSize: 20, color: '#C41E3A' }}>{stats.upload_count}</Text><br /><Text type="secondary">上传作品</Text></div>
-    </Space>
+    <div style={{ padding: '8px 4px 4px' }}>
+      {/* ── 上排：段位 + 经验条 + 连续天数 ── */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: 12, marginBottom: 18,
+      }}>
+        {status ? (
+          <>
+            {/* 左侧：段位 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 32, lineHeight: 1 }}>{RANK_EMOJIS[status.rank_index] || '🥉'}</span>
+              <div>
+                <Text strong style={{ fontSize: 'var(--text-sm)' }}>{status.rank}</Text>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+                  <Progress
+                    percent={rankPercent}
+                    size="small"
+                    style={{ width: 140, margin: 0, lineHeight: 1 }}
+                    strokeColor="var(--color-gold, #C4A265)"
+                    trailColor="rgba(196,162,101,0.12)"
+                    showInfo={false}
+                  />
+                  <Text type="secondary" style={{ fontSize: 'var(--text-xs)', whiteSpace: 'nowrap' }}>
+                    {status.xp_to_next > 0 ? `距下段 ${status.xp_to_next} XP` : '已达巅峰'}
+                  </Text>
+                </div>
+              </div>
+            </div>
+
+            {/* 右侧：连续天数 */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: 'linear-gradient(135deg, rgba(232,112,64,0.08), rgba(232,112,64,0.02))',
+              borderRadius: 12, padding: '10px 16px',
+            }}>
+              <Flame size={22} color="#E87040" style={{ filter: 'drop-shadow(0 0 4px rgba(232,112,64,0.3))' }} />
+              <div>
+                <Text strong style={{ fontSize: 20, color: '#E87040', lineHeight: 1 }}>{status.streak_days}</Text>
+                <Text type="secondary" style={{ fontSize: 'var(--text-xs)', display: 'block' }}>连续天数</Text>
+              </div>
+            </div>
+          </>
+        ) : (
+          <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>修习数据加载中...</Text>
+        )}
+      </div>
+
+      {/* ── 下排：活动足迹 ── */}
+      {activityItems.length > 0 && (
+        <div style={{
+          display: 'flex', justifyContent: 'space-around',
+          padding: '14px 0 6px',
+          borderTop: '1px dashed rgba(196,162,101,0.2)',
+        }}>
+          {activityItems.map(item => (
+            <div key={item.label} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 22, marginBottom: 4 }}>{item.icon}</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-vermilion, #B8463A)', lineHeight: 1 }}>
+                {item.count}
+              </div>
+              <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>{item.label}</Text>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }

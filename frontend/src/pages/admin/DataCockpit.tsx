@@ -16,6 +16,7 @@ import {
   type DailyTrend,
   type DashboardLeaderboard,
 } from '../../services/admin'
+import { LoomGridPattern } from '../../components/decoration'
 
 const { Title } = Typography
 
@@ -198,7 +199,8 @@ export default function DataCockpit() {
   }
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      <LoomGridPattern opacity={0.18} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <Title level={4} style={{ margin: 0 }}>📊 数据驾驶舱</Title>
         <Select

@@ -19,6 +19,7 @@ import ToolPanel, { type ToolType } from '../../components/restoration/ToolPanel
 import DamageReportComponent from '../../components/restoration/DamageReport'
 import RepairCanvas, { type RepairCanvasHandle } from '../../components/restoration/RepairCanvas'
 import ArchiveExport from '../../components/restoration/ArchiveExport'
+import { IceCracklePattern } from '../../components/decoration'
 
 const { Dragger } = Upload
 const { Title, Text } = Typography
@@ -194,7 +195,8 @@ export default function CollaborativeRestoration() {
     step === 'repairing' ? 2 : 3
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+    <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
+      <IceCracklePattern opacity={0.16} />
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <Title level={3} style={{ margin: 0, fontSize: 22 }}>

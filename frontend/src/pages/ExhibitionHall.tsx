@@ -25,6 +25,7 @@ import { trackRegionVisit } from '../services/passport'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { normalizeImageUrl } from '../utils/imageUrl'
+import { MeanderPattern } from '../components/decoration'
 
 const { Sider, Content } = Layout
 const { Text, Paragraph } = Typography
@@ -447,7 +448,8 @@ export default function ExhibitionHall() {
   }
 
   return (
-    <Layout style={{ background: 'transparent' }}>
+    <Layout style={{ background: 'transparent', position: 'relative' }}>
+      <MeanderPattern opacity={0.18} />
       {/* 左侧分类导航 */}
       <Sider width={160} style={{ background: '#fff', borderRadius: 12, marginRight: 24, padding: '16px 0' }}>
         <div style={{ padding: '0 16px', marginBottom: 8 }}>

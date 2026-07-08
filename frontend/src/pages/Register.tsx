@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { Card, Form, Input, Button, Typography, message } from 'antd'
 import { User, Lock, Smile } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { BrocadePattern } from '../components/decoration'
 
 const { Title } = Typography
 
@@ -25,7 +26,8 @@ export default function Register() {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '80px auto' }}>
+    <div style={{ maxWidth: 400, margin: '80px auto', position: 'relative' }}>
+      <BrocadePattern opacity={0.18} />
       <Card style={{ borderRadius: 12 }}>
         <Title level={3} style={{ textAlign: 'center', marginBottom: 32 }}>
           🏮 注册
