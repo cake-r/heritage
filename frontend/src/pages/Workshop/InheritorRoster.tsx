@@ -1,9 +1,25 @@
-import { Avatar, Tag, Button, Tooltip, Dropdown, Badge } from 'antd'
+import { useState, useRef, useEffect } from 'react'
+import { Avatar, Tag, Button, Tooltip, Dropdown, message } from 'antd'
 import {
-  User, Plus, Trash2, Pencil,
+  User, Plus, Trash2, Pencil, Camera,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import api from '../../services/api'
 import type { InheritorInfo, } from './index'
+import AvatarCropper from '../../components/AvatarCropper'
+
+const STORAGE_KEY = 'inheritor_avatar_overrides'
+
+function loadOverrides(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch { return {} }
+}
+
+function saveOverrides(overrides: Record<string, string>) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides))
+}
 
 interface Props {
   presets: InheritorInfo[]
@@ -12,11 +28,99 @@ interface Props {
   onSelect: (id: string) => void
   onDeleteCustom: (id: number) => void
   onRefresh: () => void
-  recommendedId?: string  // 千人千面 — 推荐传承人 ID
+  recommendedId?: string
 }
 
 export default function InheritorRoster({ presets, customs, selectedId, onSelect, onDeleteCustom, onRefresh, recommendedId }: Props) {
   const navigate = useNavigate()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [avatarOverrides, setAvatarOverrides] = useState<Record<string, string>>(loadOverrides)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [cropperOpen, setCropperOpen] = useState(false)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [pendingInheritor, setPendingInheritor] = useState<InheritorInfo | null>(null)
+
+  // 获取实际头像（优先覆盖）
+  const getAvatar = (item: InheritorInfo) => avatarOverrides[item.id] || item.avatar
+
+  // 打开文件选择器
+  const openFilePicker = (item: InheritorInfo) => {
+    setEditingId(item.id)
+    fileInputRef.current?.click()
+  }
+
+  // 文件选择回调 → 打开裁剪器
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !editingId) return
+
+    // 校验
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      message.error('请上传 JPG / PNG / WebP 格式的图片')
+      e.target.value = ''
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      message.error('图片大小不能超过 10MB')
+      e.target.value = ''
+      return
+    }
+
+    const all = [...presets, ...customs]
+    const item = all.find(i => i.id === editingId)
+    if (item) {
+      setPendingInheritor(item)
+      setPendingFile(file)
+      setCropperOpen(true)
+    }
+
+    // 重置 input
+    e.target.value = ''
+  }
+
+  // 裁剪确认 → 上传
+  const handleCropConfirm = async (croppedFile: File) => {
+    setCropperOpen(false)
+    if (!pendingInheritor) return
+    const item = pendingInheritor
+    setPendingInheritor(null)
+    setPendingFile(null)
+
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', croppedFile)
+      const res = await api.post('/api/user/upload-avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 30000,
+      })
+      const url = res.data.url
+
+      // 更新覆盖
+      const newOverrides = { ...avatarOverrides, [item.id]: url }
+      setAvatarOverrides(newOverrides)
+      saveOverrides(newOverrides)
+
+      // 自定义传承人同时更新 DB
+      if (item.isCustom) {
+        const dbId = parseInt(item.id.replace('custom:', ''), 10)
+        if (!isNaN(dbId)) {
+          const { updateInheritor } = await import('../../services/inheritor')
+          await updateInheritor(dbId, { avatar_url: url })
+        }
+      }
+
+      message.success('头像已更新')
+      onRefresh()
+    } catch (err: any) {
+      message.error(err.response?.data?.detail || '头像上传失败')
+    } finally {
+      setUploading(false)
+      setEditingId(null)
+    }
+  }
 
   // 删除自定义传承人
   const handleDelete = async (item: InheritorInfo) => {
@@ -25,6 +129,11 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
     const { deleteInheritor } = await import('../../services/inheritor')
     try {
       await deleteInheritor(id)
+      // 清除该传承人的头像覆盖
+      const newOverrides = { ...avatarOverrides }
+      delete newOverrides[item.id]
+      setAvatarOverrides(newOverrides)
+      saveOverrides(newOverrides)
       onDeleteCustom(id)
     } catch { /* ignore */ }
   }
@@ -32,6 +141,8 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
   const renderItem = (item: InheritorInfo) => {
     const isSelected = selectedId === item.id
     const isRecommended = recommendedId === item.id && !isSelected
+    const resolvedAvatar = getAvatar(item)
+
     return (
       <div
         key={item.id}
@@ -76,12 +187,39 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
             为你推荐
           </span>
         )}
-        <Avatar
-          size={40}
-          src={item.avatar}
-          icon={<User />}
-          style={{ flexShrink: 0 }}
-        />
+
+        {/* 头像 — 点击更换 */}
+        <Tooltip title="点击更换头像">
+          <div
+            style={{ position: 'relative', flexShrink: 0, cursor: 'pointer' }}
+            onClick={(e) => { e.stopPropagation(); openFilePicker(item) }}
+          >
+            <Avatar
+              size={60}
+              src={resolvedAvatar}
+              icon={<User />}
+            />
+            {/* hover 时显示的相机图标 */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '50%',
+              background: 'rgba(0,0,0,0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: 0,
+              transition: 'opacity 0.2s',
+            }}
+              className="avatar-edit-overlay"
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0' }}
+            >
+              <Camera size={20} color="#fff" />
+            </div>
+          </div>
+        </Tooltip>
+
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
             fontSize: 'var(--text-sm)',
@@ -116,6 +254,8 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
             )}
           </div>
         </div>
+
+        {/* 编辑/删除按钮 — 仅自定义传承人 */}
         {item.isCustom && (
           <Dropdown
             menu={{
@@ -154,6 +294,15 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
       overflow: 'hidden',
       boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(30,27,24,0.06))',
     }}>
+      {/* 隐藏的文件选择器 */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        style={{ display: 'none' }}
+        onChange={onFileChange}
+      />
+
       {/* 预设传承人 */}
       <div style={{
         fontSize: 'var(--text-sm)',
@@ -226,6 +375,14 @@ export default function InheritorRoster({ presets, customs, selectedId, onSelect
           customs.map(renderItem)
         )}
       </div>
+
+      {/* 头像裁剪弹窗 */}
+      <AvatarCropper
+        open={cropperOpen}
+        file={pendingFile}
+        onConfirm={handleCropConfirm}
+        onCancel={() => { setCropperOpen(false); setPendingFile(null); setPendingInheritor(null); setEditingId(null) }}
+      />
     </div>
   )
 }

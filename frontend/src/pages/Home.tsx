@@ -135,7 +135,7 @@ export default function Home() {
   const [publicItems, setPublicItems] = useState<any[]>([])
   const [feedItems, setFeedItems] = useState<RecommendationItem[]>([])
   const [feedStatus, setFeedStatus] = useState<string>('cold_start')
-  const [feedLoading, setFeedLoading] = useState(false)
+  const [feedLoading, setFeedLoading] = useState(isAuthenticated)
 
   // ===== 数据加载 =====
   useEffect(() => {
@@ -154,9 +154,9 @@ export default function Home() {
             // 随机选 1 件作为每日发现
             const randomIdx = Math.floor(Math.random() * Math.min(pool.length, 20))
             setDailyItem(pool[randomIdx])
-            // 随机取最多 4 件用于公开展示
+            // 随机取最多 8 件用于公开展示
             const shuffled = [...pool].sort(() => Math.random() - 0.5)
-            setPublicItems(shuffled.slice(0, 4))
+            setPublicItems(shuffled.slice(0, 8))
           }
         })
         .catch(() => { /* 静默降级 */ })
@@ -173,10 +173,12 @@ export default function Home() {
       setFeedLoading(true)
       getRecommendationFeed(1, 8)
         .then(data => {
-          setFeedItems(data.items)
-          setFeedStatus(data.profile_status)
+          setFeedItems(data.items ?? [])
+          setFeedStatus(data.profile_status ?? 'cold_start')
         })
-        .catch(() => { /* 静默降级 */ })
+        .catch((err) => {
+          console.warn('推荐流加载失败，使用回退内容', err)
+        })
         .finally(() => setFeedLoading(false))
     }
   }, [isAuthenticated])
@@ -448,10 +450,10 @@ export default function Home() {
                         height: '100%',
                       }}
                       cover={
-                        item.image_url ? (
+                        item.images?.[0] ? (
                           <div style={{ height: 140, overflow: 'hidden' }}>
                             <img
-                              src={normalizeImageUrl(item.image_url)}
+                              src={normalizeImageUrl(item.images[0])}
                               alt={item.name}
                               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                               loading="lazy"
@@ -550,24 +552,26 @@ export default function Home() {
               ))}
             </Row>
           ) : (
-            /* 无推荐时的回退 — 快速统计概览 */
-            stats && (
-              <Card
-                style={{
-                  borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--gray-200)',
-                  boxShadow: 'var(--shadow-sm)',
-                }}
-                styles={{ body: { padding: '16px 20px' } }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-                  <div>
-                    <Text strong style={{ fontSize: 'var(--text-lg)' }}>
-                      欢迎回来，{user.nickname || user.username}
-                    </Text>
-                    <br />
-                    <Text type="secondary">以下是你的活动概览</Text>
-                  </div>
+            /* 无推荐时的回退 — 欢迎卡片（统计概览 或 纯欢迎） */
+            <Card
+              style={{
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--gray-200)',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+              styles={{ body: { padding: '16px 20px' } }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+                <div>
+                  <Text strong style={{ fontSize: 'var(--text-lg)' }}>
+                    欢迎回来，{user.nickname || user.username}
+                  </Text>
+                  <br />
+                  <Text type="secondary">
+                    {stats ? '以下是你的活动概览' : '开始探索非遗文化，积累你的专属推荐'}
+                  </Text>
+                </div>
+                {stats && (
                   <Space size={isMobile ? 16 : 40} wrap>
                     <div style={{ textAlign: 'center' }}>
                       <Text strong style={{ fontSize: 'var(--text-xl)', color: 'var(--color-vermilion)', display: 'block' }}>
@@ -588,9 +592,9 @@ export default function Home() {
                       <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>收藏</Text>
                     </div>
                   </Space>
-                </div>
-              </Card>
-            )
+                )}
+              </div>
+            </Card>
           )}
         </motion.div>
       )}

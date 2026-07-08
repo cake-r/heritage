@@ -43,6 +43,7 @@ backend/data/uploads/voices/*
 backend/data/uploads/exports/*
 backend/data/uploads/heatmaps/*
 backend/data/uploads/generated/*
+backend/data/uploads/avatars/*
 !backend/data/uploads/**/.gitkeep
 
 # Docker

@@ -52,6 +52,7 @@ class CustomInheritorCreate(BaseModel):
     domain_prompts: dict[str, str] = Field(default_factory=dict)
     style: str = Field(default="", max_length=200)
     expertise: list[str] = Field(default_factory=list)
+    avatar_url: str = Field(default="", max_length=500)
 
 
 class CustomInheritorUpdate(BaseModel):
@@ -63,6 +64,7 @@ class CustomInheritorUpdate(BaseModel):
     style: str | None = Field(None, max_length=200)
     expertise: list[str] | None = None
     is_public: bool | None = None
+    avatar_url: str | None = Field(None, max_length=500)
 
 
 class CustomInheritorResponse(BaseModel):

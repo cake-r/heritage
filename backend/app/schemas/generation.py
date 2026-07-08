@@ -32,6 +32,9 @@ class GenerationListItem(BaseModel):
     prompt: str
     is_public: bool
     created_at: datetime
+    mode: str = ""
+    user_id: int | None = None
+    username: str = ""
 
     model_config = {"from_attributes": True}
 

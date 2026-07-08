@@ -30,8 +30,8 @@ const theme = {
     colorBgBase: '#FFFDF9',           // --color-paper-white
     colorBgLayout: '#F7F4ED',         // --color-paper
 
-    // 字体（提升基准为 16px）
-    fontSize: 16,
+    // 字体（提升基准为 18px）
+    fontSize: 18,
     fontFamily: `'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`,
 
     // 形状

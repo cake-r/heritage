@@ -19,6 +19,42 @@ logger = logging.getLogger("recommendation")
 
 COLD_START_THRESHOLD = 5  # 前5次交互后开始个性化
 
+# Persona ID → 中文品类名映射（画像写入时归一化用）
+_PERSONA_CATEGORY_MAP = {
+    "embroidery_lady": "刺绣",
+    "paper_cutter": "剪纸",
+    "ceramic_master": "陶瓷",
+    "shadow_puppet": "皮影",
+    "culture_guide": "",        # 通识向导，不限品类
+}
+# 已有中文品类补充映射（别名/简称 → 标准名）
+_CATEGORY_ALIAS_MAP = {
+    "苏绣": "刺绣",
+    "青瓷": "陶瓷",
+    "皮影戏": "皮影",
+    "青花瓷": "陶瓷",
+}
+
+
+def _normalize_category(raw: str, db: Session) -> str:
+    """将 persona ID / 别名翻译为标准中文品类名，并确保在数据库中存在"""
+    if not raw:
+        return ""
+    # 1. persona ID → 中文
+    name = _PERSONA_CATEGORY_MAP.get(raw, raw)
+    if not name:
+        return ""
+    # 2. 别名 → 标准名
+    name = _CATEGORY_ALIAS_MAP.get(name, name)
+    # 3. 验证是否在 heritage_items 中存在
+    exists = db.query(HeritageItem).filter(
+        HeritageItem.category == name
+    ).first()
+    if not exists:
+        logger.debug(f"品类 '{name}' (raw='{raw}') 不在 heritage_items 中，跳过")
+        return ""
+    return name
+
 
 # === 画像更新 ===
 
@@ -41,13 +77,14 @@ def update_interest_profile(user_id: int, action_type: str, action_data: dict, d
     tech_weights = json.loads(profile.technique_weights_json or "{}")
     region_weights = json.loads(profile.region_weights_json or "{}")
 
-    category = action_data.get("category", "")
+    raw_category = action_data.get("category", "")
     technique = action_data.get("technique", "")
     region = action_data.get("region", "")
     techniques = action_data.get("techniques", [])  # 批量技法列表
     regions = action_data.get("regions", [])         # 批量地域列表
 
-    # 品类权重 +1
+    # 品类权重 +1（归一化后）
+    category = _normalize_category(raw_category, db) if raw_category else ""
     if category:
         cat_weights[category] = cat_weights.get(category, 0) + 1.0
 
@@ -115,7 +152,11 @@ def generate_feed(user_id: int, page: int = 1, size: int = 8, db: Session = None
     if is_cold:
         return _cold_start_feed(page, size, db)
 
-    return _personalized_feed(user_id, profile, page, size, db)
+    result = _personalized_feed(user_id, profile, page, size, db)
+    # 个性化结果为空时回退冷启动（画像品类键可能与数据库品类名不匹配）
+    if not result.get("items"):
+        return _cold_start_feed(page, size, db)
+    return result
 
 
 def _cold_start_feed(page: int, size: int, db: Session) -> dict:

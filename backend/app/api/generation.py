@@ -227,17 +227,32 @@ def get_history(
 def get_gallery(
     page: int = Query(1, ge=1),
     page_size: int = Query(12, ge=1, le=50),
+    style: str = Query(default=""),
+    mode: str = Query(default=""),
+    search: str = Query(default=""),
+    sort: str = Query(default="newest"),
     current_user: User = Depends(get_optional_user),
     db: Session = Depends(get_db),
 ):
-    """公开作品画廊"""
-    total = db.query(GeneratedWork).filter(GeneratedWork.is_public == True).count()
+    """公开作品画廊 — 支持风格/模式筛选、全文搜索、排序"""
+    q = db.query(GeneratedWork).filter(GeneratedWork.is_public == True)
 
-    works = db.query(GeneratedWork).filter(
-        GeneratedWork.is_public == True
-    ).order_by(desc(GeneratedWork.created_at)).offset(
-        (page - 1) * page_size
-    ).limit(page_size).all()
+    if style:
+        q = q.filter(GeneratedWork.base_style == style)
+    if mode:
+        q = q.filter(GeneratedWork.mode == mode)
+    if search:
+        q = q.filter(GeneratedWork.prompt.contains(search))
+
+    total = q.count()
+
+    # 排序
+    if sort == "popular":
+        q = q.order_by(desc(GeneratedWork.created_at))  # 预留，后续可接入收藏数
+    else:
+        q = q.order_by(desc(GeneratedWork.created_at))
+
+    works = q.offset((page - 1) * page_size).limit(page_size).all()
 
     items = [
         GenerationListItem(
@@ -245,14 +260,27 @@ def get_gallery(
             images=json.loads(w.images_json) if w.images_json else [],
             base_style=w.base_style,
             prompt=w.prompt,
-            is_public=True,
+            is_public=w.is_public,
             created_at=w.created_at,
+            mode=w.mode or "",
+            user_id=w.user_id,
         )
         for w in works
     ]
 
     total_pages = max(1, (total + page_size - 1) // page_size)
     return PaginatedResponse(items=items, total=total, page=page, pages=total_pages)
+
+
+@router.get("/styles")
+def get_gallery_styles(
+    db: Session = Depends(get_db),
+):
+    """获取画廊中所有出现过的风格列表"""
+    styles = db.query(GeneratedWork.base_style).filter(
+        GeneratedWork.is_public == True
+    ).distinct().order_by(GeneratedWork.base_style).all()
+    return [s[0] for s in styles if s[0]]
 
 
 @router.get("/{work_id}", response_model=GenerationResponse)

@@ -1,15 +1,17 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Steps, Button, Card, Input, Select, Form, Spin, Tag, message, Space, Avatar, Row, Col } from 'antd'
+import { Steps, Button, Card, Input, Select, Form, Spin, Tag, message, Space, Avatar, Row, Col, Upload } from 'antd'
 import {
   ChevronLeft, ChevronRight, Check,
-  User, RefreshCw,
+  User, RefreshCw, Camera,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import api from '../services/api'
 import {
   getCatalog, generatePersona, createInheritor, generateAvatar,
   type CategoryInfo, type GeneratePersonaRequest, type GeneratePersonaResponse,
 } from '../services/inheritor'
+import AvatarCropper from '../components/AvatarCropper'
 
 const ALL_CATEGORIES = ['suxiu', 'xiangxiu', 'shuxiu', 'yuexiu', 'jianzhi', 'piying', 'nianhua', 'lanbuhua', 'tangsancai', 'qinghua', 'zisha', 'jingju', 'dunhuang', 'miaoyin', 'jingtailan', 'muban', 'shufa', 'zhuanke', 'dongyang']
 
@@ -43,6 +45,32 @@ export default function CustomInheritorWizard() {
   const [avatarUrl, setAvatarUrl] = useState('')
   const [avatarLoading, setAvatarLoading] = useState(false)
   const [createdId, setCreatedId] = useState<number | null>(null)
+
+  // Avatar upload state
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState('')
+  const [cropperOpen, setCropperOpen] = useState(false)
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null)
+
+  // 打开裁剪器
+  const openCropper = (file: File) => {
+    setPendingAvatarFile(file)
+    setCropperOpen(true)
+  }
+
+  // 裁剪确认
+  const handleCropConfirm = (croppedFile: File) => {
+    setAvatarFile(croppedFile)
+    setAvatarPreview(URL.createObjectURL(croppedFile))
+    setCropperOpen(false)
+    setPendingAvatarFile(null)
+  }
+
+  // 裁剪取消
+  const handleCropCancel = () => {
+    setCropperOpen(false)
+    setPendingAvatarFile(null)
+  }
 
   useEffect(() => {
     getCatalog().then(setCategories).catch(() => message.error('加载品类列表失败'))
@@ -112,6 +140,19 @@ export default function CustomInheritorWizard() {
     if (!generated) return
     setLoading(true)
     try {
+      // 如果用户上传了头像，先上传获取 URL
+      let uploadedAvatarUrl = ''
+      if (avatarFile) {
+        const formData = new FormData()
+        formData.append('file', avatarFile)
+        const uploadRes = await api.post('/api/user/upload-avatar', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 30000,
+        })
+        uploadedAvatarUrl = uploadRes.data.url
+        setAvatarUrl(uploadedAvatarUrl)
+      }
+
       const result = await createInheritor({
         name,
         category: categories.find(c => c.id === category)?.name || category,
@@ -121,16 +162,19 @@ export default function CustomInheritorWizard() {
         domain_prompts: {},
         style: generated.style,
         expertise: selectedTools.map(t => TOOL_OPTIONS.find(to => to.id === t)?.name || t),
+        avatar_url: uploadedAvatarUrl || undefined,
       })
       setCreatedId(result.id)
       message.success('传承人创建成功！')
       window.dispatchEvent(new CustomEvent('cultivation:check'))
 
-      // 自动生成头像
-      try {
-        const avResult = await generateAvatar(result.id)
-        setAvatarUrl(avResult.avatar_url)
-      } catch { /* 头像失败不影响创建 */ }
+      // 如果用户没有上传头像，自动 AI 生成
+      if (!uploadedAvatarUrl) {
+        try {
+          const avResult = await generateAvatar(result.id)
+          setAvatarUrl(avResult.avatar_url)
+        } catch { /* 头像失败不影响创建 */ }
+      }
     } catch (err: any) {
       message.error(err.message || '创建失败')
     } finally {
@@ -176,7 +220,48 @@ export default function CustomInheritorWizard() {
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
             <Card>
-          <Form layout="vertical" size="large">
+              {/* 头像上传 */}
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <Upload
+                  accept="image/jpeg,image/png,image/webp"
+                  maxCount={1}
+                  showUploadList={false}
+                  beforeUpload={file => {
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+                    if (!allowedTypes.includes(file.type)) {
+                      message.error('请上传 JPG / PNG / WebP 格式的图片')
+                      return false
+                    }
+                    if (file.size > 10 * 1024 * 1024) {
+                      message.error('图片大小不能超过 10MB')
+                      return false
+                    }
+                    openCropper(file)
+                    return false
+                  }}
+                >
+                  <div style={{ cursor: 'pointer', display: 'inline-block' }}>
+                    {avatarPreview ? (
+                      <Avatar size={112} src={avatarPreview} />
+                    ) : (
+                      <div style={{
+                        width: 112, height: 112, borderRadius: '50%',
+                        background: 'var(--color-paper, #F7F4ED)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: '2px dashed var(--color-gold, #C4A265)',
+                        flexDirection: 'column' as const,
+                      }}>
+                        <Camera size={36} color="var(--color-ink-secondary, #6B5F52)" />
+                      </div>
+                    )}
+                    <p style={{ marginTop: 8, color: 'var(--color-ink-secondary, #6B5F52)', fontSize: 14 }}>
+                      点击上传头像（可选）
+                    </p>
+                  </div>
+                </Upload>
+              </div>
+
+              <Form layout="vertical" size="large">
             <Form.Item label="传承人名称" required>
               <Input
                 value={name}
@@ -313,7 +398,7 @@ export default function CustomInheritorWizard() {
               <Check style={{ fontSize: 48, color: 'var(--color-success, #4A8C5C)' }} />
               <h3 style={{ margin: '16px 0 8px' }}>创建成功！</h3>
               {avatarUrl && (
-                <Avatar size={80} src={avatarUrl} icon={<User />} style={{ marginBottom: 16 }} />
+                <Avatar size={100} src={avatarUrl} icon={<User />} style={{ marginBottom: 16 }} />
               )}
               <p style={{ color: 'var(--color-ink-secondary, #6B5F52)' }}>
                 「{name}」已加入你的传承人列表
@@ -372,6 +457,14 @@ export default function CustomInheritorWizard() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 头像裁剪弹窗 */}
+      <AvatarCropper
+        open={cropperOpen}
+        file={pendingAvatarFile}
+        onConfirm={handleCropConfirm}
+        onCancel={handleCropCancel}
+      />
     </div>
   )
 }

@@ -22,6 +22,7 @@ import {
 } from '../services/knowledgeGraph'
 import { useAuth } from '../contexts/AuthContext'
 import { addFavorite, deleteFavorite, listFavorites } from '../services/user'
+import { trackRegionVisit } from '../services/passport'
 
 // Register echarts globally for map registration
 ;(window as any).echarts = echarts
@@ -105,6 +106,13 @@ function KnowledgeGraph() {
         .catch(() => {})
     }
   }, [isAuthenticated])
+
+  // ========== Track Region Visit ==========
+  useEffect(() => {
+    if (region) {
+      trackRegionVisit(region).catch(() => {})
+    }
+  }, [region])
 
   // ========== Handlers ==========
   const handleCategoryClick = useCallback((catName: string) => {

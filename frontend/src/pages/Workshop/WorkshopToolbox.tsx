@@ -123,24 +123,24 @@ export default function WorkshopToolbox({ tools, activeToolId, toolStatus, onToo
             <Card
               key={tool.id}
               size="small"
+              styles={{ body: { padding: 12 } }}
               style={{
                 border: isActive
                   ? '2px solid var(--color-vermilion, #B8463A)'
                   : '1px solid var(--color-paper, #F7F4ED)',
                 borderRadius: 8,
-                padding: 12,
                 background: isActive
                   ? 'rgba(184,70,58,0.08)'
                   : 'transparent',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                <span style={{ fontSize: 24, lineHeight: 1 }}>{tool.icon}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 2 }}>
+                <span style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{tool.icon}</span>
+                <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                  <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, marginBottom: 2, lineHeight: 1.3 }}>
                     {tool.name}
                   </div>
-                  <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary, #6B5F52)', lineHeight: 1.6 }}>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary, #6B5F52)', lineHeight: 1.5 }}>
                     {tool.description}
                   </div>
 
@@ -154,9 +154,9 @@ export default function WorkshopToolbox({ tools, activeToolId, toolStatus, onToo
                   )}
 
                   {!isActive && (
-                    <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       <Tag
-                        style={{ fontSize: 'var(--text-xs)' }}
+                        style={{ fontSize: 'var(--text-xs)', margin: 0, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}
                         color="default"
                       >
                         {tool.usage}
@@ -173,6 +173,7 @@ export default function WorkshopToolbox({ tools, activeToolId, toolStatus, onToo
                           fontSize: 'var(--text-xs)',
                           padding: '0 4px',
                           color: 'var(--color-vermilion, #B8463A)',
+                          flexShrink: 0,
                         }}
                       >
                         使用

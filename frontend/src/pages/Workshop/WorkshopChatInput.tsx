@@ -115,12 +115,13 @@ const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function Wo
     }}>
       {/* 工具选择器 */}
       {availableTools.length > 0 && (
-        <div style={{ marginBottom: 8 }}>
+        <div style={{ marginBottom: 8, overflowX: 'auto', whiteSpace: 'nowrap' }}>
           <Segmented
+            size="small"
             options={toolOptions}
             value={activeTool || ''}
             onChange={(val) => handleToolChange(String(val))}
-            style={{ fontSize: 14 }}
+            style={{ fontSize: 13 }}
           />
         </div>
       )}
@@ -170,7 +171,7 @@ const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function Wo
             type="text"
             icon={<Image />}
             disabled={streaming}
-            style={{ color: 'var(--color-ink-secondary, #6B5F52)', fontSize: 'var(--text-sm)' }}
+            style={{ color: 'var(--color-ink-secondary, #6B5F52)', fontSize: 'var(--text-xs)' }}
           >
             上传
           </Button>
@@ -180,7 +181,7 @@ const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function Wo
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={activeToolId ? `正在使用${TOOL_NAMES[activeToolId] || activeToolId}...` : '输入消息... (Enter发送，Shift+Enter换行)'}
+          placeholder={activeToolId ? `使用 ${TOOL_NAMES[activeToolId] || activeToolId} 中…` : '输入消息… Enter 发送，Shift+Enter 换行'}
           autoSize={{ minRows: 1, maxRows: 4 }}
           disabled={streaming}
           style={{
@@ -188,7 +189,7 @@ const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function Wo
             border: 'none',
             background: 'transparent',
             resize: 'none',
-            fontSize: 'var(--text-base)',
+            fontSize: 'var(--text-sm)',
           }}
         />
 

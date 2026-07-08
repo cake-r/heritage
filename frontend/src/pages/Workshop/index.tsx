@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { message, Button, Popconfirm, Drawer, Grid } from 'antd'
 import { Trash2, Wrench } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
 import {
   getCharacters, createSession, listSessions, getSessionDetail,
   deleteSession, sendMessageSSE,
@@ -65,6 +66,7 @@ export const TOOL_ICONS: Record<string, string> = {
 }
 
 export default function Workshop() {
+  const { user } = useAuth()
   const [searchParams] = useSearchParams()
   const initialPersona = searchParams.get('persona') || ''
   const screens = Grid.useBreakpoint()
@@ -97,10 +99,17 @@ export default function Workshop() {
 
   // 构建传承人列表
   const buildInheritorList = useCallback((chars: Character[], ci: CustomInheritor[]) => {
+    // 读取 localStorage 中的头像覆盖
+    let overrides: Record<string, string> = {}
+    try {
+      const raw = localStorage.getItem('inheritor_avatar_overrides')
+      if (raw) overrides = JSON.parse(raw)
+    } catch { /* ignore */ }
+
     const presetList: InheritorInfo[] = chars.map(c => ({
       id: c.id,
       name: c.name,
-      avatar: c.avatar,
+      avatar: overrides[c.id] || c.avatar,
       expertise: c.expertise,
       greeting: c.greeting,
       tools: c.tools || [],
@@ -111,7 +120,7 @@ export default function Workshop() {
     const customList: InheritorInfo[] = ci.map(c => ({
       id: `custom:${c.id}`,
       name: c.name,
-      avatar: c.avatar_url,
+      avatar: overrides[`custom:${c.id}`] || c.avatar_url,
       expertise: c.expertise,
       greeting: c.greeting,
       tools: c.tools,
@@ -441,14 +450,15 @@ export default function Workshop() {
     setCustoms(prev => prev.filter(c => c.id !== `custom:${id}`))
   }
 
-  // 刷新自定义传承人列表
+  // 刷新传承人列表（含头像覆盖）
   const refreshCustoms = async () => {
     try {
       const ci = await listMyInheritors()
-      const { customs: c } = buildInheritorList(
+      const { presets: p, customs: c } = buildInheritorList(
         presets.map(p => ({ id: p.id, name: p.name, avatar: p.avatar, expertise: p.expertise, greeting: p.greeting, tools: p.tools, quick_questions: p.quick_questions })),
         ci
       )
+      setPresets(p)
       setCustoms(c)
     } catch { /* ignore */ }
   }
@@ -484,9 +494,10 @@ export default function Workshop() {
       display: 'grid',
       gridTemplateColumns: isCompact ? '220px 1fr' : '240px 1fr 260px',
       gridTemplateRows: '1fr auto',
-      height: 'calc(100vh - 64px - 48px)',
+      height: 'calc(100vh - 64px - 32px)',
       gap: isCompact ? 12 : 20,
       padding: isCompact ? '0 8px 12px' : '0 20px 20px',
+      overflow: 'hidden',
     }}>
       {/* 左侧：传承人列表 */}
       <InheritorRoster
@@ -565,6 +576,7 @@ export default function Workshop() {
           streamingContent={streamingContent}
           loading={loading}
           inheritor={selectedInheritorInfo}
+          userAvatar={user?.avatar_url}
           onQuickQuestion={handleQuickQuestion}
           onRegenerate={() => {
             // 找到最后一条用户消息，重新发送

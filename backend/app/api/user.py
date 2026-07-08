@@ -2,13 +2,15 @@
 
 import json
 import logging
+import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, UploadFile, File
 from sqlalchemy.orm import Session
 
 from app.models.database import get_db
 from app.models.user import User
+from app.config import UPLOAD_DIR, ALLOWED_IMAGE_FORMATS, MAX_UPLOAD_SIZE_BYTES, MIN_IMAGE_DIMENSION
 from app.models.recognition import RecognitionRecord
 from app.models.generation import GeneratedWork
 from app.models.chat import ChatSession
@@ -76,6 +78,57 @@ def update_profile(
         theme=settings.theme if settings else "light",
         created_at=current_user.created_at,
     )
+
+
+# === 头像上传 ===
+
+@router.post("/upload-avatar")
+def upload_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+):
+    """上传头像图片 → 返回可访问的 URL"""
+    # 校验文件
+    if not file.filename:
+        raise AppException("未选择文件")
+
+    ext = Path(file.filename).suffix.lower().lstrip(".")
+    if ext not in ALLOWED_IMAGE_FORMATS:
+        raise AppException(f"不支持的格式: {ext}，请上传 {', '.join(sorted(ALLOWED_IMAGE_FORMATS))}")
+
+    # 校验大小
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    file.file.seek(0)
+    if file_size > MAX_UPLOAD_SIZE_BYTES:
+        raise AppException(f"文件过大: {file_size / 1024 / 1024:.1f}MB，限制 {MAX_UPLOAD_SIZE_BYTES / 1024 / 1024:.0f}MB")
+
+    # PIL 校验尺寸
+    try:
+        from PIL import Image
+        file.file.seek(0)
+        img = Image.open(file.file)
+        w, h = img.size
+        file.file.seek(0)
+        if w < MIN_IMAGE_DIMENSION or h < MIN_IMAGE_DIMENSION:
+            raise AppException(f"图片尺寸过小: {w}x{h}px，最小 {MIN_IMAGE_DIMENSION}px")
+    except AppException:
+        raise
+    except Exception:
+        raise AppException("无法解析图片文件，请确认上传的是有效的图片")
+
+    # 保存到 avatars 子目录
+    avatars_dir = UPLOAD_DIR / "avatars"
+    avatars_dir.mkdir(parents=True, exist_ok=True)
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    file_path = avatars_dir / filename
+
+    with open(file_path, "wb") as f:
+        f.write(file.file.read())
+
+    url = f"/static/avatars/{filename}"
+    logger.info(f"头像上传成功: user={current_user.id}, url={url}")
+    return {"url": url}
 
 
 # === 收藏 ===

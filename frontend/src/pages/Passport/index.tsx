@@ -87,6 +87,7 @@ export default function PassportPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [geoLoaded, setGeoLoaded] = useState(false)
+  const [selectedRegion, setSelectedRegion] = useState('')
   const [exporting, setExporting] = useState(false)
   const passportRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
@@ -95,12 +96,20 @@ export default function PassportPage() {
     loadAll()
   }, [])
 
-  // 加载 GeoJSON
+  // 加载 GeoJSON + 注册地图
   useEffect(() => {
-    if (chinaGeo) { setGeoLoaded(true); return }
+    if (chinaGeo) {
+      setGeoLoaded(true)
+      try { echarts.registerMap('china', chinaGeo) } catch { /* 已注册 */ }
+      return
+    }
     fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
       .then(r => r.json())
-      .then(geo => { chinaGeo = geo; setGeoLoaded(true) })
+      .then(geo => {
+        chinaGeo = geo
+        try { echarts.registerMap('china', chinaGeo) } catch { /* ignore */ }
+        setGeoLoaded(true)
+      })
       .catch(() => setGeoLoaded(true))
   }, [])
 
@@ -127,21 +136,7 @@ export default function PassportPage() {
     }
   }
 
-  // 构建短名→全名 nameMap
-  const nameMap = useMemo(() => {
-    const map: Record<string, string> = {}
-    if (!chinaGeo) return map
-    for (const feature of chinaGeo.features || []) {
-      const fullName = feature.properties?.name || ''
-      const shortName = toShortName(fullName)
-      if (shortName && shortName !== fullName) {
-        map[shortName] = fullName
-      }
-    }
-    return map
-  }, [geoLoaded])
-
-  // 地域热力图数据
+  // 地域热力图数据（二值化：已探索 1 / 未探索 0；item_count 预留未来梯度着色）
   const regionMapData = useMemo(() => {
     const regionSet = new Set(regions.map(r => r.region_code))
     const data: { name: string; value: number }[] = []
@@ -149,13 +144,19 @@ export default function PassportPage() {
     for (const feature of chinaGeo.features || []) {
       const fullName = feature.properties?.name || ''
       const shortName = toShortName(fullName)
-      data.push({
-        name: fullName,
-        value: regionSet.has(shortName) ? 1 : 0,
-      })
+      data.push({ name: fullName, value: regionSet.has(shortName) ? 1 : 0 })
     }
     return data
   }, [regions, geoLoaded])
+
+  const totalProvinces = useMemo(() => (chinaGeo?.features || []).length, [geoLoaded])
+
+  const latestRegion = useMemo(() => {
+    const sorted = [...regions].filter(r => r.unlocked_at).sort(
+      (a, b) => new Date(b.unlocked_at!).getTime() - new Date(a.unlocked_at!).getTime()
+    )
+    return sorted[0] || null
+  }, [regions])
 
   const earnedTypeSet = new Set(allEarned.map((s: EarnedStamp) => s.type))
   const stampMap = new Map(allEarned.map((s: EarnedStamp) => [s.type, s]))
@@ -164,29 +165,66 @@ export default function PassportPage() {
   const mapOption = useMemo(() => ({
     tooltip: {
       trigger: 'item',
+      backgroundColor: PAPER,
+      borderColor: GOLD_LIGHT,
+      borderWidth: 1,
+      padding: [14, 18],
+      extraCssText: 'border-radius:10px;box-shadow:0 4px 16px rgba(30,27,24,0.10);',
+      textStyle: {
+        color: INK,
+        fontSize: 13,
+        fontFamily: '"Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif',
+      },
       formatter: (params: any) => {
         const short = toShortName(params.name || '')
         const hasExplored = params.value > 0
-        return `<strong>${short}</strong><br/>${hasExplored ? '✅ 已探索' : '⏳ 尚未探索'}`
+        const regionData = regions.find(r => r.region_code === short)
+        const dateStr = regionData?.unlocked_at
+          ? new Date(regionData.unlocked_at).toLocaleDateString('zh-CN')
+          : null
+        return `
+          <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif;min-width:150px">
+            <div style="font-size:15px;font-weight:600;color:#2C241A;margin-bottom:8px;border-bottom:1px solid #E8D5B0;padding-bottom:6px">
+              📍 ${short}
+            </div>
+            <div style="font-size:13px;color:#6B5F52;margin-bottom:4px">
+              状态：<b style="color:${hasExplored ? '#B8463A' : '#6B5F52'};font-size:14px">${hasExplored ? '✅ 已探索' : '⏳ 尚未探索'}</b>
+            </div>
+            ${dateStr ? `<div style="font-size:13px;color:#6B5F52">解锁于：${dateStr}</div>` : ''}
+            ${!hasExplored ? '<div style="font-size:11px;color:#C4BEB4;margin-top:6px;font-style:italic">继续探索非遗世界…</div>' : ''}
+          </div>`
       },
     },
     visualMap: {
-      min: 0, max: 1,
-      inRange: { color: [REGION_COLOR_0, GOLD] },
+      min: 0,
+      max: 1,
+      pieces: [
+        { value: 1, color: GOLD, label: '已探索' },
+        { value: 0, color: REGION_COLOR_0, label: '未探索' },
+      ],
       show: false,
     },
     geo: {
       map: 'china',
-      roam: false,
+      roam: 'scale' as const,
+      scaleLimit: { min: 1, max: 3 },
       label: { show: false },
       itemStyle: {
         areaColor: REGION_COLOR_0,
         borderColor: '#D5CFC0',
-        borderWidth: 0.5,
+        borderWidth: 0.8,
+        shadowColor: 'rgba(30,27,24,0.06)',
+        shadowBlur: 4,
       },
       emphasis: {
-        label: { show: true, color: INK },
-        itemStyle: { areaColor: GOLD_LIGHT },
+        label: { show: true, color: INK, fontSize: 13, fontWeight: 600 },
+        itemStyle: {
+          areaColor: GOLD_LIGHT,
+          borderColor: GOLD,
+          borderWidth: 2,
+          shadowColor: 'rgba(196,162,101,0.30)',
+          shadowBlur: 12,
+        },
       },
     },
     series: [{
@@ -194,8 +232,9 @@ export default function PassportPage() {
       map: 'china',
       geoIndex: 0,
       data: regionMapData,
+      selectedMode: false,
     }],
-  }), [regionMapData])
+  }), [regionMapData, regions])
 
   // 导出护照
   const handleExport = async () => {
@@ -403,48 +442,229 @@ export default function PassportPage() {
         </motion.div>
       )}
 
-      {/* ── Passport 2.0: 地域探索热力图 ── */}
+      {/* ── Passport 2.0: 地域探索 ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.25 }}
         style={{ marginBottom: 32 }}
       >
-        <h3 style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'var(--text-lg)',
-          color: 'var(--color-ink)',
-          marginBottom: 16,
-          paddingBottom: 8,
-          borderBottom: '2px solid var(--color-border-light)',
+        {/* 标题行 */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 20,
+          flexWrap: 'wrap',
+          gap: 12,
         }}>
-          <MapPin style={{ marginRight: 8 }} />
-          地域探索
+          <h3 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--text-lg)',
+            color: 'var(--color-ink)',
+            margin: 0,
+            paddingBottom: 8,
+            borderBottom: '2px solid var(--color-border-light)',
+          }}>
+            <MapPin style={{ marginRight: 8 }} />
+            地域探索
+          </h3>
           {regions.length > 0 && (
-            <Tag color={GOLD} style={{ marginLeft: 8 }}>{regions.length} 个省份</Tag>
+            <Tag color={GOLD} style={{ margin: 0, fontSize: 'var(--text-sm)', padding: '4px 14px', borderRadius: 20 }}>
+              已探索 {regions.length} / {totalProvinces} 个省份
+            </Tag>
           )}
-        </h3>
+        </div>
+
+        {/* 统计卡片行 */}
+        {regions.length > 0 && (
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+            <Col xs={8}>
+              <Card
+                size="small"
+                styles={{ body: { padding: '18px 12px', textAlign: 'center' } }}
+                style={{ border: '1px solid var(--color-border-light)', borderRadius: 10 }}
+              >
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)', marginBottom: 6 }}>
+                  已探索省份
+                </div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: GOLD, fontFamily: 'var(--font-display)' }}>
+                  {regions.length}
+                </div>
+              </Card>
+            </Col>
+            <Col xs={8}>
+              <Card
+                size="small"
+                styles={{ body: { padding: '18px 12px', textAlign: 'center' } }}
+                style={{ border: '1px solid var(--color-border-light)', borderRadius: 10 }}
+              >
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)', marginBottom: 6 }}>
+                  探索覆盖率
+                </div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: INK, fontFamily: 'var(--font-display)' }}>
+                  {totalProvinces > 0 ? Math.round(regions.length / totalProvinces * 100) : 0}%
+                </div>
+              </Card>
+            </Col>
+            <Col xs={8}>
+              <Card
+                size="small"
+                styles={{ body: { padding: '18px 12px', textAlign: 'center' } }}
+                style={{ border: '1px solid var(--color-border-light)', borderRadius: 10 }}
+              >
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)', marginBottom: 6 }}>
+                  最近解锁
+                </div>
+                <div style={{
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: VERMILION,
+                  fontFamily: 'var(--font-display)',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
+                  {latestRegion ? `📍 ${latestRegion.region_code}` : '—'}
+                </div>
+              </Card>
+            </Col>
+          </Row>
+        )}
+
+        {/* 中国热力图 */}
         {geoLoaded ? (
-          <ReactECharts
-            echarts={echarts}
-            option={mapOption}
-            style={{ height: 360 }}
-            opts={{ renderer: 'canvas' }}
-          />
+          <Card
+            styles={{ body: { padding: 8 } }}
+            style={{
+              marginBottom: 16,
+              border: '1px solid var(--color-border-light)',
+              borderRadius: 12,
+              overflow: 'hidden',
+              background: PAPER,
+            }}
+          >
+            <ReactECharts
+              echarts={echarts}
+              option={mapOption}
+              style={{ height: 500 }}
+              opts={{ renderer: 'canvas' }}
+              onEvents={{
+                click: (params: any) => {
+                  if (params.name) {
+                    const short = toShortName(params.name)
+                    setSelectedRegion(prev => prev === short ? '' : short)
+                  }
+                },
+              }}
+            />
+          </Card>
         ) : (
-          <Card style={{ textAlign: 'center', padding: 40 }}>
+          <Card style={{ textAlign: 'center', padding: 48, marginBottom: 16 }}>
             <Spin tip="加载地图数据..." />
           </Card>
         )}
-        {/* 已探索地域标签 */}
-        {regions.length > 0 && (
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
-            {regions.map((r) => (
-              <Tag key={r.region_code} color={GOLD} style={{ margin: 0 }}>
-                📍 {r.region_code}
-              </Tag>
-            ))}
+
+        {/* 色阶图例 */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 18,
+          marginBottom: 24,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{
+              width: 14, height: 14, borderRadius: 3,
+              background: REGION_COLOR_0,
+              border: '1px solid #D5CFC0',
+            }} />
+            <span style={{ fontSize: 'var(--text-xs)', color: INK_SECONDARY }}>未探索</span>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{
+              width: 14, height: 14, borderRadius: 3,
+              background: GOLD,
+            }} />
+            <span style={{ fontSize: 'var(--text-xs)', color: INK_SECONDARY }}>已探索</span>
+          </div>
+        </div>
+
+        {/* 省份卡片网格 */}
+        {regions.length > 0 ? (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))',
+            gap: 12,
+          }}>
+            {regions
+              .sort((a, b) => {
+                const da = a.unlocked_at ? new Date(a.unlocked_at).getTime() : 0
+                const db = b.unlocked_at ? new Date(b.unlocked_at).getTime() : 0
+                return db - da
+              })
+              .map((r, idx) => {
+                const isSelected = selectedRegion === r.region_code
+                return (
+                  <motion.div
+                    key={r.region_code}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.25, delay: idx * 0.03 }}
+                    whileHover={{ y: -3, boxShadow: '0 6px 20px rgba(30,27,24,0.10)' }}
+                    onClick={() => setSelectedRegion(isSelected ? '' : r.region_code)}
+                    style={{
+                      padding: '16px',
+                      borderRadius: 10,
+                      cursor: 'pointer',
+                      border: isSelected
+                        ? `2px solid ${VERMILION}`
+                        : '1px solid var(--color-border-light)',
+                      background: isSelected ? '#FFF5F3' : PAPER,
+                      transition: 'all var(--duration-normal) var(--ease-out)',
+                      boxShadow: isSelected
+                        ? '0 4px 14px rgba(184,70,58,0.12)'
+                        : '0 1px 4px rgba(30,27,24,0.04)',
+                    }}
+                  >
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 8,
+                    }}>
+                      <span style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: INK }}>
+                        📍 {r.region_code}
+                      </span>
+                      {isSelected && (
+                        <Tag color={VERMILION} style={{ margin: 0, fontSize: 11, lineHeight: '18px', padding: '0 6px' }}>
+                          选中
+                        </Tag>
+                      )}
+                    </div>
+                    <Progress
+                      percent={100}
+                      showInfo={false}
+                      strokeColor={GOLD}
+                      trailColor="var(--color-border-light)"
+                      size="small"
+                    />
+                    {r.unlocked_at && (
+                      <div style={{ fontSize: 'var(--text-xs)', color: INK_SECONDARY, marginTop: 6 }}>
+                        🗓 {new Date(r.unlocked_at).toLocaleDateString('zh-CN')}
+                      </div>
+                    )}
+                  </motion.div>
+                )
+              })}
+          </div>
+        ) : (
+          <Card style={{ textAlign: 'center', padding: 32, borderRadius: 12 }}>
+            <Empty
+              description="尚未探索任何地域，去知识图谱或展厅逛逛吧！"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            />
+          </Card>
         )}
       </motion.div>
 

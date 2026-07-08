@@ -21,6 +21,7 @@ import {
   type HeritageItem, type ExpansionQueueItem, type ExpansionPreferences,
 } from '../services/exhibition'
 import { addFavorite, deleteFavorite, listFavorites } from '../services/user'
+import { trackRegionVisit } from '../services/passport'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { normalizeImageUrl } from '../utils/imageUrl'
@@ -128,6 +129,13 @@ export default function ExhibitionHall() {
         .catch(() => {})
     }
   }, [isAuthenticated])
+
+  // Track region visit when user filters by region
+  useEffect(() => {
+    if (region) {
+      trackRegionVisit(region).catch(() => {})
+    }
+  }, [region])
 
   // load items
   const loadItems = useCallback(async (p: number) => {

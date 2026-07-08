@@ -3,12 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   Layout, Menu, Card, Typography, Spin, Empty, Button,
   List, Image, Tag, Space, Input, Form, message, Popconfirm, Tabs, Tooltip,
+  Upload, Avatar,
 } from 'antd'
 import {
   Camera, ImageIcon, MessageCircle,
   Heart, Settings, Wrench,
   Trash2, ChevronRight,
-  User,
+  User, Plus, Bot,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import {
@@ -18,7 +19,12 @@ import {
 import { getHistory as getRecognitionHistory, deleteRecognition, type RecognitionListItem } from '../services/recognition'
 import { getHistory as getGenerationHistory, deleteWork, type GenerationItem } from '../services/generation'
 import { getHistory as getRestorationHistory, deleteRestoration, type RestorationListItem } from '../services/restoration'
+import api from '../services/api'
 import { normalizeImageUrl } from '../utils/imageUrl'
+import AvatarCropper from '../components/AvatarCropper'
+import { listSessions, deleteSession, type ChatSessionItem } from '../services/chat'
+import { listMyInheritors, deleteInheritor, type CustomInheritor } from '../services/inheritor'
+import { TOOL_NAMES, TOOL_ICONS } from './Workshop'
 
 const { Sider, Content } = Layout
 const { Title, Text } = Typography
@@ -35,7 +41,7 @@ const tabs = [
 export default function UserCenter() {
   const { tab = 'records' } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
 
@@ -50,7 +56,7 @@ export default function UserCenter() {
       case 'chats': return <ChatsTab />
       case 'restoration': return <RestorationTab />
       case 'favorites': return <FavoritesTab />
-      case 'settings': return <SettingsTab profile={profile} onUpdate={setProfile} />
+      case 'settings': return <SettingsTab profile={profile} onUpdate={setProfile} updateUser={updateUser} />
       default: return <Empty description="未知页面" />
     }
   }
@@ -60,14 +66,18 @@ export default function UserCenter() {
       <Sider width={180} style={{ background: '#fff', borderRadius: 12, marginRight: 24 }}>
         {/* 用户信息卡片 */}
         <div style={{ padding: '20px 16px 12px', textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
-          <div style={{
-            width: 56, height: 56, borderRadius: '50%', background: '#C41E3A',
-            margin: '0 auto 8px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', fontSize: 24, fontWeight: 'bold',
-          }}>
-            {profile?.nickname?.[0] || user?.username?.[0] || <User />}
-          </div>
+          {profile?.avatar_url ? (
+            <Avatar size={80} src={normalizeImageUrl(profile.avatar_url)} style={{ margin: '0 auto 8px', display: 'block' }} />
+          ) : (
+            <div style={{
+              width: 80, height: 80, borderRadius: '50%', background: '#C41E3A',
+              margin: '0 auto 8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#fff', fontSize: 32, fontWeight: 'bold',
+            }}>
+              {profile?.nickname?.[0] || user?.username?.[0] || <User size={32} />}
+            </div>
+          )}
           <Text strong>{profile?.nickname || user?.username || '用户'}</Text>
         </div>
 
@@ -230,7 +240,266 @@ function WorksTab() {
 // ========== 对话历史 Tab ==========
 
 function ChatsTab() {
-  return <Empty description="对话历史 — 待模块③实现后接入" style={{ padding: 60 }} />
+  const navigate = useNavigate()
+
+  return (
+    <Tabs
+      defaultActiveKey="sessions"
+      items={[
+        { key: 'sessions', label: '对话记录', children: <SessionsList /> },
+        { key: 'inheritors', label: '我的传承人', children: <MyInheritorsList /> },
+      ]}
+    />
+  )
+}
+
+// ── 子组件：对话记录列表 ──
+
+function SessionsList() {
+  const [sessions, setSessions] = useState<ChatSessionItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+  const { user } = useAuth()
+
+  useEffect(() => { load() }, [])
+
+  const load = () => {
+    setLoading(true)
+    listSessions()
+      .then(setSessions)
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteSession(id)
+      setSessions(prev => prev.filter(s => s.id !== id))
+      message.success('已删除')
+    } catch { message.error('删除失败') }
+  }
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
+  }
+
+  if (sessions.length === 0) {
+    return (
+      <Empty description="暂无对话记录，去技艺工坊开始探索吧！">
+        <Button type="primary" icon={<ChevronRight />} onClick={() => navigate('/workshop')}>
+          去技艺工坊
+        </Button>
+      </Empty>
+    )
+  }
+
+  return (
+    <List
+      dataSource={sessions}
+      renderItem={(item) => (
+        <List.Item
+          extra={
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <Button
+                type="link"
+                icon={<ChevronRight />}
+                onClick={() => navigate(`/workshop?persona=${item.persona}`)}
+              >
+                继续
+              </Button>
+              <Popconfirm
+                title="确定删除此对话？"
+                onConfirm={() => handleDelete(item.id)}
+                okText="确定"
+                cancelText="取消"
+              >
+                <Button type="text" danger icon={<Trash2 />} />
+              </Popconfirm>
+            </div>
+          }
+        >
+          <List.Item.Meta
+            avatar={
+              <div style={{ position: 'relative' }}>
+                {item.inheritor_avatar ? (
+                  <img src={normalizeImageUrl(item.inheritor_avatar)} alt=""
+                    style={{ width: 48, height: 48, borderRadius: 24, objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 24,
+                    background: 'var(--color-paper, #F7F4ED)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Bot size={24} style={{ color: 'var(--color-ink-secondary, #6B5F52)' }} />
+                  </div>
+                )}
+                {/* 用户头像小角标 */}
+                {user?.avatar_url ? (
+                  <img src={normalizeImageUrl(user.avatar_url)} alt=""
+                    style={{
+                      width: 26, height: 26, borderRadius: 13, objectFit: 'cover',
+                      position: 'absolute', bottom: -2, right: -4,
+                      border: '2px solid #fff',
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    width: 26, height: 26, borderRadius: 13,
+                    position: 'absolute', bottom: -2, right: -4,
+                    border: '2px solid #fff',
+                    background: '#C41E3A',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <User size={12} color="#fff" />
+                  </div>
+                )}
+              </div>
+            }
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>
+                  {item.title || '新对话'}
+                </span>
+                {item.inheritor_name && (
+                  <Tag style={{ fontSize: 'var(--text-xs)', margin: 0 }}>
+                    {item.inheritor_name}
+                  </Tag>
+                )}
+              </div>
+            }
+            description={
+              <div>
+                {item.preview && (
+                  <div style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--color-ink-secondary, #6B5F52)',
+                    marginBottom: 6,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: 400,
+                  }}>
+                    {item.preview}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                  {item.available_tools?.map(toolId => (
+                    <Tag key={toolId} style={{ fontSize: 11, margin: 0 }} color="gold">
+                      {TOOL_ICONS[toolId] || '🛠️'} {TOOL_NAMES[toolId] || toolId}
+                    </Tag>
+                  ))}
+                  <span style={{ fontSize: 11, color: 'var(--color-ink-tertiary, #999)' }}>
+                    {new Date(item.updated_at).toLocaleDateString('zh-CN')}
+                  </span>
+                </div>
+              </div>
+            }
+          />
+        </List.Item>
+      )}
+    />
+  )
+}
+
+// ── 子组件：我的传承人列表 ──
+
+function MyInheritorsList() {
+  const [inheritors, setInheritors] = useState<CustomInheritor[]>([])
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+
+  useEffect(() => { load() }, [])
+
+  const load = () => {
+    setLoading(true)
+    listMyInheritors()
+      .then(setInheritors)
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteInheritor(id)
+      setInheritors(prev => prev.filter(i => i.id !== id))
+      message.success('已删除')
+    } catch { message.error('删除失败') }
+  }
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
+  }
+
+  if (inheritors.length === 0) {
+    return (
+      <Empty description="尚未创建自定义传承人">
+        <Button type="primary" icon={<Plus />} onClick={() => navigate('/workshop/wizard')}>
+          创建传承人
+        </Button>
+      </Empty>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+      {inheritors.map((item) => (
+        <Card
+          key={item.id}
+          size="small"
+          style={{ width: 200, borderRadius: 12 }}
+          styles={{ body: { padding: 16 } }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: 12 }}>
+            {item.avatar_url ? (
+              <img src={normalizeImageUrl(item.avatar_url)} alt={item.name}
+                style={{ width: 64, height: 64, borderRadius: 32, objectFit: 'cover' }}
+              />
+            ) : (
+              <div style={{
+                width: 64, height: 64, borderRadius: 32, margin: '0 auto',
+                background: 'var(--color-paper, #F7F4ED)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <User size={28} style={{ color: 'var(--color-ink-secondary, #6B5F52)' }} />
+              </div>
+            )}
+          </div>
+
+          <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, textAlign: 'center', marginBottom: 6 }}>
+            {item.name}
+          </div>
+
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 8 }}>
+            <Tag color="gold" style={{ fontSize: 11, margin: 0 }}>{item.category}</Tag>
+            {item.expertise?.slice(0, 2).map((e, i) => (
+              <Tag key={i} style={{ fontSize: 11, margin: 0 }}>{e}</Tag>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+            <Button
+              type="primary"
+              size="small"
+              icon={<ChevronRight />}
+              style={{ fontSize: 'var(--text-xs)' }}
+              onClick={() => navigate(`/workshop?persona=custom:${item.id}`)}
+            >
+              对话
+            </Button>
+            <Popconfirm
+              title="确定删除此传承人？"
+              onConfirm={() => handleDelete(item.id)}
+              okText="确定"
+              cancelText="取消"
+            >
+              <Button type="text" size="small" danger icon={<Trash2 />} />
+            </Popconfirm>
+          </div>
+        </Card>
+      ))}
+    </div>
+  )
 }
 
 // ========== 修复记录 Tab ==========
@@ -388,24 +657,58 @@ function FavoritesTab() {
 // ========== 个人设置 Tab ==========
 
 function SettingsTab({
-  profile, onUpdate,
+  profile, onUpdate, updateUser,
 }: {
   profile: UserProfile | null
   onUpdate: (p: UserProfile) => void
+  updateUser: (updates: Partial<{ id: number; username: string; nickname: string; avatar_url: string }>) => void
 }) {
   const [loading, setLoading] = useState(false)
+  const [avatarPreview, setAvatarPreview] = useState('')
+  const [cropperOpen, setCropperOpen] = useState(false)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+
+  // 裁剪确认 → 上传
+  const handleCropConfirm = async (croppedFile: File) => {
+    setCropperOpen(false)
+    setPendingFile(null)
+    setLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', croppedFile)
+      const res = await api.post('/api/user/upload-avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 30000,
+      })
+      const url = res.data.url
+      setAvatarPreview(URL.createObjectURL(croppedFile))
+      const updated = await updateProfile({ nickname: profile!.nickname, avatar_url: url })
+      onUpdate(updated)
+      updateUser({ nickname: profile!.nickname, avatar_url: url })
+      message.success('头像上传成功')
+    } catch (err: any) {
+      message.error(err.response?.data?.detail || '头像上传失败')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSubmit = async (values: { nickname: string; avatar_url: string }) => {
     setLoading(true)
     try {
       const updated = await updateProfile(values)
       onUpdate(updated)
+      updateUser({ nickname: values.nickname, avatar_url: values.avatar_url })
       message.success('保存成功')
     } catch { message.error('保存失败') }
     finally { setLoading(false) }
   }
 
   if (!profile) return <Spin />
+
+  const displayAvatar = avatarPreview || profile?.avatar_url
+    ? normalizeImageUrl(avatarPreview || profile.avatar_url || '')
+    : null
 
   return (
     <div style={{ maxWidth: 400 }}>
@@ -416,13 +719,17 @@ function SettingsTab({
       >
         <Form.Item label="用户信息">
           <Space>
-            <div style={{
-              width: 64, height: 64, borderRadius: '50%', background: '#C41E3A',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontSize: 28, fontWeight: 'bold',
-            }}>
-              {profile.nickname?.[0] || profile.username[0] || <User />}
-            </div>
+            {displayAvatar ? (
+              <Avatar size={88} src={displayAvatar} />
+            ) : (
+              <div style={{
+                width: 88, height: 88, borderRadius: '50%', background: '#C41E3A',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontSize: 36, fontWeight: 'bold',
+              }}>
+                {profile.nickname?.[0] || profile.username[0] || <User size={36} />}
+              </div>
+            )}
             <div>
               <Text strong style={{ fontSize: 16 }}>{profile.nickname || '未设置昵称'}</Text>
               <br />
@@ -435,8 +742,54 @@ function SettingsTab({
           <Input placeholder="设置你的昵称" />
         </Form.Item>
 
-        <Form.Item name="avatar_url" label="头像URL" rules={[{ type: 'url', message: '请输入有效的URL' }]}>
-          <Input placeholder="输入头像图片URL (可选)" />
+        <Form.Item label="头像">
+          <Upload
+            accept="image/jpeg,image/png,image/webp"
+            maxCount={1}
+            showUploadList={false}
+            beforeUpload={async (file) => {
+              const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+              if (!allowedTypes.includes(file.type)) {
+                message.error('请上传 JPG / PNG / WebP 格式的图片')
+                return false
+              }
+              if (file.size > 10 * 1024 * 1024) {
+                message.error('图片大小不能超过 10MB')
+                return false
+              }
+              setPendingFile(file)
+              setCropperOpen(true)
+              return false
+            }}
+          >
+            <div style={{ cursor: 'pointer' }}>
+              {displayAvatar ? (
+                <div style={{ textAlign: 'center' }}>
+                  <Avatar size={120} src={displayAvatar} />
+                  <br />
+                  <Button type="link" style={{ padding: 0, marginTop: 8 }}>更换头像</Button>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{
+                    width: 120, height: 120, borderRadius: '50%',
+                    background: 'var(--color-paper, #F7F4ED)',
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    border: '2px dashed var(--color-gold, #C4A265)',
+                  }}>
+                    <Camera size={40} color="var(--color-ink-secondary, #6B5F52)" />
+                  </div>
+                  <br />
+                  <Button type="link" style={{ padding: 0, marginTop: 8 }}>上传头像</Button>
+                </div>
+              )}
+            </div>
+          </Upload>
+        </Form.Item>
+
+        {/* 隐藏域保存 avatar_url（表单提交时使用） */}
+        <Form.Item name="avatar_url" hidden>
+          <Input />
         </Form.Item>
 
         <Form.Item>
@@ -457,6 +810,14 @@ function SettingsTab({
           <Text type="secondary">界面主题: {profile.theme === 'light' ? '浅色' : profile.theme}</Text>
         </div>
       </Card>
+
+      {/* 头像裁剪弹窗 */}
+      <AvatarCropper
+        open={cropperOpen}
+        file={pendingFile}
+        onConfirm={handleCropConfirm}
+        onCancel={() => { setCropperOpen(false); setPendingFile(null) }}
+      />
     </div>
   )
 }

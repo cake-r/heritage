@@ -49,14 +49,14 @@
   --font-mono:     'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
 
   /* ===== 字体大小模量级 ===== */
-  --text-xs:    0.875rem;  /* 14px — 最小可读字号 */
-  --text-sm:    0.9375rem;  /* 15px — 辅助文字、描述 */
-  --text-base:  1rem;       /* 16px — 正文基准 */
-  --text-md:    1.25rem;    /* 20px */
-  --text-lg:    1.5rem;     /* 24px */
-  --text-xl:    2rem;       /* 32px */
-  --text-2xl:   2.5rem;     /* 40px */
-  --text-3xl:   3rem;       /* 48px */
+  --text-xs:    0.9375rem;  /* 15px — 最小可读字号 */
+  --text-sm:    1rem;       /* 16px — 辅助文字、描述 */
+  --text-base:  1.125rem;   /* 18px — 正文基准 */
+  --text-md:    1.5rem;     /* 24px */
+  --text-lg:    1.75rem;    /* 28px */
+  --text-xl:    2.25rem;    /* 36px */
+  --text-2xl:   3rem;       /* 48px */
+  --text-3xl:   3.5rem;     /* 56px */
 
   /* ===== 字重 ===== */
   --font-normal:   400;

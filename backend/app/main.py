@@ -11,6 +11,11 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
+# 注册缺失的 MIME 类型（Python 标准 mimetypes 库不含 webp/avif 等新格式）
+import mimetypes
+mimetypes.add_type("image/webp", ".webp")
+mimetypes.add_type("image/avif", ".avif")
+
 import logging
 
 from fastapi import Request

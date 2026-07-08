@@ -13,11 +13,12 @@ interface Props {
   streamingContent: string
   loading: boolean
   inheritor?: InheritorInfo
+  userAvatar?: string
   onQuickQuestion?: (question: string) => void
   onRegenerate?: () => void
 }
 
-export default function WorkshopChat({ messages, streaming, streamingContent, loading, inheritor, onQuickQuestion, onRegenerate }: Props) {
+export default function WorkshopChat({ messages, streaming, streamingContent, loading, inheritor, userAvatar, onQuickQuestion, onRegenerate }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
@@ -36,11 +37,11 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
   // 欢迎页
   if (messages.length === 0 && !streaming) {
     return (
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', justifyContent: 'center', padding: '40px 32px' }}>
         {inheritor ? (
-          <div style={{ textAlign: 'center', maxWidth: 480 }}>
+          <div style={{ textAlign: 'center', maxWidth: 480, margin: 'auto' }}>
             <Avatar
-              size={80}
+              size={120}
               src={inheritor.avatar}
               icon={<User />}
               style={{ marginBottom: 16, border: '3px solid var(--color-gold, #C4A265)' }}
@@ -141,10 +142,10 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
           }}>
             {/* 头像 */}
             <Avatar
-              size={32}
-              src={msg.role === 'assistant' ? inheritor?.avatar : undefined}
+              size={56}
+              src={msg.role === 'assistant' ? inheritor?.avatar : (userAvatar || undefined)}
               icon={msg.role === 'user' ? <User /> : <Bot />}
-              style={{ flexShrink: 0 }}
+              style={{ flexShrink: 0, border: msg.role === 'assistant' ? '2px solid var(--color-gold, #C4A265)' : '2px solid var(--color-paper, #F7F4ED)' }}
             />
 
             {/* 消息气泡 */}
@@ -385,7 +386,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
       {/* 流式输出 */}
       {streaming && streamingContent && (
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-          <Avatar size={32} src={inheritor?.avatar} icon={<Bot />} />
+          <Avatar size={56} src={inheritor?.avatar} icon={<Bot />} style={{ border: '2px solid var(--color-gold, #C4A265)' }} />
           <div style={{
             maxWidth: '70%',
             padding: '12px 16px',

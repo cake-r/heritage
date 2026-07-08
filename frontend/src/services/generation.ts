@@ -16,6 +16,8 @@ export interface GenerationItem {
   prompt: string
   is_public: boolean
   created_at: string
+  mode: string
+  user_id: number
 }
 
 export async function textToImage(params: {
@@ -64,8 +66,32 @@ export async function getHistory(page = 1, pageSize = 12) {
   return res.data
 }
 
-export async function getGallery(page = 1, pageSize = 12) {
-  const res = await api.get('/api/generation/gallery', { params: { page, page_size: pageSize } })
+export interface GalleryParams {
+  page?: number
+  pageSize?: number
+  style?: string
+  mode?: string
+  search?: string
+  sort?: 'newest' | 'popular'
+}
+
+export async function getGallery(params: GalleryParams = {}) {
+  const { page = 1, pageSize = 12, style, mode, search, sort } = params
+  const res = await api.get('/api/generation/gallery', {
+    params: {
+      page,
+      page_size: pageSize,
+      ...(style && { style }),
+      ...(mode && { mode }),
+      ...(search && { search }),
+      ...(sort && sort !== 'newest' && { sort }),
+    },
+  })
+  return res.data
+}
+
+export async function getGalleryStyles(): Promise<string[]> {
+  const res = await api.get('/api/generation/styles')
   return res.data
 }
 

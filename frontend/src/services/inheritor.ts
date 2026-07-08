@@ -42,6 +42,7 @@ export interface CustomInheritorCreate {
   domain_prompts: Record<string, string>
   style: string
   expertise: string[]
+  avatar_url?: string
 }
 
 export interface CustomInheritorUpdate {
@@ -53,6 +54,7 @@ export interface CustomInheritorUpdate {
   style?: string
   expertise?: string[]
   is_public?: boolean
+  avatar_url?: string
 }
 
 export interface CustomInheritor {

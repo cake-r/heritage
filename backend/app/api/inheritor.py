@@ -234,6 +234,7 @@ def create_inheritor(
         user_id=current_user.id,
         name=req.name,
         category=req.category,
+        avatar_url=req.avatar_url or "",
         persona=req.persona,
         greeting=req.greeting,
         tools_json=json.dumps(req.tools, ensure_ascii=False),
@@ -347,6 +348,8 @@ def update_inheritor(
         inheritor.expertise = json.dumps(req.expertise, ensure_ascii=False)
     if req.is_public is not None:
         inheritor.is_public = 1 if req.is_public else 0
+    if req.avatar_url is not None:
+        inheritor.avatar_url = req.avatar_url
 
     db.commit()
     db.refresh(inheritor)
