@@ -284,7 +284,7 @@ export default function StoryModePage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <Text strong style={{ color: GOLD, fontSize: '1.4rem' }}>
                   {currentStepId
-                    ? `${STEP_ICONS[currentStepId] || ''} ${steps.find(s => s.step_id === currentStepId)?.title || ''}`
+                    ? <><Icon name={STEP_ICONS[currentStepId] || 'pin'} size={18} style={{ marginRight: 6 }} />{steps.find(s => s.step_id === currentStepId)?.title || ''}</>
                     : '准备中...'}
                 </Text>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -385,7 +385,7 @@ export default function StoryModePage() {
                     display: 'flex', alignItems: 'center', gap: 12,
                     padding: '8px 0',
                   }}>
-                    <span style={{ fontSize: 32 }}>{s.icon || STEP_ICONS[s.step_id] || 'pin'}</span>
+                    <Icon name={s.icon || STEP_ICONS[s.step_id] || 'pin'} size={32} />
                     <span style={{ flex: 1, color: text }}>{s.title}</span>
                     <Tag color={
                       s.status === 'completed' ? 'success' :

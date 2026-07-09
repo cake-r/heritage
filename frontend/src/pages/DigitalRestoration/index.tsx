@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import {
   Card, Upload, Typography, Spin, Tag, Button,
-  Row, Col, Space, message, Steps, Progress, Tabs, Empty, Divider, Tooltip,
+  Row, Col, message, Steps, Progress, Tabs, Empty, Divider, Tooltip,
 } from 'antd'
 import {
   Inbox, RefreshCw, Download,
@@ -25,6 +25,14 @@ import { RANK_ICON_CONFIG, Icon } from '../../config/icons'
 const { Dragger } = Upload
 const { Title, Text, Paragraph } = Typography
 
+// ── 项目色系 ──
+const GOLD = '#C4A265'
+const VERMILION = '#B8463A'
+const INK = '#2C241A'
+const INK_SEC = '#6B5F52'
+const SUCCESS = '#4A8C5C'
+const ERROR = '#C5533B'
+
 type PageStep = 'upload' | 'running' | 'complete' | 'error'
 
 // ==================== AI 修复能力说明 ====================
@@ -45,41 +53,68 @@ const AI_CAPABILITIES = [
 /** 损伤分析卡 */
 function DamageCard({ result }: { result: Record<string, any> }) {
   const severityColor: Record<string, string> = {
-    '轻度': '#52c41a',
-    '中度': '#faad14',
-    '重度': '#ff4d4f',
+    '轻度': '#4A8C5C',
+    '中度': '#C49A3C',
+    '重度': '#C5533B',
   }
+  const severityBg: Record<string, string> = {
+    '轻度': 'rgba(74,140,92,0.08)',
+    '中度': 'rgba(196,154,60,0.08)',
+    '重度': 'rgba(197,83,59,0.08)',
+  }
+  const types = (result.damage_types || []) as string[]
   return (
     <div>
-      <Space wrap style={{ marginBottom: 12 }}>
-        <Tag color="#B8463A">{result.category}</Tag>
-        <Tag color={severityColor[result.severity] || 'default'}>{result.severity}</Tag>
-        {result.damage_types?.map((t: string) => (
-          <Tag key={t} color="orange">{t}</Tag>
-        ))}
-      </Space>
-      <Paragraph type="secondary" style={{ marginBottom: 0, fontSize: 14 }}>
+      {/* 品类 + 严重程度 大标签 */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 14, alignItems: 'center' }}>
+        <Tag color="#B8463A" style={{ fontSize: 15, padding: '4px 14px' }}>{result.category}</Tag>
+        <span style={{
+          fontSize: 15, fontWeight: 600, color: severityColor[result.severity] || INK_SEC,
+          background: severityBg[result.severity] || 'transparent',
+          padding: '4px 12px', borderRadius: 6,
+        }}>
+          {result.severity}损伤
+        </span>
+      </div>
+      {/* 损伤类型卡片 */}
+      {types.length > 0 && (
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+          {types.map((t: string) => (
+            <span key={t} style={{
+              fontSize: 13, padding: '4px 12px', borderRadius: 6,
+              background: 'rgba(184,70,58,0.08)', border: '1px solid rgba(184,70,58,0.2)',
+              color: VERMILION, fontWeight: 500,
+            }}>{t}</span>
+          ))}
+        </div>
+      )}
+      {/* 描述 */}
+      <Paragraph style={{ marginBottom: 0, fontSize: 15, lineHeight: 1.8, color: INK_SEC }}>
         {result.description}
       </Paragraph>
     </div>
   )
 }
 
-/** 修复方案卡 */
+/** 修复方案卡 — 引文风格 */
 function PromptCard({ result }: { result: Record<string, any> }) {
   return (
     <div style={{
-      background: 'var(--color-paper)',
-      border: '1px solid var(--color-border-light)',
-      borderRadius: 8,
-      padding: 16,
+      background: 'rgba(196,162,101,0.04)',
+      borderLeft: `3px solid ${GOLD}`,
+      borderRadius: '0 8px 8px 0',
+      padding: '16px 20px',
     }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <Lightbulb size={16} color={GOLD} />
+        <Text strong style={{ fontSize: 14, color: GOLD }}>AI 修复提示词</Text>
+      </div>
       <Text style={{
-        fontSize: 'var(--text-sm)',
-        lineHeight: 1.8,
+        fontSize: 16,
+        lineHeight: 1.9,
         whiteSpace: 'pre-wrap',
         fontFamily: 'var(--font-body)',
-        color: 'var(--color-ink-secondary)',
+        color: INK_SEC,
       }}>
         {result.prompt}
       </Text>
@@ -115,48 +150,57 @@ function ImageRestoredCard({ result }: { result: Record<string, any> }) {
 function VerificationCard({ result }: { result: Record<string, any> }) {
   const score = result.overall_score || 0
   const dims = result.dimensions || {}
-  const scoreColor = score >= 85 ? '#52c41a' : score >= 70 ? '#faad14' : '#ff4d4f'
+  const scoreColor = score >= 85 ? SUCCESS : score >= 70 ? '#C49A3C' : ERROR
+
+  const dimConfig: { key: string; label: string; color: string }[] = [
+    { key: 'detail_fidelity', label: '细节保真度', color: VERMILION },
+    { key: 'style_consistency', label: '风格一致性', color: GOLD },
+    { key: 'restoration_completeness', label: '损伤修复完整度', color: INK },
+  ]
 
   return (
     <div>
       <Row gutter={24} align="middle">
-        <Col xs={24} sm={8} style={{ textAlign: 'center' }}>
+        <Col xs={24} sm={7} style={{ textAlign: 'center' }}>
           <Progress
             type="circle"
             percent={score}
-            size={120}
-            strokeColor={scoreColor}
-            format={(p) => <span style={{ fontSize: 28, fontWeight: 700, color: scoreColor }}>{p}</span>}
+            size={110}
+            strokeColor={{ '0%': GOLD, '100%': VERMILION }}
+            format={(p) => <span style={{ fontSize: 26, fontWeight: 700, color: scoreColor }}>{p}</span>}
           />
-          <div style={{ marginTop: 8 }}>
-            <Text strong style={{ fontSize: 16 }}>综合评分</Text>
+          <div style={{ marginTop: 6 }}>
+            <Text strong style={{ fontSize: 15 }}>综合评分</Text>
           </div>
         </Col>
-        <Col xs={24} sm={16}>
-          <div style={{ marginBottom: 12 }}>
-            <Text type="secondary" style={{ fontSize: 12 }}>细节保真度</Text>
-            <Progress percent={dims.detail_fidelity || 0} size="small" strokeColor="var(--color-vermilion)" />
-          </div>
-          <div style={{ marginBottom: 12 }}>
-            <Text type="secondary" style={{ fontSize: 12 }}>风格一致性</Text>
-            <Progress percent={dims.style_consistency || 0} size="small" strokeColor="var(--color-gold)" />
-          </div>
-          <div style={{ marginBottom: 12 }}>
-            <Text type="secondary" style={{ fontSize: 12 }}>损伤修复完整度</Text>
-            <Progress percent={dims.restoration_completeness || 0} size="small" strokeColor="#2C241A" />
-          </div>
+        <Col xs={24} sm={17}>
+          {dimConfig.map(d => (
+            <div key={d.key} style={{ marginBottom: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                <Text style={{ fontSize: 14, color: INK_SEC }}>{d.label}</Text>
+                <Text strong style={{ fontSize: 14, color: d.color }}>{dims[d.key] || 0}</Text>
+              </div>
+              <Progress
+                percent={dims[d.key] || 0}
+                size="small"
+                strokeColor={d.color}
+                trailColor="rgba(196,162,101,0.1)"
+                showInfo={false}
+              />
+            </div>
+          ))}
         </Col>
       </Row>
-      <Divider style={{ margin: '16px 0' }} />
-      <Paragraph style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-secondary)', marginBottom: 12 }}>
+      <Divider style={{ margin: '14px 0', borderColor: 'rgba(196,162,101,0.15)' }} />
+      <Paragraph style={{ fontSize: 15, color: INK_SEC, marginBottom: 12, lineHeight: 1.8 }}>
         {result.verdict}
       </Paragraph>
       {result.artifacts?.length > 0 && (
         <div>
-          <Text type="secondary" style={{ fontSize: 12 }}>检测到的伪影:</Text>
-          <div style={{ marginTop: 4 }}>
+          <Text type="secondary" style={{ fontSize: 13 }}>检测到的伪影:</Text>
+          <div style={{ marginTop: 4, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {result.artifacts.map((a: string, i: number) => (
-              <Tag key={i} color="warning" style={{ marginBottom: 4 }}>{a}</Tag>
+              <Tag key={i} color="warning" style={{ marginBottom: 0 }}>{a}</Tag>
             ))}
           </div>
         </div>

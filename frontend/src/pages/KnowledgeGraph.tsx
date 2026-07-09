@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Card, Spin, Empty, Button, message, Alert, Drawer } from 'antd'
-import { RefreshCw, Info, GitGraph, Lightbulb, Sun, Link } from 'lucide-react'
+import { RefreshCw, Info, GitGraph, Lightbulb, Sun, GitBranch } from 'lucide-react'
 import * as echarts from 'echarts'
 import { FilterProvider, useFilters } from './knowledge-graph/FilterContext'
 import GraphBanner from './knowledge-graph/GraphBanner'
@@ -64,6 +64,8 @@ function KnowledgeGraph() {
   })
 
   // ========== Load Data ==========
+  const [itemsVersion, setItemsVersion] = useState(0)
+
   useEffect(() => {
     setLoading(true)
     setError(false)
@@ -76,6 +78,11 @@ function KnowledgeGraph() {
       })
       .catch(() => { setError(true); message.error('加载图谱数据失败') })
       .finally(() => setLoading(false))
+  }, [itemsVersion])
+
+  // 刷新亲缘数据（打开抽屉/手动刷新时调用）
+  const refreshItems = useCallback(() => {
+    getItems({}).then(items => setAllItems(items)).catch(() => {})
   }, [])
 
   // ========== Client-side Filtering ==========
@@ -357,7 +364,7 @@ function KnowledgeGraph() {
             color: 'var(--color-ink, #2C241A)',
           }}
         >
-          <Link size={16} /> 技艺亲缘关系图
+          <GitBranch size={16} /> 技艺亲缘桑基图
         </Button>
       </div>
 
@@ -365,14 +372,15 @@ function KnowledgeGraph() {
       <Drawer
         open={kinshipOpen}
         onClose={() => setKinshipOpen(false)}
-        width={800}
-        title="技艺亲缘关系图"
+        width={960}
+        title="技艺亲缘桑基图"
         styles={{ body: { padding: 16 } }}
+        afterOpenChange={(open) => { if (open) refreshItems() }}
       >
         <KinshipGraph
           data={allItems}
           onNodeClick={(id) => { setKinshipOpen(false); handleItemClick(id) }}
-          height={520}
+          onRefresh={refreshItems}
         />
       </Drawer>
     </div>

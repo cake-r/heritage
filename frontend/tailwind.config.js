@@ -108,6 +108,7 @@ export default {
         'stamp-scale': 'stampScale 0.5s var(--ease-spring)',
         'float-pulse': 'floatPulse 2s ease-in-out infinite',
         'glow-scan': 'glowScan 3s ease-in-out infinite',
+        'ink-reveal': 'inkReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) both',
       },
       keyframes: {
         heartbeat: {

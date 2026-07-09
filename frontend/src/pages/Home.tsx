@@ -241,15 +241,15 @@ export default function Home() {
         }} />
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
           style={{ position: 'relative', zIndex: 1 }}
         >
           {/* 小标题（衬线体） */}
-          <div style={{
+          <div className="animate-ink-reveal" style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 'var(--text-sm)',
+            fontSize: 'var(--text-base)',
             color: 'var(--color-gold)',
             letterSpacing: 6,
             textTransform: 'uppercase',
@@ -262,9 +262,10 @@ export default function Home() {
           {/* 大标题 */}
           <Title
             level={1}
+            className="animate-ink-reveal-delay-1"
             style={{
               color: 'var(--color-gold)',
-              fontSize: isMobile ? 28 : 44,
+              fontSize: isMobile ? 32 : 56,
               letterSpacing: isMobile ? 4 : 8,
               marginBottom: 16,
               fontFamily: 'var(--font-display)',
@@ -279,9 +280,10 @@ export default function Home() {
 
           {/* 副标题 */}
           <Paragraph
+            className="animate-ink-reveal-delay-2"
             style={{
               color: 'rgba(255,255,255,0.65)',
-              fontSize: isMobile ? 15 : 18,
+              fontSize: isMobile ? 16 : 22,
               maxWidth: 640,
               margin: '0 auto 36px',
               lineHeight: 1.8,
@@ -295,6 +297,7 @@ export default function Home() {
           <Row
             gutter={isMobile ? 16 : 48}
             justify="center"
+            className="animate-ink-reveal-delay-3"
             style={{ marginBottom: 32 }}
           >
             <Col>
@@ -305,7 +308,7 @@ export default function Home() {
                 styles={{
                   content: {
                     color: '#C4A265',
-                    fontSize: isMobile ? 24 : 30,
+                    fontSize: isMobile ? 28 : 38,
                     fontWeight: 500,
                   },
                 }}
@@ -318,7 +321,7 @@ export default function Home() {
                 styles={{
                   content: {
                     color: '#C4A265',
-                    fontSize: isMobile ? 24 : 30,
+                    fontSize: isMobile ? 28 : 38,
                     fontWeight: 500,
                   },
                 }}
@@ -331,7 +334,7 @@ export default function Home() {
                 styles={{
                   content: {
                     color: '#C4A265',
-                    fontSize: isMobile ? 24 : 30,
+                    fontSize: isMobile ? 28 : 38,
                     fontWeight: 500,
                   },
                 }}
@@ -864,6 +867,7 @@ export default function Home() {
       <div style={{ marginBottom: 32 }}>
         <Title
           level={3}
+          className="animate-ink-reveal"
           style={{
             textAlign: 'center',
             marginBottom: 8,
@@ -877,6 +881,7 @@ export default function Home() {
         </Title>
         <Paragraph
           type="secondary"
+          className="animate-ink-reveal-delay-1"
           style={{ textAlign: 'center', marginBottom: 32, fontSize: 'var(--text-base)' }}
         >
           五大模块，一站式非遗文化体验
@@ -885,10 +890,8 @@ export default function Home() {
         <Row gutter={[24, 24]}>
           {modules.map((mod, i) => (
             <Col xs={24} sm={12} lg={6} key={mod.key}>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              <div
+                className={`animate-ink-reveal-delay-${i}`}
                 style={{ height: '100%' }}
               >
                 <Card
@@ -933,7 +936,7 @@ export default function Home() {
                     了解更多
                   </Button>
                 </Card>
-              </motion.div>
+              </div>
             </Col>
           ))}
         </Row>

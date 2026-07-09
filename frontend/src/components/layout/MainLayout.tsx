@@ -13,6 +13,7 @@ import CompanionDrawer from '../companion/CompanionDrawer'
 import AchievementToast from '../cultivation/AchievementToast'
 import RankUpCelebration from '../cultivation/RankUpCelebration'
 import { BrocadePattern } from '../decoration'
+import { useNavigationDirection, type NavDirection } from '../../hooks/useNavigationDirection'
 
 const OnboardingGuide = lazy(() => import('../onboarding/OnboardingGuide'))
 import { isOnboardingShown } from '../onboarding/OnboardingGuide'
@@ -63,11 +64,30 @@ function SidebarGoldParticles({ collapsed }: { collapsed: boolean }) {
 const { Content, Sider } = Layout
 const { useBreakpoint } = Grid
 
-// 统一页面过渡动效 — 国风优雅过渡（明显的模糊+位移）
-const pageTransition = {
-  initial: { opacity: 0, y: 30, filter: 'blur(6px)' },
-  animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
-  exit: { opacity: 0, y: -20, filter: 'blur(6px)' },
+// ── 方向性页面过渡（纯 GPU 属性：x + opacity） ──
+const SLIDE_DISTANCE = 50 // px，滑动距离
+const TRANSITION = { duration: 0.25, ease: [0.16, 1, 0.3, 1] }
+
+const slideVariants: Record<NavDirection, {
+  initial: Record<string, number>
+  animate: Record<string, number>
+  exit: Record<string, number>
+}> = {
+  forward: {
+    initial: { x: SLIDE_DISTANCE, opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+    exit: { x: -SLIDE_DISTANCE, opacity: 0 },
+  },
+  back: {
+    initial: { x: -SLIDE_DISTANCE, opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+    exit: { x: SLIDE_DISTANCE, opacity: 0 },
+  },
+  same: {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+  },
 }
 
 export default function MainLayout() {
@@ -76,6 +96,7 @@ export default function MainLayout() {
   const location = useLocation()
   const screens = useBreakpoint()
   const isMobile = !screens.md // < 768px
+  const navDirection = useNavigationDirection(location.pathname)
 
   // Mobile: use Drawer; Desktop: use inline Sider
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
@@ -208,16 +229,13 @@ export default function MainLayout() {
             transition: `background var(--duration-normal) var(--ease-out)`,
           }}
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             <motion.div
               key={location.pathname}
-              initial={pageTransition.initial}
-              animate={pageTransition.animate}
-              exit={pageTransition.exit}
-              transition={{
-                duration: 0.5,
-                ease: [0.16, 1, 0.3, 1], // --ease-out
-              }}
+              initial={slideVariants[navDirection].initial}
+              animate={slideVariants[navDirection].animate}
+              exit={slideVariants[navDirection].exit}
+              transition={TRANSITION}
             >
               <Outlet />
             </motion.div>

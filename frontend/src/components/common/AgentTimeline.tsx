@@ -1,23 +1,19 @@
-/** AgentTimeline — Agent 执行步骤可视化组件
+/** AgentTimeline — Agent 执行步骤可视化组件（国风版）
  *
  * 基于 Framer Motion 的动画垂直时间线，订阅 SSE 实时展示 AI 执行步骤。
- *
- * Props:
- *   executionId  — 执行 ID，null 时不启动订阅
- *   onComplete   — 执行完成回调
- *   compact      — true=紧凑内联模式, false=完整侧边栏模式
- *   maxHeight    — 可滚动最大高度
+ * 结构化展示步骤输出数据，拒绝裸 JSON。
  */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Typography, Progress, Tag, Collapse } from 'antd'
+import { Typography, Progress, Tag } from 'antd'
 import {
   CheckCircle,
   XCircle,
   Clock,
   Loader2,
-  ChevronRight,
+  ChevronDown,
+  FlaskConical,
 } from 'lucide-react'
 import { Icon } from '../../config/icons'
 import { subscribeExecution, type AgentStepEvent, type AgentFinishEvent } from '../../services/agent'
@@ -32,52 +28,84 @@ function formatDuration(ms: number): string {
   return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`
 }
 
-function getStatusIcon(status: string) {
-  switch (status) {
-    case 'completed':
-      return <CheckCircle style={{ color: '#52c41a' }} />
-    case 'failed':
-      return <XCircle style={{ color: '#ff4d4f' }} />
-    case 'running':
-      return <Loader2 style={{ color: '#1890ff' }} className="animate-spin" />
-    default:
-      return <Clock style={{ color: '#d9d9d9' }} />
-  }
-}
+// ── 项目色系 ──
+const GOLD = '#C4A265'
+const VERMILION = '#B8463A'
+const INK = '#2C241A'
+const INK_SEC = '#6B5F52'
+const SUCCESS = '#4A8C5C'
+const ERROR = '#C5533B'
+const BG = 'var(--color-paper-white, #FFFDF9)'
 
 function getStatusColor(status: string): string {
   switch (status) {
-    case 'completed': return '#52c41a'
-    case 'failed': return '#ff4d4f'
-    case 'running': return '#1890ff'
-    default: return '#d9d9d9'
+    case 'completed': return SUCCESS
+    case 'failed': return ERROR
+    case 'running': return VERMILION
+    default: return INK_SEC
   }
 }
 
 // ── 组件 Props ──
 
 interface AgentTimelineProps {
-  /** 静态步骤数据（从 API 响应的 agent_steps 字段传入），渲染所有步骤的最终状态 */
   steps?: AgentStepEvent[] | null
-  /** SSE 订阅的执行 ID，传入后会自动订阅实时更新 */
   executionId?: string | null
-  /** 实时模式的完成回调 */
   onComplete?: (success: boolean) => void
   compact?: boolean
   maxHeight?: number
+}
+
+// ── DetailView：结构化展示步骤输出 ──
+
+function DetailView({ detail }: { detail: Record<string, any> }) {
+  const entries = useMemo(() => {
+    if (!detail) return []
+    // 过滤掉复杂嵌套对象和数组，只展示简单值
+    return Object.entries(detail).filter(([, v]) => {
+      if (v === null || v === undefined || v === '') return false
+      if (typeof v === 'object') return false
+      return true
+    })
+  }, [detail])
+
+  if (entries.length === 0) return null
+
+  return (
+    <div style={{
+      display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6,
+      padding: '8px 10px', borderRadius: 8,
+      background: 'rgba(196,162,101,0.06)',
+      border: '1px solid rgba(196,162,101,0.15)',
+    }}>
+      {entries.map(([k, v]) => {
+        const label = k.replace(/_/g, ' ')
+        const displayVal = typeof v === 'number' ? (Number.isInteger(v) ? String(v) : v.toFixed(1)) : String(v)
+        return (
+          <Tag key={k} color="gold" style={{ fontSize: 12, margin: 0 }}>
+            {label}: <strong>{displayVal}</strong>
+          </Tag>
+        )
+      })}
+    </div>
+  )
 }
 
 // ── StepItem 子组件 ──
 
 interface StepItemProps {
   step: AgentStepEvent
+  index: number
   isLast: boolean
   compact?: boolean
 }
 
-function StepItem({ step, isLast, compact }: StepItemProps) {
+function StepItem({ step, index, isLast, compact }: StepItemProps) {
   const [expanded, setExpanded] = useState(false)
   const hasDetail = step.detail && Object.keys(step.detail).length > 0
+  const isCompleted = step.status === 'completed'
+  const isRunning = step.status === 'running'
+  const isFailed = step.status === 'failed'
 
   const elapsed = step.end_time && step.start_time
     ? new Date(step.end_time).getTime() - new Date(step.start_time).getTime()
@@ -89,80 +117,69 @@ function StepItem({ step, isLast, compact }: StepItemProps) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
       style={{
-        display: 'flex',
-        gap: 12,
-        paddingBottom: isLast ? 0 : (compact ? 12 : 20),
+        display: 'flex', gap: 12,
+        paddingBottom: isLast ? 0 : (compact ? 10 : 16),
         position: 'relative',
       }}
     >
       {/* 时间线节点 */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: compact ? 24 : 28 }}>
         <motion.div
-          animate={
-            step.status === 'running'
-              ? { scale: [1, 1.15, 1] }
-              : { scale: 1 }
-          }
-          transition={step.status === 'running' ? { repeat: Infinity, duration: 1.2 } : {}}
+          animate={isRunning ? { scale: [1, 1.12, 1] } : { scale: 1 }}
+          transition={isRunning ? { repeat: Infinity, duration: 1.2 } : {}}
           style={{
-            width: compact ? 28 : 32,
-            height: compact ? 28 : 32,
+            width: compact ? 24 : 28,
+            height: compact ? 24 : 28,
             borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: step.status === 'running' ? 'var(--color-bg-active)' : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: isRunning
+              ? 'rgba(184,70,58,0.1)'
+              : isCompleted ? 'rgba(74,140,92,0.08)' : 'transparent',
             border: `2px solid ${getStatusColor(step.status)}`,
-            fontSize: compact ? 12 : 14,
           }}
         >
-          {getStatusIcon(step.status)}
+          {isCompleted && <CheckCircle size={compact ? 13 : 15} color={SUCCESS} />}
+          {isFailed && <XCircle size={compact ? 13 : 15} color={ERROR} />}
+          {isRunning && <Loader2 size={compact ? 13 : 15} color={VERMILION} className="animate-spin" />}
+          {(step.status === 'pending' || !step.status) && <Clock size={compact ? 13 : 15} color={INK_SEC} />}
         </motion.div>
         {!isLast && (
-          <div
-            style={{
-              width: 2,
-              flex: 1,
-              minHeight: compact ? 16 : 24,
-              background: step.status === 'completed'
-                ? '#52c41a'
-                : step.status === 'failed'
-                  ? '#ffd8d8'
-                  : 'var(--color-border-light)',
-            }}
-          />
+          <div style={{
+            width: 2, flex: 1,
+            minHeight: compact ? 14 : 20,
+            background: isCompleted
+              ? `linear-gradient(180deg, ${SUCCESS}, rgba(74,140,92,0.2))`
+              : isFailed
+                ? `linear-gradient(180deg, ${ERROR}, rgba(197,83,59,0.15))`
+                : `var(--color-border-light, #E8E4D8)`,
+          }} />
         )}
       </div>
 
       {/* 步骤内容 */}
       <div style={{ flex: 1, minWidth: 0 }}>
+        {/* 标题行 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <Text
-            strong
-            style={{
-              fontSize: compact ? 13 : 14,
-              color: step.status === 'failed' ? '#ff4d4f' : undefined,
-            }}
-          >
-            {step.icon && <Icon name={step.icon} size={14} style={{ marginRight: 4 }} />}
-            {step.title}
+          <Text strong style={{
+            fontSize: compact ? 13 : 15,
+            color: isFailed ? ERROR : INK,
+          }}>
+            {step.icon && <Icon name={step.icon} size={compact ? 14 : 16} style={{ marginRight: 4, verticalAlign: -3 }} />}
+            第{index + 1}步 · {step.title}
           </Text>
-          {step.status === 'running' && step.progress > 0 && (
-            <Progress
-              percent={step.progress}
-              size="small"
-              style={{ width: 80, marginBottom: 0 }}
-              showInfo={false}
-            />
+
+          {isRunning && step.progress > 0 && (
+            <Progress percent={step.progress} size="small" style={{ width: 72, marginBottom: 0 }}
+              strokeColor={VERMILION} showInfo={false} />
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: 12, marginTop: 2, alignItems: 'center' }}>
-          <Tag
-            color={step.status === 'completed' ? 'success' : step.status === 'failed' ? 'error' : step.status === 'running' ? 'processing' : 'default'}
-            style={{ fontSize: 11, lineHeight: '18px' }}
-          >
-            {step.status === 'pending' ? '等待中' : step.status === 'running' ? '执行中' : step.status === 'completed' ? '已完成' : '失败'}
+        {/* 状态 + 耗时 */}
+        <div style={{ display: 'flex', gap: 10, marginTop: 2, alignItems: 'center' }}>
+          <Tag color={
+            isCompleted ? 'success' : isFailed ? 'error' : isRunning ? 'processing' : 'default'
+          } style={{ fontSize: 11, lineHeight: '18px' }}>
+            {step.status === 'pending' ? '等待中' : isRunning ? '执行中' : isCompleted ? '已完成' : '失败'}
           </Tag>
           {elapsed !== null && (
             <Text type="secondary" style={{ fontSize: 11 }}>
@@ -172,29 +189,24 @@ function StepItem({ step, isLast, compact }: StepItemProps) {
         </div>
 
         {/* 失败信息 */}
-        {step.error && step.status === 'failed' && (
-          <Text
-            type="danger"
-            style={{ fontSize: 12, display: 'block', marginTop: 4 }}
-            ellipsis={{ tooltip: step.error }}
-          >
+        {step.error && isFailed && (
+          <Text type="danger" style={{ fontSize: 12, display: 'block', marginTop: 4 }}
+            ellipsis={{ tooltip: step.error }}>
             {step.error}
           </Text>
         )}
 
-        {/* 可展开详情 */}
-        {hasDetail && step.status === 'completed' && (
-          <div style={{ marginTop: 6 }}>
+        {/* 结构化详情 */}
+        {hasDetail && isCompleted && (
+          <div style={{ marginTop: 4 }}>
             <Text
               type="secondary"
-              style={{ fontSize: 11, cursor: 'pointer', userSelect: 'none' }}
+              style={{ fontSize: 12, cursor: 'pointer', userSelect: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
               onClick={() => setExpanded(!expanded)}
             >
-              <ChevronRight
-                rotate={expanded ? 90 : 0}
-                style={{ marginRight: 4, transition: 'transform 0.2s' }}
-              />
-              {expanded ? '收起详情' : '查看详情'}
+              <ChevronDown size={14}
+                style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+              {expanded ? '收起输出数据' : '查看输出数据'}
             </Text>
             <AnimatePresence>
               {expanded && (
@@ -205,20 +217,7 @@ function StepItem({ step, isLast, compact }: StepItemProps) {
                   transition={{ duration: 0.25 }}
                   style={{ overflow: 'hidden' }}
                 >
-                  <pre
-                    style={{
-                      marginTop: 6,
-                      padding: 8,
-                      background: 'var(--color-paper)',
-                      borderRadius: 6,
-                      fontSize: 11,
-                      maxHeight: 120,
-                      overflow: 'auto',
-                      border: '1px solid var(--color-border-light)',
-                    }}
-                  >
-                    {JSON.stringify(step.detail, null, 2)}
-                  </pre>
+                  <DetailView detail={step.detail} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -243,36 +242,27 @@ export default function AgentTimeline({
   const [finished, setFinished] = useState(false)
   const controllerRef = useRef<AbortController | null>(null)
 
-  // 静态模式：直接使用传入的 steps
   const steps = staticSteps && staticSteps.length > 0 ? staticSteps : liveSteps
   const isStatic = staticSteps && staticSteps.length > 0
 
-  // 实时模式：订阅 SSE
+  // 实时模式：SSE 订阅
   useEffect(() => {
     if (!executionId || isStatic) return
-
-    setLiveSteps([])
-    setSummary('')
-    setFinished(false)
+    setLiveSteps([]); setSummary(''); setFinished(false)
 
     const ctrl = subscribeExecution(executionId, {
       onStep: (data) => {
         setLiveSteps((prev) => {
           const idx = prev.findIndex((s) => s.step_id === data.step_id)
           if (idx >= 0) {
-            const updated = [...prev]
-            updated[idx] = data
-            return updated
+            const updated = [...prev]; updated[idx] = data; return updated
           }
           return [...prev, data]
         })
       },
       onProgress: (data) => {
-        setLiveSteps((prev) =>
-          prev.map((s) =>
-            s.step_id === data.step_id ? { ...s, progress: data.progress } : s,
-          ),
-        )
+        setLiveSteps((prev) => prev.map((s) =>
+          s.step_id === data.step_id ? { ...s, progress: data.progress } : s))
       },
       onFinish: (data: AgentFinishEvent) => {
         setLiveSteps(data.steps || [])
@@ -280,90 +270,78 @@ export default function AgentTimeline({
         setFinished(true)
         onComplete?.(data.status === 'completed')
       },
-      onError: (_error) => {
-        setFinished(true)
-        onComplete?.(false)
-      },
+      onError: () => { setFinished(true); onComplete?.(false) },
     })
-
     controllerRef.current = ctrl
-
-    return () => {
-      ctrl.abort()
-    }
+    return () => { ctrl.abort() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [executionId, isStatic])
 
   if (!executionId && (!staticSteps || staticSteps.length === 0)) return null
 
   return (
-    <div
-      style={{
-        background: 'var(--color-paper-white)',
-        borderRadius: 8,
-        border: '1px solid var(--color-border-light)',
-        padding: compact ? 12 : 16,
-        maxHeight,
-        overflowY: 'auto',
-      }}
-    >
+    <div style={{
+      background: BG,
+      borderRadius: 10,
+      border: '1px solid var(--color-border-light, #E8E4D8)',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+      padding: compact ? 12 : 20,
+      maxHeight,
+      overflowY: 'auto',
+    }}>
       {/* 标题栏 */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: compact ? 10 : 16,
-        }}
-      >
-        <Text strong style={{ fontSize: compact ? 13 : 15 }}>
-          🧠 Agent 执行追踪
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        marginBottom: compact ? 10 : 16,
+        paddingBottom: compact ? 8 : 12,
+        borderBottom: `1px solid rgba(196,162,101,0.2)`,
+      }}>
+        <Text strong style={{
+          fontSize: compact ? 14 : 16,
+          color: INK,
+          display: 'flex', alignItems: 'center', gap: 6,
+        }}>
+          <FlaskConical size={compact ? 16 : 18} color={GOLD} />
+          AI 分析过程
         </Text>
         {finished && (
-          <Tag color={summary.includes('失败') ? 'error' : 'success'} style={{ fontSize: 11 }}>
-            {summary}
+          <Tag color={summary.includes('失败') ? 'error' : 'success'} style={{ fontSize: 12 }}>
+            {summary || (steps.length > 0 ? `共 ${steps.length} 步` : '')}
           </Tag>
         )}
       </div>
 
       {/* 步骤列表 */}
       {steps.length === 0 && !finished && (
-        <div style={{ textAlign: 'center', padding: 20 }}>
-          <Loader2 style={{ fontSize: 18, color: '#1890ff' }} className="animate-spin" />
-          <Text type="secondary" style={{ display: 'block', marginTop: 8, fontSize: 12 }}>
+        <div style={{ textAlign: 'center', padding: compact ? 16 : 24 }}>
+          <Loader2 size={20} color={GOLD} className="animate-spin" />
+          <Text type="secondary" style={{ display: 'block', marginTop: 8, fontSize: 13 }}>
             等待 Agent 执行...
           </Text>
         </div>
       )}
 
       {steps.map((step, i) => (
-        <StepItem
-          key={(step as any).id || step.step_id || i}
-          step={step}
-          isLast={i === steps.length - 1 && (isStatic || finished)}
-          compact={compact}
-        />
+        <StepItem key={(step as any).id || step.step_id || i} step={step} index={i}
+          isLast={i === steps.length - 1 && (isStatic || finished)} compact={compact} />
       ))}
 
-      {/* 底部总结 */}
-      {finished && (
+      {/* 底部耗时 */}
+      {finished && steps.length > 0 && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
           style={{
-            marginTop: 12,
-            paddingTop: 12,
-            borderTop: '1px solid #f0f0f0',
+            marginTop: 12, paddingTop: 10,
+            borderTop: `1px solid rgba(196,162,101,0.15)`,
+            textAlign: 'right',
           }}
         >
           <Text type="secondary" style={{ fontSize: 12 }}>
-            总耗时:{' '}
-            {steps.length > 0 && steps[0].start_time && steps[steps.length - 1].end_time
+            总耗时{' '}
+            {steps[0].start_time && steps[steps.length - 1].end_time
               ? formatDuration(
                   new Date(steps[steps.length - 1].end_time!).getTime() -
-                    new Date(steps[0].start_time!).getTime(),
-                )
+                  new Date(steps[0].start_time!).getTime())
               : '—'}
           </Text>
         </motion.div>
