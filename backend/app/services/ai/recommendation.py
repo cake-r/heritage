@@ -313,15 +313,11 @@ def _personalized_feed(user_id: int, profile: UserInterestProfile, page: int, si
 
     page_items = page_items[:size]
 
-    # 使用预生成的专属推荐理由，可附加个性化前缀
+    # 使用预生成的专属推荐理由
     for i, item in enumerate(page_items):
         stored_reason = item.pop("reason_text", "") or ""
         if stored_reason:
-            # 对于用户偏好品类匹配度高的，加简短个性化前缀
-            if item["category"] in cat_weights and cat_weights[item["category"]] >= 0.15:
-                item["reason"] = f"与你喜欢的{item['category']}契合——{stored_reason}"
-            else:
-                item["reason"] = stored_reason
+            item["reason"] = stored_reason
         else:
             # 兜底：极少情况（如新 seed 数据尚未生成 reason_text）
             item["reason"] = _default_reason(item, cat_weights)
