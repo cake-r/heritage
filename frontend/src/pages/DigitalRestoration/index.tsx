@@ -9,6 +9,7 @@ import {
   XCircle,
   Wrench, Lightbulb, Image, ShieldCheck,
   ArrowLeftRight, Trophy, Star, Eye,
+  Microscope,
 } from 'lucide-react'
 import type { TabsProps } from 'antd'
 import {
@@ -19,6 +20,7 @@ import {
 import { normalizeImageUrl } from '../../utils/imageUrl'
 import ExplainPanel from '../../components/common/ExplainPanel'
 import { RestorationMuralPattern } from '../../components/decoration'
+import { RANK_ICON_CONFIG, Icon } from '../../config/icons'
 
 const { Dragger } = Upload
 const { Title, Text, Paragraph } = Typography
@@ -28,12 +30,12 @@ type PageStep = 'upload' | 'running' | 'complete' | 'error'
 // ==================== AI 修复能力说明 ====================
 
 const AI_CAPABILITIES = [
-  { icon: '🔪', type: '划痕修复', label: '划痕修复', stars: 5, desc: '纸张/布面表面划痕的智能填补与纹理还原' },
-  { icon: '🎨', type: '褪色修复', label: '褪色修复', stars: 4, desc: '恢复因光照氧化而褪色的区域，还原原始色彩层次' },
-  { icon: '🧩', type: '缺损补全', label: '缺损补全', stars: 3, desc: '根据周围纹样推断并补全缺失的图案与结构' },
-  { icon: '💧', type: '污渍去除', label: '污渍去除', stars: 4, desc: '去除水渍、霉斑、尘垢，同时保留底层纹理' },
-  { icon: '📐', type: '褶皱展平', label: '褶皱展平', stars: 3, desc: '数字化展平卷曲与折叠区域，恢复平面形态' },
-  { icon: '🔍', type: '细节增强', label: '细节增强', stars: 5, desc: '提升低分辨率/模糊区域的清晰度与辨识度' },
+  { icon: 'pen-tool', type: '划痕修复', label: '划痕修复', stars: 5, desc: '纸张/布面表面划痕的智能填补与纹理还原' },
+  { icon: 'palette', type: '褪色修复', label: '褪色修复', stars: 4, desc: '恢复因光照氧化而褪色的区域，还原原始色彩层次' },
+  { icon: 'puzzle', type: '缺损补全', label: '缺损补全', stars: 3, desc: '根据周围纹样推断并补全缺失的图案与结构' },
+  { icon: 'droplet', type: '污渍去除', label: '污渍去除', stars: 4, desc: '去除水渍、霉斑、尘垢，同时保留底层纹理' },
+  { icon: 'ruler', type: '褶皱展平', label: '褶皱展平', stars: 3, desc: '数字化展平卷曲与折叠区域，恢复平面形态' },
+  { icon: 'search', type: '细节增强', label: '细节增强', stars: 5, desc: '提升低分辨率/模糊区域的清晰度与辨识度' },
 ]
 
 // ============================================================
@@ -447,7 +449,6 @@ export default function DigitalRestoration() {
 
   // 排行榜奖牌颜色
   const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32']
-  const rankIcons = ['🥇', '🥈', '🥉']
 
   return (
     <>
@@ -456,7 +457,7 @@ export default function DigitalRestoration() {
       </div>
       <div style={{ maxWidth: 960, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Title level={3} style={{ margin: 0 }}>🏺 AI 文物数字修复</Title>
+        <Title level={3} style={{ margin: 0 }}>AI 文物数字修复</Title>
         {(step === 'complete' || step === 'error') && (
           <Button icon={<RefreshCw />} onClick={handleRetry}>重新修复</Button>
         )}
@@ -608,7 +609,7 @@ export default function DigitalRestoration() {
                         borderRadius: 8, background: 'var(--color-paper)',
                         border: '1px solid var(--color-border-light)',
                       }}>
-                        <div style={{ fontSize: 28, marginBottom: 4 }}>{cap.icon}</div>
+                        <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'center' }}><Icon name={cap.icon} size={28} /></div>
                         <Text strong style={{ fontSize: 17, display: 'block' }}>
                           {cap.label}
                         </Text>
@@ -664,8 +665,8 @@ export default function DigitalRestoration() {
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       >
                         {/* 排名 */}
-                        <span style={{ fontSize: 22, width: 32, textAlign: 'center', flexShrink: 0 }}>
-                          {rankIcons[i]}
+                        <span style={{ width: 32, textAlign: 'center', flexShrink: 0 }}>
+                          {(() => { const { icon: RI } = RANK_ICON_CONFIG[2 - i]; return <RI size={22} color={rankColors[i]} /> })()}
                         </span>
 
                         {/* 缩略图 */}
@@ -745,10 +746,10 @@ export default function DigitalRestoration() {
               />
             )}
             <div style={{ fontSize: 'var(--text-sm)', lineHeight: 2 }}>
-              <div>🔍 步骤 1: 分析损伤类型与程度...</div>
-              <div>💡 步骤 2: 生成修复方案...</div>
-              <div>🎨 步骤 3: AI 执行图像修复...</div>
-              <div>✅ 步骤 4: 验证修复质量...</div>
+              <div>步骤 1: 分析损伤类型与程度...</div>
+              <div>步骤 2: 生成修复方案...</div>
+              <div>步骤 3: AI 执行图像修复...</div>
+              <div>步骤 4: 验证修复质量...</div>
             </div>
           </div>
         </Card>
@@ -771,7 +772,7 @@ export default function DigitalRestoration() {
       {/* === 完成 === */}
       {step === 'complete' && result && (
         <>
-          <Card style={{ borderRadius: 12, marginBottom: 24 }} title="🔬 AI 修复管道">
+          <Card style={{ borderRadius: 12, marginBottom: 24 }} title={<span><Microscope size={18} style={{ marginRight: 8 }} />AI 修复管道</span>}>
             <Steps
               direction="vertical"
               current={visibleSteps}
@@ -789,7 +790,7 @@ export default function DigitalRestoration() {
 
           <Card
             style={{ borderRadius: 12, marginBottom: 24 }}
-            title="🔄 修复前后对比"
+            title={<span><RefreshCw size={18} style={{ marginRight: 8 }} />修复前后对比</span>}
             extra={
               result.restored_image_url && (
                 <Button

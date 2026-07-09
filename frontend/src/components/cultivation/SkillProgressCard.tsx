@@ -3,6 +3,7 @@
 import { Card, Progress, Typography, Grid } from 'antd'
 import { motion } from 'framer-motion'
 import type { SkillTreeProgress } from '../../services/cultivation'
+import { Icon } from '../../config/icons'
 
 const { Text } = Typography
 const { useBreakpoint } = Grid
@@ -24,8 +25,8 @@ export const TREE_COLORS: Record<string, string> = {
 }
 
 export const TREE_ICONS: Record<string, string> = {
-  '鉴宝': '🔍', '创作': '🎨', '问道': '💬',
-  '修复': '🔧', '博学': '📚', '行旅': '🌏',
+  '鉴宝': 'search', '创作': 'palette', '问道': 'message-circle',
+  '修复': 'wrench', '博学': 'book-open', '行旅': 'globe',
 }
 
 interface Props {
@@ -61,7 +62,7 @@ export default function SkillProgressCard({ tree }: Props) {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 22, flexShrink: 0,
           }}>
-            {TREE_ICONS[tree.tree_name] || '📋'}
+            <Icon name={TREE_ICONS[tree.tree_name] || 'clipboard-list'} size={22} />
           </div>
 
           {/* 内容 */}

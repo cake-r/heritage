@@ -234,7 +234,7 @@ const PromptModuleCard: React.FC<PromptModuleCardProps> = ({
   onStartEdit, onCancelEdit, onEditContentChange,
   onSave, onActivate, onViewHistory,
 }) => {
-  const icon = PROMPT_MODULE_ICONS[module.module] || '📝'
+  const icon = PROMPT_MODULE_ICONS[module.module] || 'file-text'
   const label = PROMPT_MODULE_LABELS[module.module] || module.module
   const color = PROMPT_MODULE_COLORS[module.module] || '#666'
 

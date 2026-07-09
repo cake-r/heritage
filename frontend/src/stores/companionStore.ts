@@ -194,7 +194,7 @@ export const useCompanionStore = create<CompanionState>()((set, get) => ({
       const errMsg: CompanionChatMsg = {
         id: ++_msgId,
         role: 'assistant',
-        content: '抱歉，我暂时无法回复。请稍后再试 ✨',
+        content: '抱歉，我暂时无法回复。请稍后再试',
         timestamp: Date.now(),
       }
       set((s) => ({

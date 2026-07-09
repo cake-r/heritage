@@ -4,6 +4,7 @@ import { Avatar, Tag, Button, Card, Spin, Empty, Popconfirm } from 'antd'
 import { User, Bot, GitGraph, RefreshCw } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import AudioPlayer from '../../components/recognition/AudioPlayer'
+import { Icon } from '../../config/icons'
 import type { WorkshopMessage, InheritorInfo } from './index'
 import { TOOL_NAMES, TOOL_ICONS } from './index'
 
@@ -75,7 +76,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                       border: '1px solid var(--color-paper, #F7F4ED)',
                     }}
                   >
-                    <div style={{ fontSize: 28, marginBottom: 4 }}>{TOOL_ICONS[toolId]}</div>
+                    <div style={{ marginBottom: 4 }}><Icon name={TOOL_ICONS[toolId]} size={28} /></div>
                     <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>{TOOL_NAMES[toolId]}</div>
                   </Card>
                 ))}
@@ -129,7 +130,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
               marginBottom: 8,
             }}>
               <Tag color="gold" style={{ fontSize: 30 }}>
-                {TOOL_ICONS[msg.toolUsed]} {TOOL_NAMES[msg.toolUsed]}
+                <Icon name={TOOL_ICONS[msg.toolUsed]} size={30} /> {TOOL_NAMES[msg.toolUsed]}
               </Tag>
             </div>
           )}
@@ -285,7 +286,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                     color: 'var(--color-vermilion, #B8463A)',
                     marginBottom: 4,
                   }}>
-                    📖 {(msg.toolData as any).title || '故事'}
+                    {(msg.toolData as any).title || '故事'}
                   </div>
                   {(msg.toolData as any).tags && (
                     <div style={{ marginBottom: 8 }}>
@@ -307,7 +308,7 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                   fontSize: 'var(--text-sm)',
                 }}>
                   <div style={{ fontWeight: 700, marginBottom: 8, color: 'var(--color-vermilion, #B8463A)' }}>
-                    ⚖️ {(msg.toolData as any).item_a} vs {(msg.toolData as any).item_b}
+                    {(msg.toolData as any).item_a} vs {(msg.toolData as any).item_b}
                   </div>
                   {(() => {
                     const comp = (msg.toolData as any).comparison as Record<string, string>
@@ -323,12 +324,12 @@ export default function WorkshopChat({ messages, streaming, streamingContent, lo
                   })()}
                   {(msg.toolData as any).common_ground && (
                     <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(196,162,101,0.1)', borderRadius: 6 }}>
-                      <strong>🤝 共同之处：</strong>{(msg.toolData as any).common_ground}
+                      <strong>共同之处：</strong>{(msg.toolData as any).common_ground}
                     </div>
                   )}
                   {(msg.toolData as any).verdict && (
                     <div style={{ marginTop: 6, fontWeight: 600 }}>
-                      💡 {(msg.toolData as any).verdict}
+                      {(msg.toolData as any).verdict}
                     </div>
                   )}
                 </div>

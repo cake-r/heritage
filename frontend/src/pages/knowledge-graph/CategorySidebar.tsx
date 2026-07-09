@@ -54,7 +54,7 @@ export default function CategorySidebar({
         overflowY: 'auto',
       }}>
         <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-ink, #2C241A)', marginBottom: 12, padding: '0 8px' }}>
-          📂 非遗品类
+          非遗品类
         </div>
 
         {/* "All" option */}
@@ -133,7 +133,7 @@ export default function CategorySidebar({
           flex: 1,
         }}>
           <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-ink, #2C241A)', marginBottom: 12, padding: '0 8px' }}>
-            🏷️ 技法标签
+            技法标签
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '0 4px' }}>
             {techniqueList.map(tech => {

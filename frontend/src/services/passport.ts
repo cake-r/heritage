@@ -104,7 +104,7 @@ export async function trackRegionVisit(regionCode: string): Promise<{ region_cod
       type: 'stamp',
       title: `发现新地域：${result.region_code}`,
       description: '你首次探索了这个地区，护照已记录！',
-      icon: '📍',
+      icon: 'map-pin',
       route: '/passport',
     })
   }

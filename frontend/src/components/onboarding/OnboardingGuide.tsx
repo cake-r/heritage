@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { Modal, Steps, Typography, Space } from 'antd'
 import { Camera, MessageCircle, IdCard } from 'lucide-react'
+import { LanternIcon } from '../../config/icons'
 import { useNavigate } from 'react-router-dom'
 
 const { Title, Paragraph } = Typography
@@ -59,7 +60,7 @@ export default function OnboardingGuide({ open, onClose }: { open: boolean; onCl
     <Modal
       title={
         <span style={{ fontSize: 'var(--text-md)', fontWeight: 600 }}>
-          🏮 欢迎来到文博灵境
+          <LanternIcon size={20} /> 欢迎来到文博灵境
         </span>
       }
       open={open}

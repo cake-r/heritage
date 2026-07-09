@@ -1,4 +1,5 @@
 import { Drawer, Tag, Typography, Row, Col, Card, Spin, Empty, List } from 'antd'
+import { Calendar, Link } from 'lucide-react'
 import { getCategoryColor } from '../../utils/categoryColors'
 import type { TechniqueDetail } from '../../services/knowledgeGraph'
 
@@ -42,7 +43,7 @@ export default function TechniquePanel({ open, onClose, data, loading, onItemCli
       open={open}
       onClose={onClose}
       width={560}
-      title={`🔧 ${data.name}`}
+      title={data.name}
     >
       {/* 描述 */}
       {data.desc && (
@@ -55,7 +56,7 @@ export default function TechniquePanel({ open, onClose, data, loading, onItemCli
       )}
 
       {/* 使用品类 */}
-      <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>📂 使用品类</Text>
+      <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>使用品类</Text>
       <div style={{ marginBottom: 20, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
         {data.categories.map(c => (
           <Tag key={c} color={getCategoryColor(c)}>{c}</Tag>
@@ -65,7 +66,7 @@ export default function TechniquePanel({ open, onClose, data, loading, onItemCli
       {/* 时代分布 */}
       {sortedEras.length > 0 && (
         <>
-          <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>📅 时代分布</Text>
+          <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}><Calendar size={14} /> 时代分布</Text>
           <Row gutter={[6, 6]} style={{ marginBottom: 20 }}>
             {sortedEras.map(([eraName, count]) => (
               <Col span={8} key={eraName}>
@@ -82,7 +83,7 @@ export default function TechniquePanel({ open, onClose, data, loading, onItemCli
       {/* 相关技法 */}
       {data.related_techniques.length > 0 && (
         <>
-          <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>🔗 相关技法</Text>
+          <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}><Link size={14} /> 相关技法</Text>
           <div style={{ marginBottom: 20, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {data.related_techniques.map(t => (
               <Tag key={t}>{t}</Tag>
@@ -92,7 +93,7 @@ export default function TechniquePanel({ open, onClose, data, loading, onItemCli
       )}
 
       {/* 使用此技法的项目 */}
-      <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>📦 使用此技法的非遗项目</Text>
+      <Text strong style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>使用此技法的非遗项目</Text>
       <List
         dataSource={data.items}
         renderItem={(it: any) => (

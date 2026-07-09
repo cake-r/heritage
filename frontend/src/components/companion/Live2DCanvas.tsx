@@ -7,6 +7,7 @@
  */
 
 import { useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import { useLive2D, mapMouseToFocus } from '../../hooks/useLive2D'
 import type { Live2DExpression, Live2DParams } from '../../hooks/useLive2D'
 
@@ -196,7 +197,7 @@ const Live2DCanvas = forwardRef<Live2DCanvasHandle, Live2DCanvasProps>(
             textAlign: 'center',
             lineHeight: 1.3,
           }}>
-            <span style={{ fontSize: 16, marginBottom: 2 }}>⚠️</span>
+            <AlertTriangle size={16} style={{ marginBottom: 2 }} />
             <span style={{ wordBreak: 'break-all', maxWidth: '100%', overflow: 'hidden' }}>
               {width < 100
                 ? (error.message?.length > 30 ? error.message.slice(0, 30) + '…' : error.message)

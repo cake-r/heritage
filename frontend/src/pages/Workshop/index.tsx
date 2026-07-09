@@ -57,13 +57,13 @@ export const TOOL_NAMES: Record<string, string> = {
 }
 
 export const TOOL_ICONS: Record<string, string> = {
-  inspect: '🔍',
-  create: '🎨',
-  connect: '🔗',
-  teach: '📖',
-  pattern: '🏮',
-  story: '📜',
-  compare: '⚖️',
+  inspect: 'search',
+  create: 'palette',
+  connect: 'link',
+  teach: 'book-open',
+  pattern: 'lantern',
+  story: 'scroll-text',
+  compare: 'scale',
 }
 
 export default function Workshop() {
@@ -611,7 +611,7 @@ export default function Workshop() {
       {!isCompact && toolboxElement}
 
       <Drawer
-        title="🛠️ 工具"
+        title={<><Wrench size={18} /> 工具</>}
         open={toolboxOpen}
         onClose={() => setToolboxOpen(false)}
         width={280}

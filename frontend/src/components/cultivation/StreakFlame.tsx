@@ -1,6 +1,7 @@
 /** 连胜火苗指示器 — CSS 火焰动画 + 天数徽章 */
 
 import { Typography, Tooltip } from 'antd'
+import { Flame } from 'lucide-react'
 
 const { Text } = Typography
 
@@ -30,7 +31,7 @@ export default function StreakFlame({ streakDays, longestStreak, bonusActive }: 
           animation: streakDays > 0 ? 'flameFlicker 0.8s ease-in-out infinite alternate' : 'none',
           filter: bonusActive ? `drop-shadow(0 0 4px ${flameColor})` : 'none',
         }}>
-          🔥
+          <Flame size={flameSize} color={flameColor} />
         </span>
 
         <Text style={{

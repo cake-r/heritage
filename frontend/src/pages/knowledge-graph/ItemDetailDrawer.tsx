@@ -1,5 +1,5 @@
 import { Drawer, Image, Tag, Typography, Space, Collapse, Row, Col, Card, Button, Empty, Tabs } from 'antd'
-import { Heart, Link, Wrench, Clock } from 'lucide-react'
+import { Heart, Link, Wrench, Clock, BookOpen, User, Drama } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { getCategoryColor } from '../../utils/categoryColors'
@@ -62,7 +62,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
       {/* 描述 */}
       {item.description && (
         <div style={{ marginBottom: 20 }}>
-          <Text strong style={{ fontSize: 15 }}>📖 简介</Text>
+          <Text strong style={{ fontSize: 15 }}><BookOpen size={15} /> 简介</Text>
           <div style={{
             marginTop: 8, lineHeight: 1.9, maxHeight: 300, overflowY: 'auto',
             padding: '12px 16px', background: 'var(--color-paper-white, #FFFDF9)', borderRadius: 8,
@@ -78,7 +78,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
         <div style={{ marginBottom: 20 }}>
           <Collapse ghost expandIconPosition="end" items={[{
             key: 'techniques',
-            label: <Text strong style={{ fontSize: 15 }}>🔧 工艺技法 ({techniques.length}项)</Text>,
+            label: <Text strong style={{ fontSize: 15 }}>工艺技法 ({techniques.length}项)</Text>,
             children: techniques.map((t: any, i: number) => (
               <Card key={i} size="small" style={{ marginBottom: 8, background: 'var(--color-paper-white, #FFFDF9)', borderRadius: 8 }}>
                 <Text strong style={{ color: 'var(--color-vermilion, #B8463A)' }}>{t.name}</Text>
@@ -94,7 +94,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
         <div style={{ marginBottom: 20 }}>
           <Collapse ghost expandIconPosition="end" items={[{
             key: 'inheritors',
-            label: <Text strong style={{ fontSize: 15 }}>👤 传承人 ({inheritors.length}位)</Text>,
+            label: <Text strong style={{ fontSize: 15 }}><User size={15} /> 传承人 ({inheritors.length}位)</Text>,
             children: inheritors.map((inh: any, i: number) => (
               <Card key={i} size="small" style={{ marginBottom: 8, background: 'var(--color-paper-white, #FFFDF9)', borderRadius: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -142,7 +142,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
       {/* 文化寓意 */}
       {item.cultural_meaning && (
         <div style={{ marginBottom: 16 }}>
-          <Text strong style={{ fontSize: 15 }}>🎭 文化寓意</Text>
+          <Text strong style={{ fontSize: 15 }}><Drama size={15} /> 文化寓意</Text>
           <div style={{
             marginTop: 8, lineHeight: 1.9, maxHeight: 300, overflowY: 'auto',
             padding: '12px 16px', background: 'var(--color-paper-white, #FFFDF9)', borderRadius: 8,
@@ -156,7 +156,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
       {/* 相关项目 */}
       {related && (
         <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--color-border-light, #E8E4D8)' }}>
-          <Text strong style={{ fontSize: 'var(--text-base)', display: 'block', marginBottom: 12 }}>🔗 相关非遗项目</Text>
+          <Text strong style={{ fontSize: 'var(--text-base)', display: 'block', marginBottom: 12 }}><Link size={15} /> 相关非遗项目</Text>
           {related.same_category.length > 0 && (
             <div style={{ marginBottom: 12 }}>
               <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>同类项目</Text>
@@ -233,7 +233,7 @@ export default function ItemDetailDrawer({
         items={[
           {
             key: 'detail',
-            label: '📖 详情',
+            label: <span><BookOpen size={15} /> 详情</span>,
             children: (
               <DetailContent
                 item={item}

@@ -62,11 +62,11 @@ export const PROMPT_MODULE_LABELS: Record<string, string> = {
 }
 
 export const PROMPT_MODULE_ICONS: Record<string, string> = {
-  recognition: '🔍',
-  companion: '🧭',
-  generation: '🎨',
-  story: '📖',
-  recommendation: '⭐',
+  recognition: 'search',
+  companion: 'compass',
+  generation: 'palette',
+  story: 'book-open',
+  recommendation: 'star',
 }
 
 export const PROMPT_MODULE_COLORS: Record<string, string> = {

@@ -16,6 +16,7 @@ import { normalizeImageUrl } from '../utils/imageUrl'
 import GeneCard from '../components/pattern/GeneCard'
 import CarrierTemplateSelector, { CARRIER_TEMPLATES } from '../components/pattern/CarrierTemplate'
 import PatternWorkbench from '../components/pattern/PatternWorkbench'
+import { Icon } from '../config/icons'
 import { BrocadePattern } from '../components/decoration'
 
 const { Dragger } = Upload
@@ -25,9 +26,9 @@ type Step = 'upload' | 'analyzing' | 'genes' | 'workbench'
 
 // 快速体验样本
 const SAMPLE_IMAGES = [
-  { url: '/static/knowledge/剪纸_1.jpg', label: '剪纸', icon: '✂️' },
-  { url: '/static/knowledge/苏绣_1.jpg', label: '苏绣', icon: '🧵' },
-  { url: '/static/knowledge/景德镇手工制瓷_1.jpg', label: '瓷器', icon: '🏺' },
+  { url: '/static/knowledge/剪纸_1.jpg', label: '剪纸', icon: 'scissors' },
+  { url: '/static/knowledge/苏绣_1.jpg', label: '苏绣', icon: 'embroidery' },
+  { url: '/static/knowledge/景德镇手工制瓷_1.jpg', label: '瓷器', icon: 'flame' },
 ]
 
 export default function PatternEngine() {
@@ -217,7 +218,7 @@ export default function PatternEngine() {
                       style={{ borderRadius: 10, textAlign: 'center', width: 150 }}
                       bodyStyle={{ padding: '14px 18px' }}
                     >
-                      <div style={{ fontSize: 32, marginBottom: 6 }}>{s.icon}</div>
+                      <div style={{ marginBottom: 6 }}><Icon name={s.icon} size={32} /></div>
                       <div style={{ fontSize: 14, fontWeight: 500 }}>{s.label}</div>
                     </Card>
                   </Col>

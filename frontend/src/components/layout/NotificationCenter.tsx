@@ -4,16 +4,17 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Popover, Button, Badge, List, Typography, Empty, Space } from 'antd'
 import { Bell, CheckCheck, Trash2 } from 'lucide-react'
+import { Icon } from '../../config/icons'
 import { useNotificationStore, type AppNotification } from '../../stores/notificationStore'
 
 const { Text } = Typography
 
 const TYPE_EMOJI: Record<string, string> = {
-  achievement: '🏅',
-  stamp: '📜',
-  rank_up: '⬆️',
-  quest: '✅',
-  system: '💡',
+  achievement: 'medal',
+  stamp: 'scroll-text',
+  rank_up: 'arrow-up',
+  quest: 'check-circle',
+  system: 'lightbulb',
 }
 
 function timeAgo(ts: number): string {
@@ -100,8 +101,8 @@ export default function NotificationCenter() {
             >
               <List.Item.Meta
                 avatar={
-                  <span style={{ fontSize: 22, flexShrink: 0 }}>
-                    {n.icon || TYPE_EMOJI[n.type] || '📌'}
+                  <span style={{ flexShrink: 0 }}>
+                    <Icon name={n.icon || TYPE_EMOJI[n.type] || 'pin'} size={22} />
                   </span>
                 }
                 title={

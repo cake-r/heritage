@@ -76,7 +76,7 @@ export const useCultivationStore = create<CultivationState>()((set, get) => ({
         type: 'rank_up',
         title: `段位晋升：${result.new_rank}`,
         description: `从「${oldRank}」晋升为「${result.new_rank}」`,
-        icon: '⬆️',
+        icon: 'arrow-up',
         route: '/cultivation',
       })
     }
@@ -105,7 +105,7 @@ export const useCultivationStore = create<CultivationState>()((set, get) => ({
             type: 'quest',
             title: item.title,
             description: `+${item.xp_gained} 修为 · ${item.skill_tree || '综合'}`,
-            icon: '✅',
+            icon: 'check-circle',
             route: '/cultivation',
           })
         }
@@ -136,7 +136,7 @@ export const useCultivationStore = create<CultivationState>()((set, get) => ({
             type: 'rank_up',
             title: `段位晋升：${result.new_rank}`,
             description: `从「${oldRank}」晋升为「${result.new_rank}」`,
-            icon: '⬆️',
+            icon: 'arrow-up',
             route: '/cultivation',
           })
         }

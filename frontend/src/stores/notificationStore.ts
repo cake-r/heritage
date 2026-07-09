@@ -103,7 +103,7 @@ export function initNotificationListener() {
         type: detail.type || 'system',
         title: detail.title,
         description: detail.description || '',
-        icon: detail.icon || '📌',
+        icon: detail.icon || 'pin',
         route: detail.route,
       })
     }

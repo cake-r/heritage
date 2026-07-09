@@ -19,6 +19,7 @@ import {
   Loader2,
   ChevronRight,
 } from 'lucide-react'
+import { Icon } from '../../config/icons'
 import { subscribeExecution, type AgentStepEvent, type AgentFinishEvent } from '../../services/agent'
 
 const { Text } = Typography
@@ -143,7 +144,7 @@ function StepItem({ step, isLast, compact }: StepItemProps) {
               color: step.status === 'failed' ? '#ff4d4f' : undefined,
             }}
           >
-            {step.icon && <span style={{ marginRight: 4 }}>{step.icon}</span>}
+            {step.icon && <Icon name={step.icon} size={14} style={{ marginRight: 4 }} />}
             {step.title}
           </Text>
           {step.status === 'running' && step.progress > 0 && (

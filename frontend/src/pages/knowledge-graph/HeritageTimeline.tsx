@@ -47,7 +47,7 @@ function TimelineEventItem({ event }: { event: HeritageTimelineEvent }) {
       </Paragraph>
       {event.related_person && (
         <Text type="secondary" style={{ fontSize: 12 }}>
-          👤 {event.related_person}
+          <User size={14} /> {event.related_person}
         </Text>
       )}
     </div>

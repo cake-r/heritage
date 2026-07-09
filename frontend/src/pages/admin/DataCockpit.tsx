@@ -5,6 +5,7 @@ import {
   User, ClipboardCheck, DollarSign,
   GitGraph, FileImage, Flame,
   Database, Image, Trophy,
+  BarChart3, TrendingUp, Map, Crown,
 } from 'lucide-react'
 import ReactEChartsCore from 'echarts-for-react'
 import * as echarts from 'echarts/core'
@@ -206,7 +207,7 @@ export default function DataCockpit() {
     <div style={{ position: 'relative' }}>
       <LoomGridPattern opacity={0.18} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <Title level={4} style={{ margin: 0 }}>📊 数据驾驶舱</Title>
+        <Title level={4} style={{ margin: 0 }}><BarChart3 size={22} style={{ marginRight: 8 }} />数据驾驶舱</Title>
         <Select
           value={trendDays}
           onChange={setTrendDays}
@@ -269,7 +270,7 @@ export default function DataCockpit() {
       {/* ── 趋势图表行 ── */}
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} lg={14}>
-          <Card title="📈 业务趋势">
+          <Card title={<><TrendingUp size={18} style={{ marginRight: 8 }} />业务趋势</>}>
             {trends.length > 0 ? (
               <ReactEChartsCore echarts={echarts} option={trendOption} style={{ height: 300 }} />
             ) : (
@@ -278,7 +279,7 @@ export default function DataCockpit() {
           </Card>
         </Col>
         <Col xs={24} lg={10}>
-          <Card title="💰 AI 成本趋势">
+          <Card title={<><DollarSign size={18} style={{ marginRight: 8 }} />AI 成本趋势</>}>
             {trends.length > 0 ? (
               <ReactEChartsCore echarts={echarts} option={costOption} style={{ height: 300 }} />
             ) : (
@@ -291,12 +292,12 @@ export default function DataCockpit() {
       {/* ── 排行榜行 ── */}
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>
-          <Card title="🏆 热门品类 TOP 10">
+          <Card title={<><Trophy size={18} style={{ marginRight: 8 }} />热门品类 TOP 10</>}>
             <ReactEChartsCore echarts={echarts} option={categoryOption} style={{ height: 300 }} />
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card title="🗺️ 地域分布">
+          <Card title={<><Map size={18} style={{ marginRight: 8 }} />地域分布</>}>
             {geoLoaded ? (
               <ReactEChartsCore echarts={echarts} option={mapOption} style={{ height: 300 }} />
             ) : (
@@ -305,7 +306,7 @@ export default function DataCockpit() {
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card title="👑 活跃用户 TOP 10">
+          <Card title={<><Crown size={18} style={{ marginRight: 8 }} />活跃用户 TOP 10</>}>
             {leaderboard?.top_users && leaderboard.top_users.length > 0 ? (
               <div style={{ maxHeight: 300, overflowY: 'auto' }}>
                 {leaderboard.top_users.map((u, i) => (

@@ -27,6 +27,7 @@ import { listSessions, deleteSession, type ChatSessionItem } from '../services/c
 import { listMyInheritors, deleteInheritor, type CustomInheritor } from '../services/inheritor'
 import { TOOL_NAMES, TOOL_ICONS } from './Workshop'
 import { useCultivationStore } from '../stores/cultivationStore'
+import { Icon, RANK_ICON_CONFIG } from '../config/icons'
 
 const { Sider, Content } = Layout
 const { Title, Text } = Typography
@@ -64,19 +65,24 @@ export default function UserCenter() {
   }
 
   return (
-    <Layout style={{ background: 'transparent', position: 'relative', minHeight: 'calc(100vh - 64px - 32px)' }}>
-      <LotusPondPattern opacity={0.18} />
-      <Sider width={180} style={{ background: 'var(--color-paper-white)', borderRadius: 12, marginRight: 24 }}>
-        {/* 用户信息卡片 */}
-        <div style={{ padding: '20px 16px 12px', textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
-          <Avatar
-            size={150}
-            src={normalizeImageUrl(profile?.avatar_url)}
-            icon={<User size={64} color="#fff" />}
-            style={{ margin: '0 auto 8px', display: 'block', background: '#C41E3A' }}
-          />
-          <Text strong>{profile?.nickname || user?.username || '用户'}</Text>
-        </div>
+    <>
+      {/* 全视口纹样背景 — fixed 覆盖 Header/Sider/边距 */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <LotusPondPattern opacity={0.18} />
+      </div>
+
+      <Layout style={{ background: 'transparent', position: 'relative', zIndex: 1, minHeight: 'calc(100vh - 64px - 32px)' }}>
+        <Sider width={180} style={{ background: 'var(--color-paper-white)', borderRadius: 12, marginRight: 24 }}>
+          {/* 用户信息卡片 */}
+          <div style={{ padding: '20px 16px 12px', textAlign: 'center', borderBottom: '1px solid var(--color-border-light)' }}>
+            <Avatar
+              size={150}
+              src={normalizeImageUrl(profile?.avatar_url)}
+              icon={<User size={64} color="var(--color-paper-white)" />}
+              style={{ margin: '0 auto 8px', display: 'block', background: 'var(--color-vermilion)' }}
+            />
+            <Text strong>{profile?.nickname || user?.username || '用户'}</Text>
+          </div>
 
         <Menu
           mode="inline"
@@ -110,6 +116,7 @@ export default function UserCenter() {
         </Card>
       </Content>
     </Layout>
+    </>
   )
 }
 
@@ -128,7 +135,8 @@ function RecordsTab() {
     setLoading(true)
     try {
       const data = await getRecognitionHistory(1, 20)
-      setRecords(data.items)
+      const items = Array.isArray(data) ? data : (data?.items || [])
+      setRecords(items)
     } catch { message.error('加载识别记录失败') }
     finally { setLoading(false) }
   }
@@ -223,12 +231,12 @@ function WorksTab() {
                 preview={{ mask: '预览' }}
               />
             ) : (
-              <div style={{ height: 160, background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ height: 160, background: 'var(--color-paper)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <ImageIcon size={48} style={{ color: 'var(--color-border-medium)' }} />
               </div>
             )
           }
-          bodyStyle={{ padding: '8px 12px' }}
+          styles={{ body: { padding: '8px 12px' } }}
           actions={[
             <Tooltip title="查看详情" key="view">
               <Button type="text" size="small" icon={<ChevronRight />}
@@ -356,10 +364,10 @@ function SessionsList() {
                 <Avatar
                   size={26}
                   src={normalizeImageUrl(user?.avatar_url)}
-                  icon={<User size={12} color="#fff" />}
+                  icon={<User size={12} color="var(--color-paper-white)" />}
                   style={{
                     position: 'absolute', bottom: -2, right: -4,
-                    border: '2px solid #fff', background: '#C41E3A',
+                    border: '2px solid var(--color-paper-white)', background: 'var(--color-vermilion)',
                   }}
                 />
               </div>
@@ -394,7 +402,7 @@ function SessionsList() {
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                   {item.available_tools?.map(toolId => (
                     <Tag key={toolId} style={{ fontSize: 11, margin: 0 }} color="gold">
-                      {TOOL_ICONS[toolId] || '🛠️'} {TOOL_NAMES[toolId] || toolId}
+                      {TOOL_ICONS[toolId] || 'wrench'} {TOOL_NAMES[toolId] || toolId}
                     </Tag>
                   ))}
                   <span style={{ fontSize: 11, color: 'var(--color-ink-tertiary, #999)' }}>
@@ -516,7 +524,8 @@ function RestorationTab() {
     setLoading(true)
     try {
       const data = await getRestorationHistory(1, 50)
-      setRecords(data.items)
+      const items = Array.isArray(data) ? data : (data?.items || [])
+      setRecords(items)
     } catch { message.error('加载修复记录失败') }
     finally { setLoading(false) }
   }
@@ -724,9 +733,9 @@ function SettingsTab({
               <Avatar size={88} src={displayAvatar} />
             ) : (
               <div style={{
-                width: 88, height: 88, borderRadius: '50%', background: '#C41E3A',
+                width: 88, height: 88, borderRadius: '50%', background: 'var(--color-vermilion)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontSize: 36, fontWeight: 'bold',
+                color: 'var(--color-paper-white)', fontSize: 36, fontWeight: 'bold',
               }}>
                 {profile.nickname?.[0] || profile.username[0] || <User size={36} />}
               </div>
@@ -822,7 +831,6 @@ function SettingsTab({
 // ========== Card 底部仪表盘：修习状态 + 活动足迹 ==========
 
 const RANK_THRESHOLDS = [0, 100, 300, 800, 2000]
-const RANK_EMOJIS = ['🥉', '🥈', '🥇', '💎', '👑']
 
 function DashboardFooter() {
   const status = useCultivationStore(s => s.status)
@@ -846,10 +854,10 @@ function DashboardFooter() {
 
   // 活动项配置
   const activityItems = stats ? [
-    { icon: '📷', count: stats.recognition_count, label: '识别' },
-    { icon: '🎨', count: stats.generation_count, label: '作品' },
-    { icon: '💬', count: stats.chat_count, label: '对话' },
-    { icon: '🔧', count: stats.restoration_count, label: '修复' },
+    { icon: 'camera', count: stats.recognition_count, label: '识别' },
+    { icon: 'palette', count: stats.generation_count, label: '作品' },
+    { icon: 'message-circle', count: stats.chat_count, label: '对话' },
+    { icon: 'wrench', count: stats.restoration_count, label: '修复' },
   ] : []
 
   return (
@@ -863,7 +871,11 @@ function DashboardFooter() {
           <>
             {/* 左侧：段位 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: 32, lineHeight: 1 }}>{RANK_EMOJIS[status.rank_index] || '🥉'}</span>
+              {(() => {
+                const cfg = RANK_ICON_CONFIG[status.rank_index] || RANK_ICON_CONFIG[0]
+                const RankIconComp = cfg.icon
+                return <RankIconComp size={32} color={cfg.color} />
+              })()}
               <div>
                 <Text strong style={{ fontSize: 'var(--text-sm)' }}>{status.rank}</Text>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
@@ -909,7 +921,7 @@ function DashboardFooter() {
         }}>
           {activityItems.map(item => (
             <div key={item.label} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 22, marginBottom: 4 }}>{item.icon}</div>
+              <div style={{ marginBottom: 4 }}><Icon name={item.icon} size={22} /></div>
               <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-vermilion, #B8463A)', lineHeight: 1 }}>
                 {item.count}
               </div>

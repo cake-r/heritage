@@ -4,7 +4,7 @@
     "module": "recognition",
     "name": "初识非遗",
     "description": "完成第一次图像识别，迈出非遗探索的第一步",
-    "icon": "🔍",
+    "icon": "search",
     "rarity": "common"
   },
   {
@@ -12,7 +12,7 @@
     "module": "recognition",
     "name": "品类探索者",
     "description": "识别过5种不同品类的非遗项目",
-    "icon": "🧭",
+    "icon": "compass",
     "rarity": "rare"
   },
   {
@@ -20,7 +20,7 @@
     "module": "recognition",
     "name": "鉴宝大师",
     "description": "单次识别置信度达到95%以上，眼光毒辣",
-    "icon": "🔬",
+    "icon": "microscope",
     "rarity": "epic"
   },
   {
@@ -28,7 +28,7 @@
     "module": "generation",
     "name": "初试文创",
     "description": "完成第一次AI文创作品生成",
-    "icon": "🎨",
+    "icon": "palette",
     "rarity": "common"
   },
   {
@@ -36,7 +36,7 @@
     "module": "generation",
     "name": "风格收藏家",
     "description": "使用过5种以上不同的创作风格",
-    "icon": "🎭",
+    "icon": "drama",
     "rarity": "rare"
   },
   {
@@ -44,7 +44,7 @@
     "module": "generation",
     "name": "多产创作者",
     "description": "累计生成20件以上文创作品",
-    "icon": "🏭",
+    "icon": "landmark",
     "rarity": "epic"
   },
   {
@@ -52,7 +52,7 @@
     "module": "workshop",
     "name": "初会话知音",
     "description": "与非遗传承人完成第一次对话",
-    "icon": "💬",
+    "icon": "message-circle",
     "rarity": "common"
   },
   {
@@ -60,7 +60,7 @@
     "module": "workshop",
     "name": "工具大师",
     "description": "在技艺工坊中使用过全部4种工具",
-    "icon": "🛠️",
+    "icon": "wrench",
     "rarity": "rare"
   },
   {
@@ -68,7 +68,7 @@
     "module": "workshop",
     "name": "深谈知己",
     "description": "与传承人累计对话超过100条消息",
-    "icon": "📜",
+    "icon": "scroll-text",
     "rarity": "epic"
   },
   {
@@ -76,7 +76,7 @@
     "module": "exhibition",
     "name": "初探展馆",
     "description": "首次浏览数字展厅，开启文化之旅",
-    "icon": "🏛️",
+    "icon": "landmark",
     "rarity": "common"
   },
   {
@@ -84,7 +84,7 @@
     "module": "exhibition",
     "name": "品类藏家",
     "description": "浏览过8种以上不同品类的藏品",
-    "icon": "📚",
+    "icon": "book-open",
     "rarity": "rare"
   },
   {
@@ -92,7 +92,7 @@
     "module": "exhibition",
     "name": "千年见证",
     "description": "收藏30件以上的非遗藏品或作品",
-    "icon": "👁️",
+    "icon": "eye",
     "rarity": "epic"
   },
   {
@@ -100,7 +100,7 @@
     "module": "knowledge_graph",
     "name": "图谱探险家",
     "description": "首次探索文化知识图谱",
-    "icon": "🗺️",
+    "icon": "map",
     "rarity": "common"
   },
   {
@@ -108,7 +108,7 @@
     "module": "knowledge_graph",
     "name": "地域游历者",
     "description": "探索过5个以上不同省份的非遗分布",
-    "icon": "🌏",
+    "icon": "globe",
     "rarity": "rare"
   },
   {
@@ -116,7 +116,7 @@
     "module": "knowledge_graph",
     "name": "技法学士",
     "description": "深入了解10种以上不同的非遗技法",
-    "icon": "🎓",
+    "icon": "graduation-cap",
     "rarity": "epic"
   },
   {
@@ -124,7 +124,7 @@
     "module": "restoration",
     "name": "初试修复",
     "description": "完成第一次文物数字修复",
-    "icon": "💎",
+    "icon": "gem",
     "rarity": "common"
   },
   {
@@ -132,7 +132,7 @@
     "module": "restoration",
     "name": "修复大师",
     "description": "累计完成5次以上文物修复",
-    "icon": "⚒️",
+    "icon": "hammer",
     "rarity": "rare"
   },
   {
@@ -140,7 +140,7 @@
     "module": "restoration",
     "name": "至臻修复",
     "description": "修复质量评分达到90分以上",
-    "icon": "⭐",
+    "icon": "star",
     "rarity": "epic"
   }
 ]

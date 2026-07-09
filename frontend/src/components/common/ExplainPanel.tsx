@@ -74,10 +74,70 @@ const ExplainPanel: React.FC<ExplainPanelProps> = ({ module, recordId, compact =
     return () => { cancelled = true }
   }, [module, recordId])
 
+  // 🔴 铁律：所有 hooks 必须在 early return 之前调用，确保每次渲染 hook 数量一致
+  const treeData = trace ? toEChartsTree(trace.root) : null
+
+  const chartOption = useMemo(() => {
+    if (!treeData) return {}
+    return {
+      tooltip: {
+        trigger: 'item' as const,
+        triggerOn: 'mousemove' as const,
+        formatter: (params: any) => {
+          const name = params.name || ''
+          const detail = params.data?.tooltip?.formatter
+            ? params.data.tooltip.formatter
+            : ''
+          return `<b>${name}</b>${detail ? `<br/><br/>${detail}` : ''}`
+        },
+      },
+      series: [
+        {
+          type: 'tree',
+          data: [treeData],
+          top: '3%',
+          left: '8%',
+          bottom: '3%',
+          right: '8%',
+          symbolSize: 10,
+          symbol: 'roundRect',
+          orient: 'LR',
+          expandAndCollapse: true,
+          initialTreeDepth: 2,
+          label: {
+            position: 'left',
+            verticalAlign: 'middle',
+            align: 'right',
+            fontSize: 12,
+            color: isDark ? DARK_INK : '#333',
+            formatter: (p: any) => {
+              const maxLen = compact ? 14 : 20
+              return p.name.length > maxLen ? p.name.slice(0, maxLen) + '...' : p.name
+            },
+          },
+          leaves: {
+            label: {
+              position: 'right',
+              verticalAlign: 'middle',
+              align: 'left',
+            },
+          },
+          lineStyle: {
+            color: isDark ? '#555' : '#ccc',
+            curveness: 0.5,
+          },
+          emphasis: {
+            focus: 'descendant' as const,
+          },
+        },
+      ],
+    }
+  }, [treeData, compact, isDark])
+
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: 32 }}>
-        <Spin tip="加载结果分解中..." />
+        <Spin description="加载结果分解中..." />
       </div>
     )
   }
@@ -87,62 +147,6 @@ const ExplainPanel: React.FC<ExplainPanelProps> = ({ module, recordId, compact =
   }
 
   if (!trace) return <Empty description="暂无数据" />
-
-  const treeData = toEChartsTree(trace.root)
-
-  const chartOption = useMemo(() => ({
-    tooltip: {
-      trigger: 'item' as const,
-      triggerOn: 'mousemove' as const,
-      formatter: (params: any) => {
-        const name = params.name || ''
-        const detail = params.data?.tooltip?.formatter
-          ? params.data.tooltip.formatter
-          : ''
-        return `<b>${name}</b>${detail ? `<br/><br/>${detail}` : ''}`
-      },
-    },
-    series: [
-      {
-        type: 'tree',
-        data: [treeData],
-        top: '3%',
-        left: '8%',
-        bottom: '3%',
-        right: '8%',
-        symbolSize: 10,
-        symbol: 'roundRect',
-        orient: 'LR',
-        expandAndCollapse: true,
-        initialTreeDepth: 2,
-        label: {
-          position: 'left',
-          verticalAlign: 'middle',
-          align: 'right',
-          fontSize: 12,
-          color: isDark ? DARK_INK : '#333',
-          formatter: (p: any) => {
-            const maxLen = compact ? 14 : 20
-            return p.name.length > maxLen ? p.name.slice(0, maxLen) + '...' : p.name
-          },
-        },
-        leaves: {
-          label: {
-            position: 'right',
-            verticalAlign: 'middle',
-            align: 'left',
-          },
-        },
-        lineStyle: {
-          color: isDark ? '#555' : '#ccc',
-          curveness: 0.5,
-        },
-        emphasis: {
-          focus: 'descendant' as const,
-        },
-      },
-    ],
-  }), [treeData, compact, isDark])
 
   return (
     <Card

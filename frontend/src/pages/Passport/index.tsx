@@ -10,7 +10,9 @@ import {
   Flame,
   Download,
   MapPin,
+  ScrollText,
 } from 'lucide-react'
+import { LanternIcon, Icon } from '../../config/icons'
 import { motion } from 'framer-motion'
 import ReactECharts from 'echarts-for-react'
 import * as echarts from 'echarts/core'
@@ -203,10 +205,10 @@ export default function PassportPage() {
         return `
           <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif;min-width:150px">
             <div style="font-size:15px;font-weight:600;color:${tooltipText};margin-bottom:8px;border-bottom:1px solid ${tooltipBorder};padding-bottom:6px">
-              \u{1F4CD} ${short}
+              ${short}
             </div>
             <div style="font-size:13px;color:${tooltipSecondary};margin-bottom:4px">
-              状态：<b style="color:${hasExplored ? vermilionColor : tooltipSecondary};font-size:14px">${hasExplored ? '✅ 已探索' : '⏳ 尚未探索'}</b>
+              状态：<b style="color:${hasExplored ? vermilionColor : tooltipSecondary};font-size:14px">${hasExplored ? '已探索' : '尚未探索'}</b>
             </div>
             ${dateStr ? `<div style="font-size:13px;color:${tooltipSecondary}">解锁于：${dateStr}</div>` : ''}
             ${!hasExplored ? `<div style="font-size:11px;color:${grayColor};margin-top:6px;font-style:italic">继续探索非遗世界…</div>` : ''}
@@ -320,7 +322,7 @@ export default function PassportPage() {
           marginBottom: 8,
           letterSpacing: 2,
         }}>
-          🏮 数字文博护照
+          <LanternIcon size={22} style={{ marginRight: 8 }} />数字文博护照
         </h1>
         <p style={{ color: 'var(--color-ink-secondary)', fontSize: 'var(--text-sm)' }}>
           探索非遗世界，集齐所有印章，成为真正的文化守护者
@@ -443,11 +445,11 @@ export default function PassportPage() {
             paddingBottom: 8,
             borderBottom: '2px solid var(--color-border-light)',
           }}>
-            📜 探索旅程
+            <ScrollText size={20} style={{ marginRight: 8 }} />探索旅程
           </h3>
           <Timeline
             items={timeline.map((m) => ({
-              dot: <span style={{ fontSize: 20 }}>{m.icon}</span>,
+              dot: <Icon name={m.icon} size={20} />,
               children: (
                 <div>
                   <div style={{ fontWeight: 600, color: 'var(--color-ink)', marginBottom: 2 }}>{m.title}</div>
@@ -547,7 +549,7 @@ export default function PassportPage() {
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                 }}>
-                  {latestRegion ? `📍 ${latestRegion.region_code}` : '—'}
+                  {latestRegion ? `${latestRegion.region_code}` : '—'}
                 </div>
               </Card>
             </Col>
@@ -656,7 +658,7 @@ export default function PassportPage() {
                       marginBottom: 8,
                     }}>
                       <span style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
-                        📍 {r.region_code}
+                        {r.region_code}
                       </span>
                       {isSelected && (
                         <Tag color={VERMILION} style={{ margin: 0, fontSize: 11, lineHeight: '18px', padding: '0 6px' }}>
@@ -673,7 +675,7 @@ export default function PassportPage() {
                     />
                     {r.unlocked_at && (
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-secondary)', marginTop: 6 }}>
-                        🗓 {new Date(r.unlocked_at).toLocaleDateString('zh-CN')}
+                        {new Date(r.unlocked_at).toLocaleDateString('zh-CN')}
                       </div>
                     )}
                   </motion.div>
@@ -761,7 +763,7 @@ export default function PassportPage() {
                   }}
                 >
                   <span style={{ fontSize: 28, filter: isEarned ? 'none' : 'grayscale(100%)' }}>
-                    {def.icon}
+                    <Icon name={def.icon} size={28} />
                   </span>
                   <span style={{
                     fontSize: 'var(--text-xs)',
@@ -826,7 +828,7 @@ export default function PassportPage() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 24 }}>{stamp.icon}</span>
+                  <Icon name={stamp.icon} size={24} />
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
                       {stamp.name}

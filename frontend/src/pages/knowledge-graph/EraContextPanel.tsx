@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card, Typography, Spin, Empty, Tag, Divider } from 'antd'
-import { History, Building2, Globe, Wrench } from 'lucide-react'
+import { History, Building2, Globe, Wrench, ScrollText } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getEraContext, type EraContext } from '../../services/knowledgeGraph'
 
@@ -90,7 +90,7 @@ export default function EraContextPanel({ era }: EraContextPanelProps) {
               fontSize: 'var(--text-sm)',
               color: 'var(--color-ink)',
             }}>
-              📜 {context.era} · 时代背景
+              <ScrollText size={15} style={{ marginRight: 6 }} />{context.era} · 时代背景
             </span>
           }
           style={{

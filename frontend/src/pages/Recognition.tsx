@@ -8,8 +8,10 @@ import {
   Inbox, RefreshCw, Image,
   FlaskConical, Volume2, ChevronRight,
   History, Zap, Lightbulb,
+  ScrollText, User, Drama, Trophy, Link,
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import { Icon } from '../config/icons'
 import AudioPlayer from '../components/recognition/AudioPlayer'
 import AgentTimeline from '../components/common/AgentTimeline'
 import ExplainPanel from '../components/common/ExplainPanel'
@@ -72,14 +74,14 @@ function getDailyFact() {
 // ==================== 快速体验示例（从展厅 API 动态获取） ====================
 
 const SAMPLE_CATEGORIES: Record<string, { icon: string; desc: string }> = {
-  '剪纸': { icon: '✂️', desc: '传统民间剪纸艺术' },
-  '苏绣': { icon: '🧵', desc: '精细雅洁的刺绣工艺' },
-  '陶瓷': { icon: '🏺', desc: '千年瓷都的匠心之作' },
-  '皮影': { icon: '🎭', desc: '光影中的千年故事' },
-  '织锦': { icon: '🧶', desc: '寸锦寸金的织造技艺' },
-  '金属': { icon: '🔔', desc: '精雕细琢的金属工艺' },
-  '漆器': { icon: '🪔', desc: '传承千年的髹漆技艺' },
-  'default': { icon: '🏛️', desc: '探索非遗文化瑰宝' },
+  '剪纸': { icon: 'scissors', desc: '传统民间剪纸艺术' },
+  '苏绣': { icon: 'embroidery', desc: '精细雅洁的刺绣工艺' },
+  '陶瓷': { icon: 'flame', desc: '千年瓷都的匠心之作' },
+  '皮影': { icon: 'drama', desc: '光影中的千年故事' },
+  '织锦': { icon: 'grid-3x3', desc: '寸锦寸金的织造技艺' },
+  '金属': { icon: 'bell', desc: '精雕细琢的金属工艺' },
+  '漆器': { icon: 'lacquer', desc: '传承千年的髹漆技艺' },
+  'default': { icon: 'landmark', desc: '探索非遗文化瑰宝' },
 }
 
 // ==================== 主页面 ====================
@@ -307,7 +309,7 @@ export default function Recognition() {
                 borderBottom: '1px solid var(--color-vermilion, #B8463A)',
                 borderLeft: '3px solid var(--color-vermilion, #B8463A)',
               }}>
-                ⚠️ {error}
+                {error}
               </div>
             )}
             <Dragger
@@ -417,7 +419,7 @@ export default function Recognition() {
                         />
                         <div style={{ marginTop: 8 }}>
                           <Text strong style={{ fontSize: 'var(--text-sm)' }}>
-                            {sample.icon} {sample.label}
+                            <Icon name={sample.icon} size={18} style={{ marginRight: 4 }} />{sample.label}
                           </Text>
                         </div>
                         <div>
@@ -450,7 +452,7 @@ export default function Recognition() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
                   <Text strong style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
-                    💡 非遗冷知识
+                    <Lightbulb size={16} style={{ marginRight: 6 }} />非遗冷知识
                   </Text>
                   <Tag
                     color={getCategoryColor(dailyFact.category)}
@@ -565,7 +567,7 @@ function ResultDisplay({
         {/* 识别结果摘要 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0', borderTop: '1px solid var(--color-border-light, #E8E4D8)' }}>
           <Tag color="#B8463A" style={{ fontSize: 16, padding: '4px 16px' }}>
-            🏷 {result.category}
+            {result.category}
           </Tag>
           <Tag color="blue">置信度 {(result.confidence * 100).toFixed(1)}%</Tag>
           <Space size={4}>
@@ -585,7 +587,7 @@ function ResultDisplay({
           items={[
             {
               key: 'history',
-              label: '📜 历史渊源',
+              label: <span><ScrollText size={15} style={{ marginRight: 4 }} />历史渊源</span>,
               children: <MarkdownContent content={result.explanation?.history || ''} />,
             },
             {
@@ -595,12 +597,12 @@ function ResultDisplay({
             },
             {
               key: 'inheritor',
-              label: '👤 传承人故事',
+              label: <span><User size={15} style={{ marginRight: 4 }} />传承人故事</span>,
               children: <MarkdownContent content={result.explanation?.inheritor || ''} />,
             },
             {
               key: 'meaning',
-              label: '🎭 文化寓意',
+              label: <span><Drama size={15} style={{ marginRight: 4 }} />文化寓意</span>,
               children: <MarkdownContent content={result.explanation?.meaning || ''} />,
             },
           ]}
@@ -610,7 +612,7 @@ function ResultDisplay({
       {/* 下部: Top3候选 + 关联推荐 */}
       <Row gutter={16}>
         <Col xs={24} md={12}>
-          <Card title="🏆 Top 3 候选" style={{ borderRadius: 12, marginBottom: 16 }}>
+          <Card title={<span><Trophy size={16} style={{ marginRight: 6 }} />Top 3 候选</span>} style={{ borderRadius: 12, marginBottom: 16 }}>
             {(result.top3 || []).map((item, i) => (
               <div
                 key={item.category}
@@ -630,7 +632,7 @@ function ResultDisplay({
         </Col>
 
         <Col xs={24} md={12}>
-          <Card title="🔗 关联推荐" style={{ borderRadius: 12, marginBottom: 16 }}>
+          <Card title={<span><Link size={16} style={{ marginRight: 6 }} />关联推荐</span>} style={{ borderRadius: 12, marginBottom: 16 }}>
             <Text type="secondary" style={{ fontSize: 12 }}>相关文创</Text>
             <div style={{ marginBottom: 16 }}>
               {result.related?.creations?.map(c => (
@@ -781,7 +783,7 @@ function HeatmapViewer({ src, features }: { src: string; features: HeatmapFeatur
                 pointerEvents: 'none',
               }}>
                 <div style={{ fontWeight: 'bold', color: '#C9A96E', marginBottom: 2 }}>
-                  🔍 {f.name}
+                  {f.name}
                 </div>
                 <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'var(--text-xs)', maxWidth: 220, whiteSpace: 'normal' }}>
                   {f.label}

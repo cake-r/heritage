@@ -1,5 +1,6 @@
 import { Card, Button, Tag, Progress } from 'antd'
-import { Play } from 'lucide-react'
+import { Play, Wrench } from 'lucide-react'
+import { Icon } from '../../config/icons'
 import { TOOL_NAMES, TOOL_ICONS } from './index'
 
 interface ToolInfo {
@@ -14,49 +15,49 @@ const ALL_TOOLS: ToolInfo[] = [
   {
     id: 'inspect',
     name: '识物·品鉴',
-    icon: '🔍',
+    icon: 'search',
     description: '上传非遗作品图片，AI分析工艺技法和风格特征',
     usage: '输入 /inspect 并上传图片',
   },
   {
     id: 'create',
     name: '创作·生成',
-    icon: '🎨',
+    icon: 'palette',
     description: '根据描述生成非遗艺术图案、纹样和设计',
     usage: '输入 /create 加创作描述',
   },
   {
     id: 'connect',
     name: '博学·关联',
-    icon: '🔗',
+    icon: 'link',
     description: '从知识图谱中发现不同非遗品类之间的文化关联',
     usage: '输入 /connect 加查询主题',
   },
   {
     id: 'teach',
     name: '教学·答疑',
-    icon: '📖',
+    icon: 'book-open',
     description: '自动生成系统化入门课程，从基础到实践',
     usage: '输入 /teach 加学习主题',
   },
   {
     id: 'pattern',
     name: '纹样·提取',
-    icon: '🏮',
+    icon: 'lantern',
     description: '上传纹样图片，AI提取并分析母题、对称性、文化寓意',
     usage: '输入 /pattern 并上传纹样图片',
   },
   {
     id: 'story',
     name: '故事·讲述',
-    icon: '📜',
+    icon: 'scroll-text',
     description: '根据主题生成非遗传说、匠人轶事，寓教于乐',
     usage: '输入 /story 加故事主题',
   },
   {
     id: 'compare',
     name: '对比·鉴赏',
-    icon: '⚖️',
+    icon: 'scale',
     description: '对比两个非遗项目的技法、风格、历史背景异同',
     usage: '输入 /compare 项目A vs 项目B',
   },
@@ -86,7 +87,7 @@ export default function WorkshopToolbox({ tools, activeToolId, toolStatus, onToo
           color: 'var(--color-ink-secondary, #6B5F52)',
           fontSize: 'var(--text-sm)',
         }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>🛠️</div>
+          <Wrench size={32} />
           <div>选择一位传承人</div>
           <div>查看可用工具</div>
         </div>
@@ -135,7 +136,7 @@ export default function WorkshopToolbox({ tools, activeToolId, toolStatus, onToo
               }}
             >
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                <span style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{tool.icon}</span>
+                <Icon name={tool.icon} size={22} />
                 <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                   <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, marginBottom: 2, lineHeight: 1.3 }}>
                     {tool.name}

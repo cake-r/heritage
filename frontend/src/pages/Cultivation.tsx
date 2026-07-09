@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Card, Typography, Progress, Row, Col, Button, Empty, Spin, Grid, message, Tag } from 'antd'
 import {
   Trophy, Flame, Clock, CheckCircle,
-  Loader2,
+  Loader2, PartyPopper, Star,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -15,6 +15,7 @@ import SkillProgressCard, { TREE_COLORS } from '../components/cultivation/SkillP
 import StreakFlame from '../components/cultivation/StreakFlame'
 import type { DailyQuest } from '../services/cultivation'
 import { StepBrocadePattern } from '../components/decoration'
+import { RANK_ICON_CONFIG } from '../config/icons'
 
 const { Title, Text } = Typography
 const { useBreakpoint } = Grid
@@ -76,7 +77,7 @@ export default function Cultivation() {
     try {
       const result = await completeQuest(questId)
       if (result.new_rank) {
-        message.success(`🎉 恭喜晋升为「${result.new_rank}」！`)
+        message.success(<span><PartyPopper size={18} style={{ marginRight: 6 }} />恭喜晋升为「{result.new_rank}」！</span>)
       } else {
         message.success(`+${result.xp_gained} XP`)
       }
@@ -89,7 +90,6 @@ export default function Cultivation() {
 
   // 段位阈值
   const RANK_THRESHOLDS = [0, 100, 300, 800, 2000]
-  const RANK_EMOJIS = ['🥉', '🥈', '🥇', '💎', '👑']
   const rankPercent = status.xp_to_next > 0
     ? Math.round(((status.xp - RANK_THRESHOLDS[status.rank_index]) /
         (RANK_THRESHOLDS[status.rank_index + 1] - RANK_THRESHOLDS[status.rank_index])) * 100)
@@ -138,9 +138,11 @@ export default function Cultivation() {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                  <span style={{ fontSize: 56 }}>
-                    {RANK_EMOJIS[status.rank_index] || '🥉'}
-                  </span>
+                  {(() => {
+                    const cfg = RANK_ICON_CONFIG[status.rank_index] || RANK_ICON_CONFIG[0]
+                    const RankIcon = cfg.icon
+                    return <RankIcon size={56} color={cfg.color} />
+                  })()}
                 </div>
                 <div>
                   <Title level={2} style={{
@@ -199,7 +201,7 @@ export default function Cultivation() {
             <Card
               title={
                 <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 20 }}>
-                  🕸 六艺技能总览
+                  <Star size={18} style={{ marginRight: 6, verticalAlign: 'middle' }} />六艺技能总览
                 </span>
               }
               style={{ borderRadius: 'var(--radius-lg)', marginBottom: 16 }}
@@ -286,7 +288,7 @@ export default function Cultivation() {
                           <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1 }}>
                             {isCompleted
                               ? <CheckCircle style={{ color: 'var(--color-success)' }} className="animate-check-bounce" />
-                              : (quest.icon || '📋')
+                              : (quest.icon || 'clipboard-list')
                             }
                           </span>
                           <div style={{ flex: 1, minWidth: 0 }}>

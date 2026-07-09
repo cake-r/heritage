@@ -206,7 +206,7 @@ export default function TimelineScatter({ timelineData, allItems, activeCategory
           return `
             <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif;min-width:190px">
               <div style="font-size:15px;font-weight:600;color:${ink};margin-bottom:8px;border-bottom:1px solid ${GOLD_LIGHT};padding-bottom:6px">
-                📜 ${_period} · ${_category}
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${ink}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom;margin-right:4px"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg>${_period} · ${_category}
               </div>
               <div style="font-size:13px;color:${inkSecondary};margin-bottom:4px">
                 非遗项目：<b style="color:${vermilion}">${_cell.count}</b> 项

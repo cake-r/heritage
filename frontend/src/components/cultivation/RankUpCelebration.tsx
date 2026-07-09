@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Crown, PartyPopper } from 'lucide-react'
 import { useCultivation } from '../../contexts/CultivationContext'
-
-const RANK_ICONS = ['🥉', '🥈', '🥇', '💎', '👑']
+import { RANK_ICON_CONFIG } from '../../config/icons'
 
 export default function RankUpCelebration() {
   const { rankUpCelebration, dismissRankUp } = useCultivation()
@@ -127,14 +127,14 @@ export default function RankUpCelebration() {
               transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.4 }}
               style={{ fontSize: 64, marginBottom: 16 }}
             >
-              👑
+              <Crown size={64} color="var(--color-gold)" />
             </motion.div>
 
             <div style={{
               fontSize: 'var(--text-sm)', color: 'var(--color-gold)',
               letterSpacing: 4, marginBottom: 8,
             }}>
-              🎉 恭喜晋升
+              <PartyPopper size={16} /> 恭喜晋升
             </div>
 
             <div style={{

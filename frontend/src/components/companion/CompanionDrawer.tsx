@@ -6,8 +6,9 @@
 import { useRef, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Drawer, Typography, Button, Input, Space, Tag, Skeleton, Empty } from 'antd'
-import { Send, Bot, Trash2, User, Lightbulb } from 'lucide-react'
+import { Send, Bot, Trash2, User, Lightbulb, MessageCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { Icon } from '../../config/icons'
 import { useCompanion } from '../../contexts/CompanionContext'
 import type { CompanionSuggestion } from '../../services/companion'
 import type { CompanionChatMsg } from '../../contexts/CompanionContext'
@@ -51,7 +52,7 @@ function SuggestionInline({
         cursor: 'pointer',
       }}
     >
-      <span style={{ fontSize: 24, flexShrink: 0, lineHeight: '26px' }}>{item.icon}</span>
+      <Icon name={item.icon} size={24} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
           <Text strong style={{ fontSize: 'var(--text-base)', lineHeight: '22px' }}>{item.title}</Text>
@@ -216,7 +217,7 @@ function WelcomePanel({
       {/* 快捷提问 */}
       <div style={{ marginBottom: 16 }}>
         <Text type="secondary" style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 8 }}>
-          💬 试试问我：
+          <MessageCircle size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />试试问我：
         </Text>
         <Space direction="vertical" style={{ width: '100%' }} size={8}>
           {quickQs.map((q, i) => (
@@ -265,7 +266,7 @@ function WelcomePanel({
       {!loading && suggestions.length > 0 && (
         <div style={{ marginTop: 4 }}>
           <Text type="secondary" style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: 10 }}>
-            💡 为你准备了 {suggestions.length} 条个性化建议
+            <Lightbulb size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />为你准备了 {suggestions.length} 条个性化建议
           </Text>
           {suggestions.map(item => (
             <div key={item.id} style={{ marginBottom: 8 }}>
@@ -283,7 +284,7 @@ function WelcomePanel({
           style={{ marginTop: 24 }}
         >
           <Text type="secondary" style={{ fontSize: 'var(--text-sm)' }}>
-            继续探索非遗世界，我会在你需要时出现 ✨
+            继续探索非遗世界，我会在你需要时出现
           </Text>
         </Empty>
       )}
@@ -375,8 +376,8 @@ export default function CompanionDrawer() {
       title={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 22, lineHeight: '40px', width: 40, textAlign: 'center' }}>
-              🤖
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40 }}>
+              <Bot size={22} />
             </span>
             <span style={{
               fontFamily: 'var(--font-display)',

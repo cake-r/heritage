@@ -8,6 +8,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Popover } from 'antd'
 import { motion } from 'framer-motion'
+import { Bot } from 'lucide-react'
 import { useCompanion } from '../../contexts/CompanionContext'
 import Live2DCanvas from './Live2DCanvas'
 import type { Live2DCanvasHandle } from './Live2DCanvas'
@@ -238,14 +239,11 @@ export default function CompanionFloatButton() {
       />
 
       {!modelReady && (
-        <span style={{
-          position: 'absolute',
-          color: '#fff',
-          fontSize: currentSize * 0.3,
-          lineHeight: 1,
-        }}>
-          🤖
-        </span>
+        <Bot
+          size={Math.round(currentSize * 0.3)}
+          color="#fff"
+          style={{ position: 'absolute' }}
+        />
       )}
 
       {/* 缩放百分比指示器 */}
@@ -298,11 +296,11 @@ export default function CompanionFloatButton() {
           <Popover
             content={
               <div style={{ maxWidth: 200, fontSize: 'var(--text-sm)' }}>
-                我是<strong>灵儿</strong>，你的 AI 导游 ✨<br />
+                我是<strong>灵儿</strong>，你的 AI 导游<br />
                 点击我可以聊天、左键拖拽移动、右键拖拽缩放
               </div>
             }
-            title="👋 初次见面"
+            title="初次见面"
             open
             onOpenChange={(open) => { if (!open) setShowIntro(false) }}
             placement="left"

@@ -167,7 +167,7 @@ export default function ChoroplethMap({ data, allItems, activeCategory }: Props)
           return `
             <div style="font-family:'Noto Serif SC','Source Han Serif SC',SimSun,serif;min-width:170px">
               <div style="font-size:17px;font-weight:600;color:${ink};margin-bottom:8px;border-bottom:1px solid ${GOLD_LIGHT};padding-bottom:6px">
-                🏛 ${d._rawName || d.name}
+                ${d._rawName || d.name}
               </div>
               <div style="font-size:15px;color:${inkSecondary};margin-bottom:4px">
                 非遗项目：<b style="color:${vermilion};font-size:18px">${d.value}</b> 项

@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCultivation } from '../../contexts/CultivationContext'
 import { TREE_ICONS } from './SkillProgressCard'
+import { Icon } from '../../config/icons'
 
 export default function XpGainAnimation() {
   const { xpAnimation } = useCultivation()
@@ -30,8 +31,8 @@ export default function XpGainAnimation() {
         >
           {/* 技能图标 */}
           {xpAnimation.skillTree && (
-            <span style={{ fontSize: 24 }}>
-              {TREE_ICONS[xpAnimation.skillTree] || '⭐'}
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              <Icon name={TREE_ICONS[xpAnimation.skillTree] || 'star'} size={24} />
             </span>
           )}
 

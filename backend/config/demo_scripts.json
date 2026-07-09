@@ -4,7 +4,7 @@
       "id": "load_sample",
       "title": "加载示例文物",
       "description": "加载唐代青花瓷盘高清图像",
-      "icon": "📷",
+      "icon": "camera",
       "timeout_s": 30,
       "on_fail": "skip"
     },
@@ -12,7 +12,7 @@
       "id": "recognize",
       "title": "AI 识物品鉴",
       "description": "Qwen-VL 多模态识别品类、年代、工艺",
-      "icon": "🔍",
+      "icon": "search",
       "timeout_s": 60,
       "on_fail": "fallback",
       "action": "recognition",
@@ -22,7 +22,7 @@
       "id": "damage_analysis",
       "title": "损伤检测",
       "description": "Qwen-VL 检测文物损伤类型与程度",
-      "icon": "🔬",
+      "icon": "microscope",
       "timeout_s": 45,
       "on_fail": "skip",
       "action": "damage_detect"
@@ -31,7 +31,7 @@
       "id": "restoration",
       "title": "AI 数字修复",
       "description": "万相 I2I 图像修复 + 效果核验",
-      "icon": "💎",
+      "icon": "gem",
       "timeout_s": 120,
       "on_fail": "fallback",
       "action": "restoration"
@@ -40,7 +40,7 @@
       "id": "pattern_analysis",
       "title": "纹样基因解析",
       "description": "提取纹样基因库匹配 + 文化解读",
-      "icon": "🧬",
+      "icon": "git-branch",
       "timeout_s": 45,
       "on_fail": "skip",
       "action": "pattern_engine"
@@ -49,7 +49,7 @@
       "id": "generation",
       "title": "文创生成",
       "description": "文生图创作非遗主题文创",
-      "icon": "🎨",
+      "icon": "palette",
       "timeout_s": 90,
       "on_fail": "fallback",
       "action": "generation"
@@ -58,7 +58,7 @@
       "id": "passport_update",
       "title": "护照更新",
       "description": "自动颁发探索成就印章",
-      "icon": "🏅",
+      "icon": "medal",
       "timeout_s": 10,
       "on_fail": "skip"
     },
@@ -66,7 +66,7 @@
       "id": "report",
       "title": "生成探索报告",
       "description": "汇总所有步骤输出为结构化报告",
-      "icon": "📋",
+      "icon": "clipboard-list",
       "timeout_s": 30,
       "on_fail": "skip"
     }

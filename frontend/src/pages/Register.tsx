@@ -4,6 +4,7 @@ import { Card, Form, Input, Button, Typography, message } from 'antd'
 import { User, Lock, Smile } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { BrocadePattern } from '../components/decoration'
+import { LanternIcon } from '../config/icons'
 
 const { Title } = Typography
 
@@ -30,7 +31,7 @@ export default function Register() {
       <BrocadePattern opacity={0.18} />
       <Card style={{ borderRadius: 12 }}>
         <Title level={3} style={{ textAlign: 'center', marginBottom: 32 }}>
-          🏮 注册
+          <LanternIcon size={22} style={{ marginRight: 8 }} />注册
         </Title>
         <Form onFinish={onFinish} size="large">
           <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>

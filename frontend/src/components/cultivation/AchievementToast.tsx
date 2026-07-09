@@ -1,9 +1,11 @@
 /** 任务自动完成通知 — 固定右上角的 Toast 通知栈 */
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { CheckCircle } from 'lucide-react'
 import { useCultivation } from '../../contexts/CultivationContext'
 import { Grid } from 'antd'
 import { TREE_ICONS } from './SkillProgressCard'
+import { Icon } from '../../config/icons'
 
 const { useBreakpoint } = Grid
 
@@ -54,7 +56,7 @@ export default function AchievementToast() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 20, flexShrink: 0,
               }}>
-                {TREE_ICONS[n.skill_tree] || '📋'}
+                <Icon name={TREE_ICONS[n.skill_tree] || 'clipboard-list'} size={20} />
               </div>
 
               {/* 内容 */}
@@ -63,7 +65,7 @@ export default function AchievementToast() {
                   fontSize: 'var(--text-xs)', color: 'rgba(255,255,255,0.6)',
                   marginBottom: 2,
                 }}>
-                  ✅ 任务完成
+                  <CheckCircle size={16} /> 任务完成
                 </div>
                 <div style={{
                   fontSize: 'var(--text-sm)',

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Card, Spin, Empty, Button, message, Alert, Drawer } from 'antd'
-import { RefreshCw, Info, GitGraph } from 'lucide-react'
+import { RefreshCw, Info, GitGraph, Lightbulb, Sun, Link } from 'lucide-react'
 import * as echarts from 'echarts'
 import { FilterProvider, useFilters } from './knowledge-graph/FilterContext'
 import GraphBanner from './knowledge-graph/GraphBanner'
@@ -202,7 +202,7 @@ function KnowledgeGraph() {
       {/* 首次访问操作提示 */}
       {showGuide && (
         <Alert
-          message="💡 操作提示"
+          message={<><Lightbulb size={16} /> 操作提示</>}
           description={
             <span>
               点击<strong>左侧品类</strong>筛选分类 · 点击<strong>旭日图</strong>深入探索 · 点击<strong>地图省份</strong>查看该省非遗分布 · 点击<strong>时间轴柱子</strong>筛选朝代
@@ -241,7 +241,7 @@ function KnowledgeGraph() {
         <Card
           title={
             <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 'var(--text-sm)', color: 'var(--color-ink)' }}>
-              {drilledCategory ? `📊 ${drilledCategory}` : '☀️ 品类 · 项目 · 技法'}
+              {drilledCategory ? drilledCategory : '品类 · 项目 · 技法'}
             </span>
           }
           style={{
@@ -288,7 +288,7 @@ function KnowledgeGraph() {
         <Card
           title={
             <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 20, color: 'var(--color-ink)' }}>
-              ☀️ 时间脉络
+              <Sun size={16} /> 时间脉络
             </span>
           }
           style={{
@@ -307,7 +307,7 @@ function KnowledgeGraph() {
         <Card
           title={
             <span style={{ fontFamily: 'var(--font-display)', letterSpacing: 2, fontSize: 20, color: 'var(--color-ink)' }}>
-              🏛 地域分布
+              地域分布
             </span>
           }
           style={{
@@ -357,7 +357,7 @@ function KnowledgeGraph() {
             color: 'var(--color-ink, #2C241A)',
           }}
         >
-          技艺亲缘关系图
+          <Link size={16} /> 技艺亲缘关系图
         </Button>
       </div>
 
@@ -366,7 +366,7 @@ function KnowledgeGraph() {
         open={kinshipOpen}
         onClose={() => setKinshipOpen(false)}
         width={800}
-        title="🔗 技艺亲缘关系图"
+        title="技艺亲缘关系图"
         styles={{ body: { padding: 16 } }}
       >
         <KinshipGraph

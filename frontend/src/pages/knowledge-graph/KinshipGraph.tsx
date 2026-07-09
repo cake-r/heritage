@@ -1,6 +1,7 @@
 import { useMemo, useRef, useCallback } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { Empty, Typography, Tag } from 'antd'
+import { Link } from 'lucide-react'
 import { getCategoryColor } from '../../utils/categoryColors'
 import { useTheme } from '../../contexts/ThemeContext'
 import {
@@ -149,7 +150,7 @@ export default function KinshipGraph({ data, onNodeClick, height = 400 }: Kinshi
     <div style={{ position: 'relative' }}>
       <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Text strong style={{ fontSize: 'var(--text-sm)', color: isDark ? DARK_INK : '#2C241A' }}>
-          🔗 技艺亲缘关系图
+          <Link size={16} /> 技艺亲缘关系图
         </Text>
         <Tag color="gold" style={{ fontSize: 11 }}>
           {data?.nodes.length || 0} 节点 · {(data?.links.length || 0)} 关联

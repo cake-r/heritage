@@ -323,6 +323,39 @@ a:hover { color: var(--color-vermilion-hover); }
 [data-theme="dark"] .ant-tag {
   border-color: var(--color-border-medium);
 }
+[data-theme="dark"] .ant-list {
+  background: transparent !important;
+}
+[data-theme="dark"] .ant-list .ant-list-item {
+  background: transparent !important;
+  border-color: var(--color-border-light) !important;
+  color: var(--color-ink) !important;
+}
+[data-theme="dark"] .ant-list .ant-list-item-meta-title {
+  color: var(--color-ink) !important;
+}
+[data-theme="dark"] .ant-list .ant-list-item-meta-description {
+  color: var(--color-ink-secondary) !important;
+}
+[data-theme="dark"] .ant-list .ant-list-item-action > li {
+  color: var(--color-ink-secondary) !important;
+}
+[data-theme="dark"] .ant-empty-description {
+  color: var(--color-ink-secondary) !important;
+}
+[data-theme="dark"] .ant-divider {
+  border-color: var(--color-border-light) !important;
+}
+[data-theme="dark"] .ant-image-img {
+  background: var(--color-paper) !important;
+}
+[data-theme="dark"] .ant-menu-light {
+  background: transparent !important;
+  color: var(--color-ink-secondary);
+}
+[data-theme="dark"] .ant-menu-light .ant-menu-item-selected {
+  color: var(--color-ink) !important;
+}
 
 /* --- Button --- */
 .ant-btn-primary {

@@ -5,6 +5,7 @@ import { User, Lock, RefreshCw, Shield } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
 import { BrocadePattern } from '../components/decoration'
+import { LanternIcon } from '../config/icons'
 
 const { Title, Text } = Typography
 
@@ -72,7 +73,7 @@ export default function Login() {
         styles={{ body: { padding: '32px 28px' } }}
       >
         <Title level={3} style={{ textAlign: 'center', marginBottom: 32 }}>
-          🏮 文博灵境 · 登录
+          <LanternIcon size={22} style={{ marginRight: 8 }} />文博灵境 · 登录
         </Title>
         <Form onFinish={onFinish} size="large">
           <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>

@@ -15,6 +15,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext'
 import { useApp } from '../../contexts/AppContext'
 import { useTheme } from '../../contexts/ThemeContext'
+import { Icon } from '../../config/icons'
 import RankBadge from '../cultivation/RankBadge'
 import XpGainAnimation from '../cultivation/XpGainAnimation'
 import Breadcrumb from './Breadcrumb'
@@ -128,7 +129,7 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
               letterSpacing: 2,
               whiteSpace: 'nowrap',
             }}>
-              🏮 非遗
+              <Icon name="lantern" size={20} /> 非遗
             </span>
           )}
         </div>

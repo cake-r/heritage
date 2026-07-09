@@ -10,6 +10,7 @@ import {
   Send, Loader2,
   Eye, UploadIcon, ChevronLeft,
   Search, SlidersHorizontal, Share2, Lock, Globe, LayoutGrid, List,
+  Palette,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import {
@@ -59,7 +60,7 @@ export default function CreativeStudio() {
         <MedallionPattern opacity={0.22} />
       </div>
       <div style={{ maxWidth: 1300, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-      <Title level={3}>🎨 AI非遗文创生成工作室</Title>
+      <Title level={3}><Palette size={20} style={{ marginRight: 8 }} />AI非遗文创生成工作室</Title>
 
       <Tabs
         activeKey={activeTab}
@@ -661,7 +662,7 @@ function GalleryPanel() {
 
       {/* 详情抽屉 */}
       <Drawer
-        title="作品详情"
+        title={<span><Palette size={20} style={{ marginRight: 8 }} />作品详情</span>}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         width={640}
@@ -777,7 +778,7 @@ function WorkDetailView({ workId }: { workId: number }) {
     <div style={{ maxWidth: 1300, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
         <Button icon={<ChevronLeft />} onClick={() => window.history.back()}>返回</Button>
-        <Title level={3} style={{ margin: 0 }}>🎨 作品详情</Title>
+        <Title level={3} style={{ margin: 0 }}>作品详情</Title>
       </div>
 
       <Card style={{ borderRadius: 12, marginBottom: 16 }}>

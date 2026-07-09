@@ -15,6 +15,7 @@ import {
   Settings,
 } from 'lucide-react'
 import { BrocadePattern } from '../decoration'
+import { Icon } from '../../config/icons'
 
 interface Props {
   collapsed?: boolean
@@ -248,7 +249,7 @@ export default function Sidebar({ collapsed, mobile, open, onClose, onNavigate }
         transition: 'all var(--duration-normal) var(--ease-out)',
       }}
     >
-      {sidebarCollapsed ? '🏮' : '🏮 非遗文创'}
+      {sidebarCollapsed ? <Icon name="lantern" size={18} /> : <><Icon name="lantern" size={35} /> 非遗文创</>}
     </div>
   )
 

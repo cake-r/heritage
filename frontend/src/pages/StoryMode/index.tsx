@@ -11,6 +11,11 @@ import {
   Image,
   FlaskConical,
   Zap,
+  GitBranch,
+  Target,
+  Medal,
+  Ruler,
+  ClipboardList,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import AgentTimeline from '../../components/common/AgentTimeline'
@@ -22,6 +27,7 @@ import {
 } from '../../services/storyMode'
 import { normalizeImageUrl } from '../../utils/imageUrl'
 import { MountainMistPattern } from '../../components/decoration'
+import { Icon } from '../../config/icons'
 import { useTheme } from '../../contexts/ThemeContext'
 
 const { Title, Paragraph, Text } = Typography
@@ -53,14 +59,14 @@ function useStoryColors() {
 
 // 步骤图标
 const STEP_ICONS: Record<string, string> = {
-  load_sample: '📷',
-  recognize: '🔍',
-  damage_analysis: '🔬',
-  restoration: '💎',
-  pattern_analysis: '🧬',
-  generation: '🎨',
-  passport_update: '🏅',
-  report: '📋',
+  load_sample: 'image',
+  recognize: 'search',
+  damage_analysis: 'microscope',
+  restoration: 'gem',
+  pattern_analysis: 'git-branch',
+  generation: 'palette',
+  passport_update: 'medal',
+  report: 'clipboard-list',
 }
 
 interface StepState {
@@ -211,7 +217,7 @@ export default function StoryModePage() {
             marginBottom: 8,
             marginTop: -120,
           }}>
-            ✨ 非遗探索之旅
+            非遗探索之旅
           </Title>
           <Paragraph style={{ color: text, fontSize: '1.4rem', opacity: 0.7, marginBottom: 0 }}>
             跟随 AI 向导，沉浸式体验文物识别、修复、纹样解析与文创生成的全流程
@@ -352,14 +358,15 @@ export default function StoryModePage() {
               marginBottom: 24,
             }}>
               <Title level={4} style={{ color: GOLD, marginBottom: 16 }}>
-                📋 探索报告
+                <ClipboardList size={20} style={{ marginRight: 8 }} />
+                探索报告
               </Title>
               <Paragraph style={{ color: text, fontSize: '1.4rem' }}>
                 {report.summary}
               </Paragraph>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
                 {report.report.highlights.map((h, i) => (
-                  <Tag key={i} color={h.includes('✅') ? 'success' : 'warning'}>{h}</Tag>
+                  <Tag key={i} color={(h as string).includes('完成') ? 'success' : 'warning'}>{(h as string).replace(/^[✅]\s*/, '').trim()}</Tag>
                 ))}
               </div>
             </Card>
@@ -378,14 +385,14 @@ export default function StoryModePage() {
                     display: 'flex', alignItems: 'center', gap: 12,
                     padding: '8px 0',
                   }}>
-                    <span style={{ fontSize: 32 }}>{s.icon || STEP_ICONS[s.step_id] || '📌'}</span>
+                    <span style={{ fontSize: 32 }}>{s.icon || STEP_ICONS[s.step_id] || 'pin'}</span>
                     <span style={{ flex: 1, color: text }}>{s.title}</span>
                     <Tag color={
                       s.status === 'completed' ? 'success' :
                       s.status === 'skipped' ? 'warning' : 'error'
                     }>
-                      {s.status === 'completed' ? '✅ 完成' :
-                       s.status === 'skipped' ? '⏭️ 跳过' : '❌ 失败'}
+                      {s.status === 'completed' ? '完成' :
+                       s.status === 'skipped' ? '跳过' : '失败'}
                     </Tag>
                   </div>
                   {s.output_data && s.status === 'completed' && (
@@ -462,7 +469,7 @@ function StepVisualPreview({ step }: { step?: StepState }) {
         <div style={{ textAlign: 'center' }}>
           <Spin size="large" />
           <Paragraph style={{ color: text, marginTop: 16, fontSize: '1.3rem' }}>
-            {step.icon} {step.title}
+            <Icon name={step.icon} size={16} style={{ marginRight: 6 }} />{step.title}
           </Paragraph>
           {step.progress > 0 && (
             <Progress percent={step.progress} size="small" strokeColor={GOLD} trailColor={overlay(0.1)} />
@@ -476,7 +483,7 @@ function StepVisualPreview({ step }: { step?: StepState }) {
     <Card
       title={
         <span style={{ color: GOLD }}>
-          {step.icon} {step.title}
+          <Icon name={step.icon} size={16} style={{ marginRight: 6 }} />{step.title}
           <Tag color={step.status === 'completed' ? 'success' : 'error'} style={{ marginLeft: 8 }}>
             {step.status === 'completed' ? '已完成' : '失败'}
           </Tag>
@@ -524,7 +531,7 @@ function RecognitionOutput({ data }: { data: any }) {
     <div>
       <div style={{ marginBottom: 16, display: 'flex', gap: 8, alignItems: 'center' }}>
         <Tag color="#B8463A" style={{ fontSize: 18, padding: '4px 16px' }}>
-          🏷 {data.category || '未知'}
+          {data.category || '未知'}
         </Tag>
         {data.confidence != null && (
           <Tag color="blue">置信度 {(data.confidence * 100).toFixed(1)}%</Tag>
@@ -586,7 +593,7 @@ function DamageOutput({ data }: { data: any }) {
                 border: `1px solid ${VERMILION}40`,
                 borderRadius: 8,
               }}>
-                <Text style={{ color: VERMILION }}>⚠️ {d}</Text>
+                <Text style={{ color: VERMILION }}>{d}</Text>
               </Card>
             ))}
           </div>
@@ -622,7 +629,7 @@ function RestorationOutput({ data }: { data: any }) {
               步骤 {s.step || i + 1}
             </Tag>
             <Text strong style={{ color: text }}>{s.name}</Text>
-            <Tag>{s.status === 'completed' ? '✅' : '⏳'}</Tag>
+            <Tag>{s.status === 'completed' ? '已完成' : '进行中'}</Tag>
           </div>
           {/* 修复验证分数 */}
           {s.result?.scores && (
@@ -660,21 +667,21 @@ function PatternOutput({ data }: { data: any }) {
       <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
         {analysis.motif_type && (
           <div style={{ textAlign: 'center', minWidth: 80 }}>
-            <div style={{ fontSize: 42 }}>🧬</div>
+            <GitBranch size={42} color={GOLD} />
             <Text style={{ color: GOLD, fontSize: 16 }}>纹样类型</Text>
             <div><Text strong style={{ color: text }}>{analysis.motif_type}</Text></div>
           </div>
         )}
         {analysis.symmetry && (
           <div style={{ textAlign: 'center', minWidth: 80 }}>
-            <div style={{ fontSize: 36 }}>📐</div>
+            <Ruler size={36} color={GOLD} />
             <Text style={{ color: GOLD, fontSize: 14 }}>构图形式</Text>
             <div><Text strong style={{ color: text }}>{analysis.symmetry}</Text></div>
           </div>
         )}
         {analysis.composition && (
           <div style={{ textAlign: 'center', minWidth: 80 }}>
-            <div style={{ fontSize: 36 }}>🎯</div>
+            <Target size={36} color={GOLD} />
             <Text style={{ color: GOLD, fontSize: 14 }}>布局结构</Text>
             <div><Text strong style={{ color: text }}>{analysis.composition}</Text></div>
           </div>
@@ -745,7 +752,7 @@ function PassportOutput({ data }: { data: any }) {
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 200 }}
       >
-        <div style={{ fontSize: 96, marginBottom: 12 }}>🏅</div>
+        <Medal size={96} color={GOLD} style={{ marginBottom: 12 }} />
       </motion.div>
       <Title level={4} style={{ color: GOLD }}>成就印章已颁发</Title>
       <Paragraph style={{ color: text }}>

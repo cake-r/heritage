@@ -11,6 +11,7 @@ import {
   ImageIcon, MapPin, Clock,
   MessageCircle, Maximize, Check, X,
   RefreshCw, Lock, Pencil,
+  BookOpen, User, Drama,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import {
@@ -1233,7 +1234,7 @@ function ItemDetail({ item }: { item: HeritageItem }) {
       {/* 简介 — 可滚动 */}
       {item.description && (
         <div style={{ marginBottom: 20 }}>
-          <Text strong style={{ fontSize: 15 }}>📖 简介</Text>
+          <Text strong style={{ fontSize: 15 }}><BookOpen size={15} style={{ marginRight: 6 }} />简介</Text>
           <div style={{
             marginTop: 8, lineHeight: 1.9, maxHeight: 300, overflowY: 'auto',
             padding: '12px 16px', background: 'var(--color-paper)', borderRadius: 8,
@@ -1252,7 +1253,7 @@ function ItemDetail({ item }: { item: HeritageItem }) {
             expandIconPosition="end"
             items={[{
               key: 'techniques',
-              label: <Text strong style={{ fontSize: 15 }}>🔧 工艺技法 ({item.techniques.length}项)</Text>,
+              label: <Text strong style={{ fontSize: 15 }}>工艺技法 ({item.techniques.length}项)</Text>,
               children: (
                 <div>
                   {item.techniques.map((t, i) => (
@@ -1280,7 +1281,7 @@ function ItemDetail({ item }: { item: HeritageItem }) {
             expandIconPosition="end"
             items={[{
               key: 'inheritors',
-              label: <Text strong style={{ fontSize: 15 }}>👤 传承人 ({item.inheritors.length}位)</Text>,
+              label: <Text strong style={{ fontSize: 15 }}><User size={15} style={{ marginRight: 6 }} />传承人 ({item.inheritors.length}位)</Text>,
               children: (
                 <div>
                   {item.inheritors.map((inh, i) => (
@@ -1306,7 +1307,7 @@ function ItemDetail({ item }: { item: HeritageItem }) {
       {/* 文化寓意 — 可滚动 */}
       {item.cultural_meaning && (
         <div style={{ marginBottom: 16 }}>
-          <Text strong style={{ fontSize: 15 }}>🎭 文化寓意</Text>
+          <Text strong style={{ fontSize: 15 }}><Drama size={15} style={{ marginRight: 6 }} />文化寓意</Text>
           <div style={{
             marginTop: 8, lineHeight: 1.9, maxHeight: 300, overflowY: 'auto',
             padding: '12px 16px', background: 'var(--color-paper)', borderRadius: 8,

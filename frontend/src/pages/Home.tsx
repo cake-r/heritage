@@ -16,6 +16,7 @@ import { getRecommendationFeed, getCachedFeed, type RecommendationItem } from '.
 import RecommendationCard from '../components/recommendation/RecommendationCard'
 import { normalizeImageUrl } from '../utils/imageUrl'
 import { CloudPattern, MeanderBand, BrocadePattern } from '../components/decoration'
+import { LanternIcon, Icon } from '../config/icons'
 
 const { Title, Text, Paragraph } = Typography
 const { useBreakpoint } = Grid
@@ -376,7 +377,7 @@ export default function Home() {
                 overflow: 'hidden',
               }}
             >
-              ✨ 开始探索
+              开始探索
               {/* 光效扫描 */}
               <span style={{
                 position: 'absolute',
@@ -646,7 +647,7 @@ export default function Home() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {passportStatus.last_earned.slice(0, 3).map(stamp => (
-                  <span key={stamp.type} style={{ fontSize: 24 }} title={stamp.name}>{stamp.icon}</span>
+                  <span key={stamp.type} title={stamp.name}><Icon name={stamp.icon} size={24} /></span>
                 ))}
                 {passportStatus.last_earned.length === 0 && (
                   <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>开始探索以收集印章</Text>
@@ -915,7 +916,7 @@ export default function Home() {
                     marginBottom: 16,
                     position: 'relative',
                   }}>
-                    <div style={{ color: mod.color }}>{mod.icon}</div>
+                    <div style={{ color: mod.color }}><Icon name={mod.icon} size={20} /></div>
                   </div>
 
                   <Title level={4} style={{ fontSize: 'var(--text-md)', marginBottom: 8, color: 'var(--color-ink)' }}>
@@ -957,7 +958,8 @@ export default function Home() {
             lineHeight: 'var(--leading-relaxed)',
           }}
         >
-          🏮 非遗数字交互与文创生成系统 · 基于多模态大模型 · 融合 CV / NLP / AIGC 技术
+          <LanternIcon size={18} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+          非遗数字交互与文创生成系统 · 基于多模态大模型 · 融合 CV / NLP / AIGC 技术
           <br />
           致力于非物质文化遗产的数字化传承
         </Paragraph>

@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { Input, Button, Upload, Segmented, Space } from 'antd'
 import { Send, Image, X } from 'lucide-react'
+import { Icon } from '../../config/icons'
 import { TOOL_NAMES, type InheritorInfo } from './index'
 
 interface Props {
@@ -99,11 +100,11 @@ const WorkshopChatInput = forwardRef<WorkshopChatInputHandle, Props>(function Wo
 
   // 构建工具选项
   const toolOptions = [
-    { label: '💬 对话', value: '' },
+    { label: '对话', value: '' },
     ...availableTools.map(t => {
-      const icons: Record<string, string> = { inspect: '🔍', create: '🎨', connect: '🔗', teach: '📖', pattern: '🏮', story: '📜', compare: '⚖️' }
-      const icon = icons[t] || '🛠️'
-      return { label: `${icon} ${TOOL_NAMES[t] || t}`, value: t }
+      const icons: Record<string, string> = { inspect: 'search', create: 'palette', connect: 'link', teach: 'book-open', pattern: 'lantern', story: 'scroll-text', compare: 'scale' }
+      const iconName = icons[t] || 'wrench'
+      return { label: <span><Icon name={iconName} size={16} style={{ marginRight: 4 }} />{TOOL_NAMES[t] || t}</span>, value: t }
     }),
   ]
 
