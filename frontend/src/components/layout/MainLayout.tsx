@@ -162,7 +162,7 @@ export default function MainLayout() {
   }, [isAuthenticated, checkForAutoCompletions])
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh', overflow: 'hidden' }}>
       {/* Desktop Sidebar */}
       {!isMobile && (
         <Sider
@@ -216,7 +216,7 @@ export default function MainLayout() {
         />
       )}
 
-      <Layout>
+      <Layout style={{ overflow: 'hidden' }}>
         <Header
           isMobile={isMobile}
           onMobileMenuClick={() => setMobileDrawerOpen(true)}
@@ -226,6 +226,7 @@ export default function MainLayout() {
             padding: isMobile ? 12 : 16,
             background: 'var(--color-paper)',
             minHeight: `calc(100vh - 64px)`,
+            overflowY: 'auto',
             transition: `background var(--duration-normal) var(--ease-out)`,
           }}
         >
