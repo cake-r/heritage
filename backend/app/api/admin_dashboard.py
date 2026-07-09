@@ -225,10 +225,13 @@ def get_leaderboard(
         func.count(PassportStamp.id).desc()
     ).limit(limit).all()
     top_user_entries = []
-    for r in user_rows:
-        user = db.query(User).filter(User.id == r.user_id).first()
-        name = user.nickname or user.username if user else f"User#{r.user_id}"
-        top_user_entries.append(LeaderboardEntry(name=name, value=r.stamp_count))
+    if user_rows:
+        user_ids = [r.user_id for r in user_rows]
+        users_map = {u.id: u for u in db.query(User).filter(User.id.in_(user_ids)).all()}
+        for r in user_rows:
+            user = users_map.get(r.user_id)
+            name = user.nickname or user.username if user else f"User#{r.user_id}"
+            top_user_entries.append(LeaderboardEntry(name=name, value=r.stamp_count))
 
     return DashboardLeaderboard(
         top_categories=top_categories,

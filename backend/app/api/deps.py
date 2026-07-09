@@ -33,6 +33,10 @@ def get_current_user(
     if not user:
         raise AuthException("用户不存在")
 
+    # 被封禁用户拒绝访问（管理员封禁后立即生效，无需用户重新登录）
+    if getattr(user, "is_banned", False):
+        raise AuthException("账号已被封禁", status_code=403)
+
     return user
 
 

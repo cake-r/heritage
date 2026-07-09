@@ -12,52 +12,9 @@ from app.services.agent.step_defs import RESTORATION_STEPS
 
 logger = logging.getLogger("restoration_pipeline")
 
+from app.services.ai.i2i_utils import resize_for_i2i, get_i2i_output_size
+
 MOCK_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "mock"
-
-# wan2.5-i2i-preview API 要求图片尺寸在 [384, 5000] 之间
-I2I_MIN_DIM = 384
-I2I_MAX_DIM = 5000
-
-
-def _resize_for_i2i(image_path: str) -> str:
-    """确保图片尺寸满足 wan2.5-i2i-preview 的 [384, 5000] 要求。
-    如果任一边不满足，等比缩放到 384（放大）或 5000（缩小）。
-    返回（可能已调整大小的）图片路径。"""
-    from PIL import Image
-
-    img = Image.open(image_path).convert("RGB")
-    orig_w, orig_h = img.size
-
-    # 等比缩放函数：确保较短边 >= I2I_MIN_DIM，较长边 <= I2I_MAX_DIM
-    need_resize = False
-    target_w, target_h = orig_w, orig_h
-
-    # 如果任一边 < 384，等比放大到短边=384
-    if orig_w < I2I_MIN_DIM or orig_h < I2I_MIN_DIM:
-        scale = I2I_MIN_DIM / min(orig_w, orig_h)
-        target_w = int(orig_w * scale)
-        target_h = int(orig_h * scale)
-        need_resize = True
-
-    # 如果任一边 > 5000，等比缩小到长边=5000
-    if target_w > I2I_MAX_DIM or target_h > I2I_MAX_DIM:
-        scale = I2I_MAX_DIM / max(target_w, target_h)
-        target_w = int(target_w * scale)
-        target_h = int(target_h * scale)
-        need_resize = True
-
-    if not need_resize:
-        return image_path
-
-    # 保存调整后的图片到临时路径
-    resized_path = str(Path(image_path).parent / f"_i2i_resized_{Path(image_path).name}")
-    img_resized = img.resize((target_w, target_h), Image.LANCZOS)
-    img_resized.save(resized_path, quality=95)
-    logger.info(
-        f"I2I 图片尺寸调整: {orig_w}x{orig_h} → {target_w}x{target_h} "
-        f"(API要求 [{I2I_MIN_DIM}, {I2I_MAX_DIM}])"
-    )
-    return resized_path
 
 
 def _log_dashscope_usage(response, model: str, endpoint: str) -> None:
@@ -657,7 +614,7 @@ def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
         import time as _time
 
         # 确保图片尺寸满足 API [384, 5000] 要求
-        resized_path = _resize_for_i2i(image_path)
+        resized_path = resize_for_i2i(image_path)
 
         # 校验参考图文件大小（<1KB 会被 API 拒绝）
         ref_file_size = os.path.getsize(resized_path)
@@ -690,7 +647,7 @@ def _run_image_restoration_original(image_path: str, prompt: str) -> dict:
             n=1,
             seed=actual_seed,
             api_key=api_key,
-            size="1024*1024",
+            size=get_i2i_output_size(resized_path),
             task="image2image",
         )
 

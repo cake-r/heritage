@@ -160,7 +160,7 @@ def generate_feed(user_id: int, page: int = 1, size: int = 8, db: Session = None
 
 
 def _cold_start_feed(page: int, size: int, db: Session) -> dict:
-    """冷启动: 返回最新藏品 + 用户上传 (按创建时间排序)"""
+    """冷启动: 返回最新藏品 + 用户上传 (按创建时间排序)，使用预生成的 reason_text"""
     items = []
 
     # 最新 heritage items
@@ -174,9 +174,9 @@ def _cold_start_feed(page: int, size: int, db: Session) -> dict:
             "image_url": images[0] if images else "",
             "category": h.category or "",
             "region": h.region,
-            "reason": "热门藏品推荐",
+            "reason": h.reason_text or f"探索{h.category or '非遗'}之美",
             "score": 0.5,
-            "target_route": f"/exhibition?id={h.id}",
+            "target_route": f"/exhibition/{h.id}",
         })
 
     # 补充用户上传
@@ -193,12 +193,24 @@ def _cold_start_feed(page: int, size: int, db: Session) -> dict:
                 "image_url": images[0] if images else "",
                 "category": u.category or "",
                 "region": u.region,
-                "reason": "社区热门上传",
+                "reason": _upload_reason_text(u),
                 "score": 0.4,
-                "target_route": f"/exhibition?id={u.id}",
+                "target_route": f"/exhibition/{u.id}",
             })
 
     return {"items": items, "page": page, "size": size, "profile_status": "cold_start"}
+
+
+def _upload_reason_text(upload) -> str:
+    """为用户上传生成简洁推荐理由"""
+    parts = []
+    if upload.category:
+        parts.append(upload.category)
+    if upload.region:
+        parts.append(upload.region)
+    if parts:
+        return f"社区用户镜头下的{'·'.join(parts)}非遗之美"
+    return "社区用户镜头下的非遗之美"
 
 
 def _personalized_feed(user_id: int, profile: UserInterestProfile, page: int, size: int, db: Session) -> dict:
@@ -233,7 +245,8 @@ def _personalized_feed(user_id: int, profile: UserInterestProfile, page: int, si
             "id": h.id, "item_type": "heritage", "title": h.name,
             "image_url": images[0] if images else "", "category": h.category or "",
             "region": h.region, "score": score, "popularity": favorites,
-            "target_route": f"/exhibition?id={h.id}",
+            "target_route": f"/exhibition/{h.id}",
+            "reason_text": h.reason_text or "",  # 预生成的专属推荐理由
         })
 
     # 1b. 地域召回
@@ -251,7 +264,8 @@ def _personalized_feed(user_id: int, profile: UserInterestProfile, page: int, si
                     "id": h.id, "item_type": "heritage", "title": h.name,
                     "image_url": images[0] if images else "", "category": h.category or "",
                     "region": h.region, "score": score, "popularity": 0,
-                    "target_route": f"/exhibition?id={h.id}",
+                    "target_route": f"/exhibition/{h.id}",
+                    "reason_text": h.reason_text or "",
                 })
 
     # 1c. 社区上传
@@ -263,7 +277,8 @@ def _personalized_feed(user_id: int, profile: UserInterestProfile, page: int, si
             "id": u.id, "item_type": "user_upload", "title": u.title,
             "image_url": images[0] if images else "", "category": u.category or "",
             "region": u.region, "score": score, "popularity": 0,
-            "target_route": f"/exhibition?id={u.id}",
+            "target_route": f"/exhibition/{u.id}",
+            "reason_text": _upload_reason_text(u),
         })
 
     # === Stage 2: 排序 (加权打分) ===
@@ -298,24 +313,17 @@ def _personalized_feed(user_id: int, profile: UserInterestProfile, page: int, si
 
     page_items = page_items[:size]
 
-    # 为 top 推荐生成 LLM 理由（仅 top 3 调用 LLM，并行执行降延迟）
-    llm_indices = [i for i in range(min(3, len(page_items))) if not mock_mode()]
-    if llm_indices:
-        from concurrent.futures import ThreadPoolExecutor, as_completed
-        with ThreadPoolExecutor(max_workers=len(llm_indices)) as executor:
-            futures = {
-                executor.submit(_generate_reason, user_id, page_items[i], cat_weights, tech_weights): i
-                for i in llm_indices
-            }
-            for future in as_completed(futures):
-                idx = futures[future]
-                try:
-                    page_items[idx]["reason"] = future.result()
-                except Exception:
-                    page_items[idx]["reason"] = _default_reason(page_items[idx], cat_weights)
-    # 非 top 3 用默认理由
+    # 使用预生成的专属推荐理由，可附加个性化前缀
     for i, item in enumerate(page_items):
-        if "reason" not in item:
+        stored_reason = item.pop("reason_text", "") or ""
+        if stored_reason:
+            # 对于用户偏好品类匹配度高的，加简短个性化前缀
+            if item["category"] in cat_weights and cat_weights[item["category"]] >= 0.15:
+                item["reason"] = f"与你喜欢的{item['category']}契合——{stored_reason}"
+            else:
+                item["reason"] = stored_reason
+        else:
+            # 兜底：极少情况（如新 seed 数据尚未生成 reason_text）
             item["reason"] = _default_reason(item, cat_weights)
 
         # 清理内部字段
@@ -439,7 +447,7 @@ def _module_exhibition(cat_weights, tech_weights, region_weights, db) -> dict:
             "image_url": images[0] if images else "",
             "category": h.category or "", "region": h.region,
             "score": score, "reason": f"品类匹配 {h.category}" if score > 0.1 else "探索更多非遗文化",
-            "target_route": f"/exhibition?id={h.id}",
+            "target_route": f"/exhibition/{h.id}",
         })
     items.sort(key=lambda x: x["score"], reverse=True)
     return {"module": "exhibition", "items": items[:6]}
@@ -527,6 +535,65 @@ def _module_knowledge_graph(cat_weights, tech_weights, region_weights, db) -> di
 
     unique_items.sort(key=lambda x: x["score"], reverse=True)
     return {"module": "knowledge-graph", "items": unique_items[:6]}
+
+
+# === 推荐理由预生成 ===
+
+def generate_missing_reasons(db: Session, force: bool = False) -> int:
+    """
+    为所有缺失推荐理由的藏品批量生成 reason_text。
+
+    遍历 heritage_items 中 reason_text IS NULL 的行，调用 DeepSeek
+    生成一句 15-25 字的文化推荐语，写入数据库。
+
+    Args:
+        db: 数据库会话
+        force: True 时重新生成全部（忽略已有值）
+
+    Returns:
+        成功生成的数量
+    """
+    from app.services.ai.llm import chat as llm_chat
+
+    query = db.query(HeritageItem)
+    if not force:
+        query = query.filter(
+            (HeritageItem.reason_text == None) | (HeritageItem.reason_text == "")
+        )
+    items = query.all()
+
+    if not items:
+        logger.info("所有藏品已有推荐理由，跳过生成")
+        return 0
+
+    generated = 0
+    for item in items:
+        try:
+            prompt = (
+                f"你是非遗文化推荐助手。请用一句话（15-25字）介绍这个非遗项目的文化魅力，"
+                f"自然、亲切、有文采，让读者产生探索兴趣。仅输出推荐理由，不要任何前缀。\n\n"
+                f"项目名称：{item.name}\n"
+                f"品类：{item.category}\n"
+                f"地域：{item.region or '全国各地'}\n"
+                f"简介：{item.description or ''}"
+            )
+            # 截断简介避免 prompt 过长
+            if len(prompt) > 600:
+                prompt = prompt[:580] + "..."
+
+            messages = [{"role": "user", "content": prompt}]
+            reason = llm_chat(messages, stream=False).strip()[:120]
+            item.reason_text = reason
+            generated += 1
+            logger.info(f"✓ {item.name} → {reason}")
+        except Exception as e:
+            logger.warning(f"✗ {item.name} 理由生成失败: {e}，跳过")
+
+    if generated > 0:
+        db.commit()
+        logger.info(f"推荐理由批量生成完成: {generated}/{len(items)}")
+
+    return generated
 
 
 # === Fire-and-forget 辅助 ===

@@ -10,7 +10,7 @@ from app.models.user import User
 from app.schemas.auth import UserRegisterRequest, UserLoginRequest, UserPublic, TokenResponse
 from app.utils.security import hash_password, verify_password, create_access_token, decode_access_token
 from app.utils.exceptions import AppException
-from app.utils.rate_limit import login_limiter
+from app.utils.rate_limit import login_limiter, register_limiter
 from app.api.deps import get_current_user
 
 router = APIRouter()
@@ -53,8 +53,12 @@ def get_captcha():
 
 
 @router.post("/register", response_model=TokenResponse)
-def register(req: UserRegisterRequest, db: Session = Depends(get_db)):
-    """用户注册"""
+def register(req: UserRegisterRequest, request: Request, db: Session = Depends(get_db)):
+    """用户注册 — 限流 3次/10分钟/IP"""
+    client_ip = request.client.host if request.client else "unknown"
+    if not register_limiter.is_allowed(client_ip):
+        raise AppException("注册过于频繁，请10分钟后再试")
+
     existing = db.query(User).filter(User.username == req.username).first()
     if existing:
         raise AppException("用户名已存在")

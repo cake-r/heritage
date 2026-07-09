@@ -216,7 +216,7 @@ function OverlaySlider({ original, restored }: { original: string; restored: str
   return (
     <div style={{ position: 'relative', width: '100%', maxWidth: 700, margin: '0 auto' }}>
       <div style={{ width: '100%', aspectRatio: '1', overflow: 'hidden', borderRadius: 8 }}>
-        <img src={restored} alt="修复后" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        <img src={restored} alt="修复后" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
       </div>
       <div style={{
         position: 'absolute', top: 0, left: 0,
@@ -224,7 +224,7 @@ function OverlaySlider({ original, restored }: { original: string; restored: str
         clipPath: `inset(0 ${100 - position}% 0 0)`,
       }}>
         <div style={{ width: '100%', aspectRatio: '1', overflow: 'hidden', borderRadius: 8 }}>
-          <img src={original} alt="原始图" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <img src={original} alt="原始图" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         </div>
         <div style={{
           position: 'absolute', top: 8, left: 8,
@@ -474,13 +474,17 @@ export default function DigitalRestoration() {
         <Row gutter={16}>
           <Col xs={24} sm={12}>
             <Card size="small" title="原始图片" style={{ borderRadius: 8 }}>
-              <img src={result?.original_image_url} alt="原始" style={{ width: '100%', borderRadius: 4 }} />
+              <div style={{ aspectRatio: '4/3', overflow: 'hidden', borderRadius: 4 }}>
+                <img src={result?.original_image_url} alt="原始" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
             </Card>
           </Col>
           <Col xs={24} sm={12}>
             <Card size="small" title="修复图片" style={{ borderRadius: 8 }}>
               {result?.restored_image_url ? (
-                <img src={result.restored_image_url} alt="修复" style={{ width: '100%', borderRadius: 4 }} />
+                <div style={{ aspectRatio: '4/3', overflow: 'hidden', borderRadius: 4 }}>
+                  <img src={result.restored_image_url} alt="修复" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
               ) : (
                 <Empty description="修复失败" />
               )}
@@ -839,7 +843,6 @@ export default function DigitalRestoration() {
               result.restored_image_url && (
                 <Button
                   type="primary"
-                  ghost
                   icon={<Download />}
                   onClick={handleDownload}
                 >

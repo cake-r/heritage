@@ -314,19 +314,6 @@ a:hover { color: var(--color-vermilion-hover); }
 }
 
 /* ================================================================
-   react-loading-skeleton 主题适配
-   ================================================================ */
-.react-loading-skeleton {
-  --base-color: var(--gray-200);
-  --highlight-color: var(--gray-100);
-}
-
-[data-theme="dark"] .react-loading-skeleton {
-  --base-color: var(--gray-700);
-  --highlight-color: var(--gray-500);
-}
-
-/* ================================================================
    Ant Design 全局样式覆盖（国风主题）
    ================================================================ */
 

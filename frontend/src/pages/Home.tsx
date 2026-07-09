@@ -460,7 +460,7 @@ export default function Home() {
                   >
                     <Card
                       hoverable
-                      onClick={() => navigate(`/exhibition?id=${item.id}`)}
+                      onClick={() => navigate(`/exhibition/${item.id}`)}
                       style={{
                         borderRadius: 'var(--radius-lg)',
                         overflow: 'hidden',
@@ -681,7 +681,7 @@ export default function Home() {
         >
           <Card
             hoverable
-            onClick={() => navigate(`/exhibition?id=${dailyItem.id}&type=${dailyItem.item_type || 'heritage'}`)}
+            onClick={() => navigate(`/exhibition/${dailyItem.id}?type=${dailyItem.item_type || 'heritage'}`)}
             style={{
               borderRadius: 'var(--radius-lg)',
               border: '1px solid var(--color-border-light)',

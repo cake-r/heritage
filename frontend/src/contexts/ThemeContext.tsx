@@ -11,30 +11,26 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 function getInitialTheme(): Theme {
-  // 1. Check localStorage
+  // 1. 用户手动选过 → 优先
   const stored = localStorage.getItem('ich-theme')
   if (stored === 'dark' || stored === 'light') return stored
-
-  // 2. Check system preference
+  // 2. 首次访问 → 跟系统
   if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) return 'dark'
-
   return 'light'
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme)
 
-  // Sync to <html data-theme>
+  // 同步 HTML 属性（不写 localStorage，只在用户手动切换时写）
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('ich-theme', theme)
   }, [theme])
 
-  // Listen for system preference changes
+  // 监听系统主题变化：仅当用户从未手动设置过时才跟随
   useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
     const handler = (e: MediaQueryListEvent) => {
-      // Only auto-switch if user hasn't manually set a preference
       const stored = localStorage.getItem('ich-theme')
       if (!stored) setThemeState(e.matches ? 'dark' : 'light')
     }
@@ -42,8 +38,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return () => mq.removeEventListener('change', handler)
   }, [])
 
-  const setTheme = useCallback((t: Theme) => setThemeState(t), [])
-  const toggleTheme = useCallback(() => setThemeState(prev => prev === 'light' ? 'dark' : 'light'), [])
+  const setTheme = useCallback((t: Theme) => {
+    setThemeState(t)
+    localStorage.setItem('ich-theme', t)
+  }, [])
+
+  const toggleTheme = useCallback(() => {
+    setThemeState(prev => {
+      const next = prev === 'light' ? 'dark' : 'light'
+      localStorage.setItem('ich-theme', next)
+      return next
+    })
+  }, [])
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>

@@ -54,8 +54,6 @@ export default function Login() {
       }
       const redirect = savedRedirect || searchParams.get('redirect') || '/'
       navigate(redirect, { replace: true })
-      // Reload to refresh AuthContext state
-      window.location.href = redirect
     } catch (err: any) {
       message.error(err.message || '登录失败')
       // Refresh captcha on error

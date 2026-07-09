@@ -164,7 +164,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
                 {related.same_category.slice(0, 3).map((r: any) => (
                   <Col span={8} key={r.id}>
                     <Card size="small" hoverable onClick={() => onRelatedClick(r.id)} bodyStyle={{ padding: 8 }}>
-                      {r.image && <img src={r.image} alt={r.name} style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 4, marginBottom: 4 }} />}
+                      {r.image && <img src={r.image} alt={r.name} loading="lazy" style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 4, marginBottom: 4 }} />}
                       <Text style={{ fontSize: 'var(--text-xs)' }}>{r.name}</Text>
                     </Card>
                   </Col>
@@ -179,7 +179,7 @@ function DetailContent({ item, images, techniques, inheritors, related, isAuthen
                 {related.shared_techniques.filter((r: any) => !related.same_category.find((s: any) => s.id === r.id)).slice(0, 3).map((r: any) => (
                   <Col span={8} key={r.id}>
                     <Card size="small" hoverable onClick={() => onRelatedClick(r.id)} bodyStyle={{ padding: 8 }}>
-                      {r.image && <img src={r.image} alt={r.name} style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 4, marginBottom: 4 }} />}
+                      {r.image && <img src={r.image} alt={r.name} loading="lazy" style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 4, marginBottom: 4 }} />}
                       <Text style={{ fontSize: 'var(--text-xs)' }}>{r.name}</Text>
                     </Card>
                   </Col>

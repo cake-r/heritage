@@ -10,7 +10,7 @@
 
 import { useRef, useState, useCallback, useEffect } from 'react'
 
-export type Live2DExpression = 'idle' | 'star' | 'sing' | 'angry' | 'dizzy'
+export type Live2DExpression = 'idle' | 'star' | 'sing' | 'angry' | 'dizzy' | 'dall'
 
 /** MotionPriority 枚举值（避免静态 import pixi-live2d-display） */
 export const MOTION_PRIORITY = { NONE: 0, IDLE: 1, NORMAL: 2, FORCE: 3 } as const
@@ -20,6 +20,7 @@ const EXPRESSION_FILES: Record<string, string> = {
   sing: 'sing.exp3.json',
   angry: 'angry.exp3.json',
   dizzy: 'dizzy.exp3.json',
+  dall: 'dall.exp3.json',
 }
 
 /** 运行时参数 — 通过 rAF 持续驱动模型 */
@@ -279,9 +280,9 @@ export function useLive2D(
       }
 
       // 视线/头部/身体跟随
-      // Live2D 坐标系：模型面朝用户，ParamEyeBallX>0 往模型自身右侧看（=屏幕左侧）。
-      // 外部传入的 lookAtX>0 表示鼠标在屏幕右侧 → 需取反映射到模型坐标系。
-      const eyeX = -p.lookAtX
+      // ParamEyeBallX>0 = 眼球向右看（屏幕右侧），与屏幕 X 轴方向一致，无需取反
+      // ParamEyeBallY>0 = 眼球向上看（屏幕上方），屏幕 Y 轴向下为正，需取反
+      const eyeX = p.lookAtX
       const eyeY = -p.lookAtY
       const absX = Math.abs(p.lookAtX)
       const absY = Math.abs(p.lookAtY)

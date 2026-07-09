@@ -11,10 +11,13 @@ import {
   Sun,
   Moon,
   Search,
+  Volume2,
+  VolumeX,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useApp } from '../../contexts/AppContext'
 import { useTheme } from '../../contexts/ThemeContext'
+import { useSoundStore } from '../../stores/soundStore'
 import { Icon } from '../../config/icons'
 import RankBadge from '../cultivation/RankBadge'
 import XpGainAnimation from '../cultivation/XpGainAnimation'
@@ -34,6 +37,7 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
   const { user, isAuthenticated, logout } = useAuth()
   const { sidebarCollapsed, mockMode, toggleSidebar } = useApp()
   const { theme, toggleTheme } = useTheme()
+  const { soundEnabled, toggleSound } = useSoundStore()
   const navigate = useNavigate()
 
   const [searchOpen, setSearchOpen] = useState(false)
@@ -170,6 +174,15 @@ export default function Header({ isMobile, onMobileMenuClick }: Props) {
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? '切换亮色模式' : '切换暗色模式'}
             title={theme === 'dark' ? '亮色模式' : '暗色模式'}
+          />
+
+          {/* 音效开关 */}
+          <Button
+            type="text"
+            icon={soundEnabled ? <Volume2 size={25} /> : <VolumeX size={25} />}
+            onClick={toggleSound}
+            aria-label={soundEnabled ? '关闭音效' : '开启音效'}
+            title={soundEnabled ? '关闭音效' : '开启音效'}
           />
 
           {mockMode && (

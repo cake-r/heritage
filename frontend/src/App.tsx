@@ -1,7 +1,4 @@
 import { lazy, Suspense } from 'react'
-// ── Live2D 调试页面（开发用，生产需移除） ──
-import Live2DTest from './pages/Live2DTest'
-import Live2DBlank from './pages/Live2DBlank'
 import { Routes, Route } from 'react-router-dom'
 import { Skeleton } from 'antd'
 import { motion } from 'framer-motion'
@@ -27,6 +24,8 @@ const PatternEngine = lazy(() => import('./pages/PatternEngine'))
 const Passport = lazy(() => import('./pages/Passport'))
 const StoryMode = lazy(() => import('./pages/StoryMode'))
 const Cultivation = lazy(() => import('./pages/Cultivation'))
+const SearchResults = lazy(() => import('./pages/SearchResults'))
+const ExhibitionDetail = lazy(() => import('./pages/ExhibitionDetail'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 // Admin pages — 懒加载
@@ -84,10 +83,12 @@ function App() {
         <Route path="/knowledge-graph" element={
           <Suspense fallback={<PageLoader />}><KnowledgeGraph /></Suspense>
         } />
-
-        {/* Live2D 调试页面（开发用） */}
-        <Route path="/live2d-test" element={<Live2DTest />} />
-        <Route path="/live2d-blank" element={<Live2DBlank />} />
+        <Route path="/search" element={
+          <Suspense fallback={<PageLoader />}><SearchResults /></Suspense>
+        } />
+        <Route path="/exhibition/:id" element={
+          <Suspense fallback={<PageLoader />}><ExhibitionDetail /></Suspense>
+        } />
 
         {/* 404 页面 */}
         <Route path="*" element={

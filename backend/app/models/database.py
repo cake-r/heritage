@@ -99,6 +99,7 @@ def init_db():
     _migrate_add_column("users", "is_banned", "BOOLEAN DEFAULT 0")
     _migrate_add_column("users", "banned_at", "DATETIME")
     _migrate_add_column("users", "banned_reason", "VARCHAR(300)")
+    _migrate_add_column("heritage_items", "reason_text", "VARCHAR(120)")
 
     # 自动种子数据: 确保数据库重建后非遗展厅数据不丢失
     _seed_heritage_if_empty()

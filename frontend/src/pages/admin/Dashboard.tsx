@@ -36,8 +36,6 @@ export default function AdminDashboard() {
     }).finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <Spin size="large" style={{ display: 'block', margin: '80px auto' }} />
-
   const dailyData = costs?.by_day?.map((d: any) => d.date) || []
   const dailyCosts = costs?.by_day?.map((d: any) => d.cost) || []
 
@@ -70,6 +68,8 @@ export default function AdminDashboard() {
       label: { formatter: '{b}: {c}' },
     }],
   }), [tasks, isDark])
+
+  if (loading) return <Spin size="large" style={{ display: 'block', margin: '80px auto' }} />
 
   return (
     <div style={{ position: 'relative' }}>

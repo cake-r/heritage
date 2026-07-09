@@ -9,7 +9,7 @@
       "region": "江苏苏州",
       "reason": "苏绣位列中国四大名绣之首，双面绣更是其巅峰技艺",
       "score": 0.92,
-      "target_route": "/exhibition?id=1"
+      "target_route": "/exhibition/1"
     },
     {
       "id": 2,
@@ -20,7 +20,7 @@
       "region": "江西景德镇",
       "reason": "景德镇手工制瓷72道工序，青花瓷与你的审美偏好高度契合",
       "score": 0.85,
-      "target_route": "/exhibition?id=2"
+      "target_route": "/exhibition/2"
     },
     {
       "id": 3,
@@ -31,7 +31,7 @@
       "region": "全国各地",
       "reason": "剪纸艺术与刺绣在纹样设计上有许多相通之处",
       "score": 0.78,
-      "target_route": "/exhibition?id=3"
+      "target_route": "/exhibition/3"
     },
     {
       "id": 4,
@@ -42,7 +42,7 @@
       "region": "陕西华县",
       "reason": "皮影戏融合雕刻、绘画与戏曲，三尺生绡作戏台",
       "score": 0.74,
-      "target_route": "/exhibition?id=4"
+      "target_route": "/exhibition/4"
     },
     {
       "id": 5,
@@ -53,7 +53,7 @@
       "region": "江苏南京",
       "reason": "寸锦寸金——南京云锦妆花技艺冠绝天下",
       "score": 0.70,
-      "target_route": "/exhibition?id=5"
+      "target_route": "/exhibition/5"
     },
     {
       "id": 8,
@@ -64,7 +64,7 @@
       "region": "河南洛阳",
       "reason": "换个品类看看——唐三彩的釉色流光溢彩，别具一格",
       "score": 0.65,
-      "target_route": "/exhibition?id=8"
+      "target_route": "/exhibition/8"
     },
     {
       "id": 9,
@@ -75,7 +75,7 @@
       "region": "北京",
       "reason": "燕京八绝之首——景泰蓝掐丝珐琅工艺华丽精美",
       "score": 0.62,
-      "target_route": "/exhibition?id=9"
+      "target_route": "/exhibition/9"
     },
     {
       "id": 11,
@@ -86,7 +86,7 @@
       "region": "湖南长沙",
       "reason": "湘绣鬅毛针法独步天下，狮虎绣品栩栩如生",
       "score": 0.60,
-      "target_route": "/exhibition?id=11"
+      "target_route": "/exhibition/11"
     }
   ]
 }

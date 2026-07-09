@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
@@ -9,11 +9,28 @@ import { AppProvider } from './contexts/AppContext'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import { initNotificationListener } from './stores/notificationStore'
+import { useSoundStore } from './stores/soundStore'
+import { playClick, resumeAudioContext } from './utils/sound'
 import './styles/tokens.css'
 import './styles/globals.css'
 
 // 初始化全局通知事件监听（使任何组件可通过 CustomEvent 推送通知）
 initNotificationListener()
+
+/** 全局按钮点击音效监听 — 检测 .ant-btn 点击并播放合成音 */
+function ClickSoundListener({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (!useSoundStore.getState().soundEnabled) return
+      if (!(e.target as Element).closest('.ant-btn')) return
+      resumeAudioContext()
+      playClick()
+    }
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [])
+  return <>{children}</>
+}
 
 // Ant Design 主题 Token — 无论亮/暗色，品牌色保持统一
 function useAntdTheme() {
@@ -85,7 +102,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <AppProvider>
             <AuthProvider>
               <ErrorBoundary>
-                <App />
+                <ClickSoundListener>
+                  <App />
+                </ClickSoundListener>
               </ErrorBoundary>
             </AuthProvider>
           </AppProvider>

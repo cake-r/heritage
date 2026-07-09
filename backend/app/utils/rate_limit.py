@@ -78,3 +78,6 @@ class RateLimiter:
 
 # Global instance for login rate limiting
 login_limiter = RateLimiter(max_requests=5, window_seconds=60)
+
+# Register rate limiting — 3 registrations per 10 minutes per IP
+register_limiter = RateLimiter(max_requests=3, window_seconds=600)

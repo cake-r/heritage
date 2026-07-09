@@ -9,6 +9,9 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+# 安全上限：防止全表扫描导致 OOM，数据增长时通过 query param 调整
+_MAX_ITEMS_LIMIT = 500
+
 from app.models.database import get_db
 from app.models.exhibition import HeritageItem
 from app.utils.geo_coords import get_province_coords, extract_province
@@ -66,7 +69,7 @@ def _parse_images(item: HeritageItem) -> str:
 @router.get("/overview")
 def get_overview(db: Session = Depends(get_db)):
     """品类统计 + 跨品类共享技法 + 品类-技法连接"""
-    items = db.query(HeritageItem).all()
+    items = db.query(HeritageItem).limit(_MAX_ITEMS_LIMIT).all()
 
     # 品类统计
     cat_items: dict[str, list[HeritageItem]] = defaultdict(list)
@@ -173,7 +176,7 @@ def get_items(
         # 过滤包含指定技法的项目
         q = q.filter(HeritageItem.techniques_json.like(f"%{technique}%"))
 
-    items = q.all()
+    items = q.limit(_MAX_ITEMS_LIMIT).all()
 
     # 构建节点
     nodes = []
@@ -229,7 +232,7 @@ def get_items(
 @router.get("/technique/{name}")
 def get_technique_detail(name: str, db: Session = Depends(get_db)):
     """技法详情：使用品类、项目列表、时代分布"""
-    items = db.query(HeritageItem).all()
+    items = db.query(HeritageItem).limit(_MAX_ITEMS_LIMIT).all()
 
     matched_items = []
     categories = set()
@@ -295,7 +298,7 @@ def get_related_items(item_id: int, db: Session = Depends(get_db)):
         "cultural_meaning": item.cultural_meaning or "",
     }
 
-    all_items = db.query(HeritageItem).filter(HeritageItem.id != item_id).all()
+    all_items = db.query(HeritageItem).filter(HeritageItem.id != item_id).limit(_MAX_ITEMS_LIMIT).all()
 
     same_category = []
     same_region = []
@@ -331,7 +334,7 @@ def get_related_items(item_id: int, db: Session = Depends(get_db)):
 @router.get("/regions")
 def get_regions(db: Session = Depends(get_db)):
     """地域分布数据 — 含省份坐标 + 品类分布 + 热门技法"""
-    items = db.query(HeritageItem).all()
+    items = db.query(HeritageItem).limit(_MAX_ITEMS_LIMIT).all()
 
     region_map: dict[str, dict] = {}
     for item in items:
@@ -376,7 +379,7 @@ def get_regions(db: Session = Depends(get_db)):
 @router.get("/timeline")
 def get_timeline(db: Session = Depends(get_db)):
     """时间轴数据 — 按朝代分组，含新技法 + 品类分布"""
-    items = db.query(HeritageItem).all()
+    items = db.query(HeritageItem).limit(_MAX_ITEMS_LIMIT).all()
 
     # 先统计每个技法最早出现的朝代
     tech_first_era: dict[str, str] = {}

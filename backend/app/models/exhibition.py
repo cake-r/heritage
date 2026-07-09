@@ -19,6 +19,7 @@ class HeritageItem(Base):
     inheritors_json = Column(Text)   # [{"name":"...","title":"..."}]
     images_json = Column(Text)       # ["path1","path2"]
     cultural_meaning = Column(Text)
+    reason_text = Column(String(120))    # 预生成的推荐理由（一句15-25字，LLM生成后缓存）
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

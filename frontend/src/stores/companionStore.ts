@@ -11,7 +11,7 @@ import {
   type CompanionSuggestion, type CompanionContext, type ChatMessage,
 } from '../services/companion'
 
-export type Live2DExpression = 'idle' | 'star' | 'sing' | 'angry' | 'dizzy'
+export type Live2DExpression = 'idle' | 'star' | 'sing' | 'angry' | 'dizzy' | 'dall'
 
 export interface CompanionChatMsg {
   id: number
@@ -73,7 +73,7 @@ export const useCompanionStore = create<CompanionState>()((set, get) => ({
   context: null,
 
   // Phase 2 初始状态
-  expression: 'idle',
+  expression: 'dall',
   lipSync: 0,
   // Phase 3
   dismissStreak: 0,
@@ -109,7 +109,7 @@ export const useCompanionStore = create<CompanionState>()((set, get) => ({
         setTimeout(() => {
           const cur = get()
           if (cur.expression === 'star') {
-            set({ expression: 'idle' })
+            set({ expression: 'dall' })
           }
         }, 3000)
       }
@@ -185,7 +185,7 @@ export const useCompanionStore = create<CompanionState>()((set, get) => ({
         clearInterval(talkLipSyncInterval)
         const cur = get()
         if (cur.expression === 'sing') {
-          set({ expression: 'idle', lipSync: 0 })
+          set({ expression: 'dall', lipSync: 0 })
         }
       }, 2500)
 
@@ -200,7 +200,7 @@ export const useCompanionStore = create<CompanionState>()((set, get) => ({
       set((s) => ({
         chatMessages: [...s.chatMessages, errMsg],
         chatLoading: false,
-        expression: 'idle',
+        expression: 'dall',
         lipSync: 0,
       }))
     }
@@ -211,7 +211,7 @@ export const useCompanionStore = create<CompanionState>()((set, get) => ({
       chatMessages: [],
       suggestions: [],
       hasHighConfidence: false,
-      expression: 'idle',
+      expression: 'dall',
       lipSync: 0,
       dismissStreak: 0,
     })
@@ -233,7 +233,7 @@ export const useCompanionStore = create<CompanionState>()((set, get) => ({
       setTimeout(() => {
         const cur = get()
         if (cur.expression === 'angry') {
-          set({ expression: 'idle' })
+          set({ expression: 'dall' })
         }
       }, 2000)
     } else {

@@ -70,7 +70,7 @@ def match_patterns(
 
     支持模糊匹配：Qwen-VL 输出 "云气纹" → 匹配到 "祥云纹"（tags 含 "云气"）
     """
-    all_genes = db.query(PatternGene).all()
+    all_genes = db.query(PatternGene).limit(500).all()
 
     matched: list[PatternGeneOut] = []
     matched_ids: set[int] = set()

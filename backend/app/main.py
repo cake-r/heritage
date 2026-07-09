@@ -61,10 +61,31 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用启动/关闭生命周期"""
+    import warnings
+    from app.config import SECRET_KEY, EXHIBITION_ADMIN_PASSWORD
+    if "change" in SECRET_KEY.lower() or "dev-secret" in SECRET_KEY:
+        warnings.warn("⚠️ SECRET_KEY 使用默认值，生产部署请设置环境变量 SECRET_KEY", stacklevel=2)
+    if EXHIBITION_ADMIN_PASSWORD == "123456":
+        warnings.warn("⚠️ EXHIBITION_ADMIN_PASSWORD 使用默认值 '123456'，请修改 .env", stacklevel=2)
     init_db()
     # 加载 Prompt 缓存（Phase C Step 8）
     from app.api.admin_prompts import load_prompts_from_db
     load_prompts_from_db()
+    # 后台补全藏品推荐理由（不阻塞启动，仅非 Mock 模式）
+    if not MOCK_MODE:
+        from threading import Thread
+        def _backfill_reasons():
+            from app.models.database import SessionLocal
+            from app.services.ai.recommendation import generate_missing_reasons
+            db = SessionLocal()
+            try:
+                count = generate_missing_reasons(db)
+                if count > 0:
+                    import logging
+                    logging.getLogger("recommendation").info(f"启动时补全 {count} 条推荐理由")
+            finally:
+                db.close()
+        Thread(target=_backfill_reasons, daemon=True).start()
     # 注册任务处理器 + 启动调度器（Mock 模式跳过，避免与测试 DB 清理冲突）
     if not MOCK_MODE:
         from app.services.task_handlers import register_all_handlers
