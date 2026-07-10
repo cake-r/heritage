@@ -237,7 +237,7 @@ def _validate_file(file: UploadFile):
         w, h = img.size
         file.file.seek(0)
         if w < MIN_IMAGE_DIMENSION or h < MIN_IMAGE_DIMENSION:
-            raise AppException(f"图片尺寸过小: {w}x{h}px, 最小 {MIN_IMAGE_DIMENSION}px")
+            raise AppException(f"图片尺寸过小: {w}x{h}px, 单边最小 {MIN_IMAGE_DIMENSION}px")
     except AppException:
         raise
     except Exception:

@@ -50,6 +50,18 @@ def upload_and_restore(
 
     original_image_url = f"/static/images/{filename}"
 
+    # 2.5 I2I 尺寸预检 — 管道运行前第一道关拦截，避免浪费损伤分析/修复方案时间
+    from app.services.ai.i2i_utils import validate_i2i_input, I2IDimensionError
+    try:
+        validate_i2i_input(str(image_path))
+    except I2IDimensionError as e:
+        # 清理已保存的文件
+        try:
+            os.remove(image_path)
+        except Exception:
+            pass
+        raise AppException(str(e))
+
     # 3. 运行修复管道
     from app.services.ai.restoration_pipeline import run_restoration_pipeline
     pipeline_result = run_restoration_pipeline(str(image_path))
@@ -129,6 +141,17 @@ def upload_and_restore_async(
         f.write(file.file.read())
 
     image_url = f"/static/images/{filename}"
+
+    # I2I 尺寸预检 — 提交任务前第一道关拦截
+    from app.services.ai.i2i_utils import validate_i2i_input, I2IDimensionError
+    try:
+        validate_i2i_input(str(image_path))
+    except I2IDimensionError as e:
+        try:
+            os.remove(image_path)
+        except Exception:
+            pass
+        raise AppException(str(e))
 
     # 提交异步任务
     task_id = submit_task(
