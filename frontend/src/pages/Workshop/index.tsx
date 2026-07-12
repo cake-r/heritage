@@ -97,6 +97,7 @@ export default function Workshop() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef('')
+  const pendingToolDataRef = useRef<ToolResultEvent | ImageBatchEvent | null>(null)
 
   // 构建传承人列表
   const buildInheritorList = useCallback((chars: Character[], ci: CustomInheritor[]) => {
@@ -261,45 +262,37 @@ export default function Workshop() {
           setStreamingContent(contentRef.current)
         },
         onDone: (data: SSEDoneData) => {
-          if (data.tool_used) {
-            // teach 工具无 tool_result 事件，需从 streaming content 创建消息
-            if (data.tool_used === 'teach') {
-              const finalContent = contentRef.current
-              setMessages(prev => [...prev, {
-                id: data.message_id,
-                role: 'assistant' as const,
-                content: finalContent,
-                image_url: null,
-                voice_url: data.voice_url,
-                created_at: new Date().toISOString(),
-                toolUsed: data.tool_used,
-                curriculumSections: curriculumSections.length > 0 ? curriculumSections : undefined,
-              }])
-            } else {
-              // 其他工具：消息已由 onToolResult / onImageBatch 创建，补充 voice_url
-              setMessages(prev => {
-                const updated = [...prev]
-                for (let i = updated.length - 1; i >= 0; i--) {
-                  if (updated[i].role === 'assistant' && updated[i].toolUsed === data.tool_used) {
-                    updated[i] = { ...updated[i], id: data.message_id, voice_url: data.voice_url }
-                    return updated
-                  }
-                }
-                // 兜底：没找到则新建
-                updated.push({
-                  id: data.message_id,
-                  role: 'assistant',
-                  content: contentRef.current,
-                  image_url: null,
-                  voice_url: data.voice_url,
-                  created_at: new Date().toISOString(),
-                  toolUsed: data.tool_used,
-                })
-                return updated
-              })
+          const finalContent = contentRef.current
+          const pendingTool = pendingToolDataRef.current
+
+          if (data.tool_used === 'teach') {
+            // teach 工具：content 在 curriculumSections 中各章节独立存储
+            setMessages(prev => [...prev, {
+              id: data.message_id,
+              role: 'assistant' as const,
+              content: finalContent,
+              image_url: null,
+              voice_url: data.voice_url,
+              created_at: new Date().toISOString(),
+              toolUsed: data.tool_used,
+              curriculumSections: curriculumSections.length > 0 ? curriculumSections : undefined,
+            }])
+          } else if (pendingTool) {
+            // 其他工具（inspect/connect/pattern/story/compare/create）：
+            // 消息由 onDone 统一创建，内容来自 streamingContent 累积 + 缓存的 toolData
+            const aiMsg: WorkshopMessage = {
+              id: data.message_id,
+              role: 'assistant',
+              content: finalContent,
+              image_url: null,
+              voice_url: data.voice_url,
+              created_at: new Date().toISOString(),
+              toolData: pendingTool,
+              toolUsed: data.tool_used,
             }
+            setMessages(prev => [...prev, aiMsg])
           } else {
-            const finalContent = contentRef.current
+            // 普通对话（无工具调用）
             const aiMsg: WorkshopMessage = {
               id: data.message_id,
               role: 'assistant',
@@ -310,12 +303,14 @@ export default function Workshop() {
             }
             setMessages(prev => [...prev, aiMsg])
           }
+
           setStreaming(false)
           setStreamingContent('')
           setActiveToolId(null)
           setToolStatus('')
           contentRef.current = ''
           curriculumSections = []
+          pendingToolDataRef.current = null
           window.dispatchEvent(new CustomEvent('cultivation:check'))
         },
         onError: (err) => {
@@ -324,6 +319,7 @@ export default function Workshop() {
           setStreamingContent('')
           setActiveToolId(null)
           setToolStatus('')
+          pendingToolDataRef.current = null
         },
         onToolStart: (data: ToolStartEvent) => {
           setActiveToolId(data.tool)
@@ -343,40 +339,13 @@ export default function Workshop() {
           setToolStatus(`正在${stepLabels[data.step] || '处理'}...`)
         },
         onToolResult: (data: ToolResultEvent) => {
-          const aiMsg: WorkshopMessage = {
-            id: Date.now(),
-            role: 'assistant',
-            content: data.summary || data.commentary || (data as any).story || '',
-            image_url: null,
-            voice_url: null,
-            created_at: new Date().toISOString(),
-            toolData: data,
-            toolUsed: data.tool,
-          }
-          setMessages(prev => [...prev, aiMsg])
-          setStreaming(false)
-          setStreamingContent('')
-          setActiveToolId(null)
-          setToolStatus('')
-          contentRef.current = ''
+          // 不创建消息 — 仅缓存 tool 元数据，由 onDone 统一从 contentRef 构建消息
+          // 避免 tool_result 中的完整文本与 message 事件流式文本重复渲染
+          pendingToolDataRef.current = data
         },
         onImageBatch: (data: ImageBatchEvent) => {
-          const aiMsg: WorkshopMessage = {
-            id: Date.now(),
-            role: 'assistant',
-            content: `创作提示：${data.prompt_used}\n\n已生成 ${data.images.length} 张作品。`,
-            image_url: null,
-            voice_url: null,
-            created_at: new Date().toISOString(),
-            toolData: data,
-            toolUsed: data.tool,
-          }
-          setMessages(prev => [...prev, aiMsg])
-          setStreaming(false)
-          setStreamingContent('')
-          setActiveToolId(null)
-          setToolStatus('')
-          contentRef.current = ''
+          // 同理：仅缓存，由 onDone 统一创建消息
+          pendingToolDataRef.current = data
         },
         onCurriculumSection: (data: CurriculumSectionEvent) => {
           if (data.action === 'start' && data.title) {
