@@ -362,8 +362,6 @@ project/
 │   ├── DESIGN.md                 # 设计规范
 │   └── ...
 │
-├── PROJECT_ARCHITECTURE.md       # 架构详解
-├── CLAUDE.md                     # 开发约定与避坑指南
 └── README.md
 ```
 
@@ -494,8 +492,6 @@ python backend/scripts/migrate_sqlite_to_pg.py
 | `--text-lg` | 28px | 大标题 |
 | `--text-xl` | 36px | Hero 标题 |
 | `--text-2xl` | 48px | 页面大标题 |
-
-> 更详细的开发约定与避坑指南见 [`CLAUDE.md`](CLAUDE.md)，架构详解见 [`PROJECT_ARCHITECTURE.md`](PROJECT_ARCHITECTURE.md)。
 
 ---
 

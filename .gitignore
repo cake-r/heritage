@@ -63,3 +63,9 @@ AGENTS.md
 
 # 本地嵌套副本（完整项目拷贝，含独立 .git，勿上传）
 /project/
+
+# 仅本地保留、不随仓库分发（已在 .gitignore 中，防止被重新 add）
+CLAUDE.md
+PROJECT_ARCHITECTURE.md
+第二周项目进展报告.md
+AI聊天记录-核心开发工作流实践.md
