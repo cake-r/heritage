@@ -55,3 +55,11 @@ frontend/nginx.conf
 
 # Claude
 .claude/
+
+# AI 编码工具本地配置（不随项目分发）
+.agents/
+.codex/
+AGENTS.md
+
+# 本地嵌套副本（完整项目拷贝，含独立 .git，勿上传）
+/project/
